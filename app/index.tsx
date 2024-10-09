@@ -1,6 +1,11 @@
 import React from "react";
 import Home from "./pages/Home";
+import { HymnProvider } from "./contexts/HymnContext";
 
 export default function App() {
-  return <Home />;
+  return (
+    <HymnProvider>
+      <Home />
+    </HymnProvider>
+  );
 }
