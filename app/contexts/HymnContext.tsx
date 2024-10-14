@@ -10,9 +10,7 @@ export const HymnContext = createContext<HymnContextProps | undefined>(undefined
 export const HymnProvider = ({ children }: { children: ReactNode }) => {
   const [selectedHymn, setSelectedHymn] = useState<string | null>(null);
 
-  return (
-    <HymnContext.Provider value={{ selectedHymn, setSelectedHymn }}>
-      {children}
-    </HymnContext.Provider>
-  );
+  const value = React.useMemo(() => ({ selectedHymn, setSelectedHymn }), [selectedHymn]);
+
+  return <HymnContext.Provider value={value}>{children}</HymnContext.Provider>;
 };
