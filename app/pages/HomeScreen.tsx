@@ -52,8 +52,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           />
         )}
         keyExtractor={(item) => item.id}
-        numColumns={2}
         contentContainerStyle={styles.hymnList}
+        horizontal={false}
       />
     </SafeAreaView>
   );
@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
+    paddingVertical: 16,
   },
   header: {
     flexDirection: "row",
@@ -95,15 +96,18 @@ const styles = StyleSheet.create({
     color: "#2D3748",
   },
   hymnList: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   hymnItem: {
-    flex: 1,
-    margin: 8,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    width: "100%",
+    marginVertical: 8,
     backgroundColor: "#F7FAFC",
     borderRadius: 8,
     padding: 16,
-    alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -115,6 +119,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     marginBottom: 8,
+    marginRight: 16,
   },
   hymnTitle: {
     fontSize: 14,
