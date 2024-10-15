@@ -38,7 +38,7 @@ export default function HymnDetailScreen({ navigation }: HymnDetailScreen) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles.content} contentContainerStyle={{ alignItems: "center" }}>
         <Text style={styles.hymnNumber}>Hymn {hymn.number}</Text>
         <Text style={styles.hymnTitle}>{hymn.title}</Text>
         {hymn.lyrics.map((section, index) => (
