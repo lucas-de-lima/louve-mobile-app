@@ -61,7 +61,7 @@ export const Footer = styled(View)`
 
 export const AnimatedButton = styled(TouchableOpacity)`
   background-color: #f7fafc;
-  padding: 12px;
+  padding: 22px;
   border-radius: 8px;
   align-items: center;
   justify-content: center;
@@ -70,9 +70,8 @@ export const AnimatedButton = styled(TouchableOpacity)`
   shadow-opacity: 0.1;
   shadow-radius: 4px;
   elevation: 3;
-  flex: 1;
   max-width: 100px;
-  max-height: 60px;
+  max-height: 100px;
   margin: 0 8px;
 
   &:active {
