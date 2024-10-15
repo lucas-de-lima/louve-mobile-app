@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Search, Music } from "lucide-react-native";
-import { hymns } from "../../hymns";
+import { hymns } from "../../Hymns/hymns";
 
 interface HymnItemProps {
   title: string;

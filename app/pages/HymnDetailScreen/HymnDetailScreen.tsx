@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft, Type, Share2, Heart, User } from "lucide-react-native";
-import { hymns } from "../../hymns";
+import { hymns } from "../../Hymns/hymns";
 
 interface HymnDetailScreen {
   readonly navigation: any;
