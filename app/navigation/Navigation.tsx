@@ -8,8 +8,12 @@ const Stack = createNativeStackNavigator();
 export default function Navigation() {
   return (
     <Stack.Navigator initialRouteName="HomeScreen">
-      <Stack.Screen name="HomeScreen" component={HomeScreen} />
-      <Stack.Screen name="HymnDetailScreen" component={HymnDetailScreen} />
+      <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="HymnDetailScreen"
+        component={HymnDetailScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
