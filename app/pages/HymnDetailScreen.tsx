@@ -1,36 +1,19 @@
 import React, { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeft, Type, Share2, Heart, User } from "lucide-react-native";
-
-const hymn = {
-  number: "1",
-  title: "Amazing Grace",
-  lyrics: [
-    {
-      type: "verse",
-      content:
-        "Amazing grace! How sweet the sound\nThat saved a wretch like me!\nI once was lost, but now am found;\nWas blind, but now I see.",
-    },
-    {
-      type: "chorus",
-      content:
-        "'Twas grace that taught my heart to fear,\nAnd grace my fears relieved;\nHow precious did that grace appear\nThe hour I first believed.",
-    },
-    {
-      type: "verse",
-      content:
-        "Through many dangers, toils and snares,\nI have already come;\n'Tis grace hath brought me safe thus far,\nAnd grace will lead me home.",
-    },
-  ],
-};
+import { ChevronLeft, Type, Share2, Heart, User } from "lucide-react-native";
+import { hymns } from "../../hymns";
 
 interface HymnDetailScreen {
   readonly navigation: any;
+  readonly route: any;
 }
 
-export default function HymnDetailScreen({ navigation }: HymnDetailScreen) {
+export default function HymnDetailScreen({ navigation, route }: HymnDetailScreen) {
   const [fontSize, setFontSize] = useState(16);
+
+  const { hymnId } = route.params;
+  const hymn = hymns.find((h) => h.id === hymnId);
 
   const increaseFontSize = () => {
     setFontSize((prevSize) => Math.min(prevSize + 2, 24));
@@ -38,17 +21,31 @@ export default function HymnDetailScreen({ navigation }: HymnDetailScreen) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <ChevronLeft size={24} color="#4A5568" onPress={() => navigation.goBack()} />
+        <Text style={styles.headerTitle}>Harp Hymns</Text>
+      </View>
       <ScrollView style={styles.content} contentContainerStyle={{ alignItems: "center" }}>
-        <Text style={styles.hymnNumber}>Hymn {hymn.number}</Text>
-        <Text style={styles.hymnTitle}>{hymn.title}</Text>
-        {hymn.lyrics.map((section, index) => (
-          <Text
-            key={index}
-            style={[styles.lyricText, { fontSize }, section.type === "chorus" && styles.chorusText]}
-          >
-            {section.content}
-          </Text>
-        ))}
+        {hymn ? (
+          <>
+            <Text style={styles.hymnNumber}>Hymn {hymn.number}</Text>
+            <Text style={styles.hymnTitle}>{hymn.title}</Text>
+            {hymn.lyrics.map((section) => (
+              <Text
+                key={section.content}
+                style={[
+                  styles.lyricText,
+                  { fontSize },
+                  section.type === "chorus" && styles.chorusText,
+                ]}
+              >
+                {section.content}
+              </Text>
+            ))}
+          </>
+        ) : (
+          <Text style={styles.errorText}>Hymn not found</Text>
+        )}
       </ScrollView>
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerButton} onPress={increaseFontSize}>
@@ -124,6 +121,12 @@ const styles = StyleSheet.create({
   },
   footerButton: {
     alignItems: "center",
+  },
+  errorText: {
+    fontSize: 18,
+    color: "red",
+    textAlign: "center",
+    marginTop: 20,
   },
   footerButtonText: {
     marginTop: 4,

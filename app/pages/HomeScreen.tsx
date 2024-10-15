@@ -2,13 +2,7 @@ import React from "react";
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Search, Music } from "lucide-react-native";
-
-const hymns = [
-  { id: "1", title: "Amazing Grace", thumbnail: "https://via.placeholder.com/80" },
-  { id: "2", title: "How Great Thou Art", thumbnail: "https://via.placeholder.com/80" },
-  { id: "3", title: "It Is Well With My Soul", thumbnail: "https://via.placeholder.com/80" },
-  // Adicione mais hinos aqui
-];
+import { hymns } from "../../hymns";
 
 interface HymnItemProps {
   title: string;
