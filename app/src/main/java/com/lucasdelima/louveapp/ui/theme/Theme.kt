@@ -1,4 +1,4 @@
-package com.example.louveapp.ui.theme
+package com.lucasdelima.louveapp.ui.theme
 
 import android.app.Activity
 import android.os.Build

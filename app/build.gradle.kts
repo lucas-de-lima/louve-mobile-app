@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.louveapp"
+    namespace = "com.lucasdelima.louveapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.louveapp"
+        applicationId = "com.lucasdelima.louveapp"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

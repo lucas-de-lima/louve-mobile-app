@@ -1,4 +1,4 @@
-package com.example.louveapp.ui.theme
+package com.lucasdelima.louveapp.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
