@@ -1,4 +1,4 @@
-package com.lucasdelima.louveapp.core
+package com.lucasdelima.louveapp.ui.common.state
 
 sealed class UiState<out T> {
     object Loading : UiState<Nothing>()
