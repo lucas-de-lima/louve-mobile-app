@@ -1,7 +1,10 @@
 package com.lucasdelima.louveapp.ui.navigation
 
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,8 +19,8 @@ object Routes {
 }
 
 @Composable
-fun NavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Routes.HOME) {
+fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
+    NavHost(navController = navController, startDestination = Routes.HOME, modifier = Modifier.padding(innerPadding)) {
         composable(Routes.HOME) {
             HomeScreen(
                 onHymnSelected = { id ->
