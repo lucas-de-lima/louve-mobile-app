@@ -1,4 +1,4 @@
-package com.example.louveapp
+package com.lucasdelima.louveapp
 
 import org.junit.Test
 

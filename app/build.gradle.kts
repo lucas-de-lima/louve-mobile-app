@@ -1,15 +1,19 @@
+
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // Kotlin serialization plugin for type safe routes and navigation arguments
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "com.example.louveapp"
+    namespace = "com.lucasdelima.louveapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.louveapp"
+        applicationId = "com.lucasdelima.louveapp"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -40,6 +44,23 @@ android {
 }
 
 dependencies {
+    // Jetpack Compose integration
+    implementation(libs.androidx.navigation.compose)
+
+    // Views/Fragments integration
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
+
+    // Feature module support for Fragments
+    implementation(libs.androidx.navigation.dynamicFeaturesFragment)
+
+    // Testing Navigation
+    androidTestImplementation(libs.androidx.navigation.testing)
+
+    // JSON serialization library
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.androidx.core.ktx)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
