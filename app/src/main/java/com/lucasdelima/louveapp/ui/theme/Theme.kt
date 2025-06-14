@@ -1,58 +1,55 @@
 package com.lucasdelima.louveapp.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Modifier
+import androidx.compose.material3.Typography
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
+// 1. Criamos um "CompositionLocal" para "transportar" nosso tema pela árvore de componentes.
+//    Ele garante que toda parte do app tenha acesso ao tema ativo.
+private val LocalLouveTheme = staticCompositionLocalOf<LouveThemeData> {
+    error("No LouveThemeData provided") // Medida de segurança: crasha se o tema não for fornecido.
+}
 
 @Composable
 fun LouveAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    themeData: LouveThemeData, // 2. Agora o tema recebe nosso objeto de dados, não mais um booleano "darkTheme".
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    // 3. O CompositionLocalProvider "injeta" o themeData na hierarquia da UI.
+    CompositionLocalProvider(LocalLouveTheme provides themeData) {
+        // 4. O MaterialTheme agora é configurado com os dados do tema recebido.
+        MaterialTheme(
+            colorScheme = themeData.colors,
+            typography = themeData.typography
+        ) {
+            // 5. Aplicamos nosso fundo de tela customizado, se ele existir.
+            Box(modifier = Modifier.fillMaxSize()) {
+                themeData.screenBackground?.invoke()
+                content()
+            }
         }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
     }
+}
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+// 6. Criamos um objeto "LouveTheme" para acessar nosso tema de forma fácil e limpa
+//    em qualquer lugar do app, usando por exemplo: LouveTheme.colors.primary
+object LouveTheme {
+    val colors: ColorScheme
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalLouveTheme.current.colors
+
+    val typography: Typography
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalLouveTheme.current.typography
+
+    // Poderíamos adicionar outros acessos aqui no futuro, como fontes ou fundos.
 }

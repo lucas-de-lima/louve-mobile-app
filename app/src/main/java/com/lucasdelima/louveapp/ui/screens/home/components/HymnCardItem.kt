@@ -61,16 +61,3 @@ fun HymnCardItem(
         }
     }
 }
-
-
-// Um Preview para testar o visual do nosso Card de forma isolada!
-@Preview
-@Composable
-private fun HymnCardItemPreview() {
-    LouveAppTheme {
-        HymnCardItem(
-            hymn = HymnUi(id = 1, title = "Graça Infinita", number = "001"),
-            onClick = {}
-        )
-    }
-}

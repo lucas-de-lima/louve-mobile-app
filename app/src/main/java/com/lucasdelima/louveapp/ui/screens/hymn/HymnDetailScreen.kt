@@ -145,29 +145,3 @@ private fun HymnContent(hymn: Hymn, fontScaleFactor: Float, modifier: Modifier =
         )
     }
 }
-
-// Preview antigo, agora renomeado para ser mais claro sobre o que ele mostra
-@Preview(name = "Apenas Conteúdo do Hino", showBackground = true)
-@Composable
-private fun HymnContentPreview() {
-    LouveAppTheme {
-        val previewHymn = Hymn(
-            id = 1, number = 101, title = "Graça Infinita",
-            verses = listOf("Sublime graça! Quão doce o som...", "Perdido estava, mas me encontrou..."),
-            chorus = "Oh, graça, vem me guiar..."
-        )
-        HymnContent(hymn = previewHymn, fontScaleFactor = 1.0f)
-    }
-}
-
-// NOVO: Preview da tela inteira
-@Preview(name = "Tela de Detalhes Completa", showBackground = true)
-@Composable
-private fun HymnDetailScreen_FullPreview() {
-    LouveAppTheme {
-        // Como o preview não pode criar um ViewModel real, chamamos a tela
-        // diretamente. Ela vai mostrar o estado inicial (loading).
-        // Isso é útil para ver a estrutura geral com Scaffold.
-        HymnDetailScreen(onBack = {})
-    }
-}
