@@ -23,7 +23,10 @@ fun CharSequence.unaccent(): String {
 }
 
 fun String.normalizeForSearch(): String {
-    return this.lowercase().unaccent()
+    // Primeiro removemos os acentos
+    val unaccented = this.unaccent()
+    // Depois, removemos pontuações comuns e convertemos para minúsculas
+    return unaccented.lowercase().replace(Regex("[.,!?;:]"), "")
 }
 
 class HomeViewModel : ViewModel() {
