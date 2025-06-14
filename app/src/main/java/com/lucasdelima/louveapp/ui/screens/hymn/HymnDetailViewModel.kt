@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucasdelima.louveapp.data.repository.FakeHymnRepository
+import com.lucasdelima.louveapp.data.repository.HymnRepositoryImpl
 import com.lucasdelima.louveapp.domain.model.Hymn
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,7 @@ class HymnDetailViewModel(
 ) : ViewModel() {
 
     private val hymnId: Int? = savedStateHandle["id"]
-    private val hymnRepository: HymnRepository = FakeHymnRepository()
+    private val hymnRepository: HymnRepository = HymnRepositoryImpl()
 
     private val _uiState = MutableStateFlow(HymnDetailUIState())
     val uiState: StateFlow<HymnDetailUIState> = _uiState.asStateFlow()

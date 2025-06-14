@@ -3,6 +3,7 @@ package com.lucasdelima.louveapp.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucasdelima.louveapp.data.repository.FakeHymnRepository // Use a interface se for injetar
+import com.lucasdelima.louveapp.data.repository.HymnRepositoryImpl
 import com.lucasdelima.louveapp.domain.model.Hymn // Importe o Hymn do domain
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
 import kotlinx.coroutines.Job // Para gerenciar o job de busca
@@ -13,13 +14,25 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update // Helper para atualizar o StateFlow
 import kotlinx.coroutines.launch
 
+
+private val REGEX_UNACCENT = "\\p{InCombiningDiacriticalMarks}+".toRegex()
+
+fun CharSequence.unaccent(): String {
+    val temp = java.text.Normalizer.normalize(this, java.text.Normalizer.Form.NFD)
+    return REGEX_UNACCENT.replace(temp, "")
+}
+
+fun String.normalizeForSearch(): String {
+    return this.lowercase().unaccent()
+}
+
 class HomeViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     private var originalHymns: List<Hymn> = emptyList()
-    private val hymnRepository: HymnRepository = FakeHymnRepository() // Para MVP; idealmente injetado
+    private val hymnRepository: HymnRepository = HymnRepositoryImpl()
 
     private var searchJob: Job? = null
 
@@ -47,13 +60,24 @@ class HomeViewModel : ViewModel() {
 
     private fun filterHymns() {
         val query = _uiState.value.searchQuery
+
         val filteredDomainHymns = if (query.isBlank()) {
             originalHymns
         } else {
+            // 1. Normaliza a busca do usuário e a quebra em palavras
+            val queryWords = query.normalizeForSearch().split(' ').filter { it.isNotBlank() }
+
             originalHymns.filter { hymn ->
-                hymn.title.contains(query, ignoreCase = true) ||
-                        hymn.number.toString().contains(query)
-                // Adicione mais campos para busca se necessário (ex: trechos da letra)
+                // 2. Cria um "super texto" do hino normalizado
+                val hymnSearchableContent = (
+                        hymn.title + " " +
+                                hymn.number.toString().padStart(3, '0') + " " + // Adiciona o número formatado para a busca
+                                hymn.verses.joinToString(" ") + " " +
+                                hymn.chorus
+                        ).normalizeForSearch()
+
+                // 3. Verifica se TODAS as palavras da busca existem no conteúdo do hino
+                queryWords.all { word -> hymnSearchableContent.contains(word) }
             }
         }
 

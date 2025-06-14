@@ -3,16 +3,20 @@ package com.lucasdelima.louveapp.ui.screens.home
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucasdelima.louveapp.ui.screens.home.components.HymnCardItem // Mude para o novo Card
 import com.lucasdelima.louveapp.ui.screens.home.components.SearchField
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,11 +25,24 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    // 1. Crie e lembre o estado da lista e um escopo de corrotina
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+
+    // 2. Use um LaunchedEffect para "observar" a query de busca
+    LaunchedEffect(uiState.searchQuery) {
+        // Se a busca for limpa, role para o topo da lista
+        if (uiState.searchQuery.isBlank()) {
+            scope.launch {
+                listState.animateScrollToItem(0)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Hinos") } // Pode ser o nome do seu app
+                title = { Text("Louve App") } // Pode ser o nome do seu app
             )
         }
     ) { innerPadding ->
@@ -60,10 +77,10 @@ fun HomeScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp)
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    state = listState // 3. Passe o estado para o LazyColumn
                 ) {
                     items(uiState.hymns, key = { it.id }) { hymn ->
-                        // Usando nosso novo Card!
                         HymnCardItem(hymn = hymn) {
                             onHymnSelected(hymn.id)
                         }
