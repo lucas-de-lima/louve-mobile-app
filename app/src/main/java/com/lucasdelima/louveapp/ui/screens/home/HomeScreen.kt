@@ -3,9 +3,7 @@ package com.lucasdelima.louveapp.ui.screens.home
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -13,8 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.lucasdelima.louveapp.ui.screens.home.components.HymnListItem
+import com.lucasdelima.louveapp.ui.screens.home.components.HymnCardItem // Mude para o novo Card
+import com.lucasdelima.louveapp.ui.screens.home.components.SearchField
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onHymnSelected: (Int) -> Unit,
@@ -22,42 +22,51 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        OutlinedTextField(
-            value = uiState.searchQuery,
-            onValueChange = { query -> viewModel.onSearchQueryChanged(query) },
-            label = { Text("Buscar hino...") },
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Hinos") } // Pode ser o nome do seu app
+            )
+        }
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            singleLine = true
-        )
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            // Nosso novo campo de busca estilizado
+            SearchField(
+                query = uiState.searchQuery,
+                onQueryChanged = viewModel::onSearchQueryChanged // Referência direta da função
+            )
 
-        if (uiState.isLoading && uiState.hymns.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Nenhum hino encontrado para \"${uiState.searchQuery}\"")
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-            ) {
-                items(uiState.hymns, key = { it.id }) { hymn ->
-                    HymnListItem(hymn = hymn) {
-                        onHymnSelected(hymn.id)
+            // Lógica de exibição da lista ou loading/erro
+            if (uiState.isLoading && uiState.hymns.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Nenhum hino encontrado para \"${uiState.searchQuery}\"")
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
+                ) {
+                    items(uiState.hymns, key = { it.id }) { hymn ->
+                        // Usando nosso novo Card!
+                        HymnCardItem(hymn = hymn) {
+                            onHymnSelected(hymn.id)
+                        }
                     }
                 }
             }
