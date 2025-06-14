@@ -41,6 +41,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lucasdelima.louveapp.domain.model.Hymn
+import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,69 +50,72 @@ fun HymnDetailScreen(
     viewModel: HymnDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(uiState.hymn?.number?.toString()?.padStart(3, '0') ?: "...") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = viewModel::decreaseFontSize) {
-                        Icon(Icons.Default.KeyboardArrowDown, "Diminuir Fonte")
-                    }
-                    IconButton(onClick = viewModel::increaseFontSize) {
-                        Icon(Icons.Default.KeyboardArrowUp, "Aumentar Fonte")
-                    }
-                },
-                // CORREÇÃO: Deixa a barra do topo transparente
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
+    // O Box externo desenha o fundo especial desta tela por cima do fundo principal.
+    Box(modifier = Modifier.fillMaxSize()) {
+        LouveTheme.backgrounds.detailScreenBackground()
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(uiState.hymn?.number?.toString()?.padStart(3, '0') ?: "...") },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = viewModel::decreaseFontSize) {
+                            Icon(Icons.Default.KeyboardArrowDown, "Diminuir Fonte")
+                        }
+                        IconButton(onClick = viewModel::increaseFontSize) {
+                            Icon(Icons.Default.KeyboardArrowUp, "Aumentar Fonte")
+                        }
+                    },
+                    // CORREÇÃO: Deixa a barra do topo transparente
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Transparent
+                    )
                 )
-            )
-        },
-        bottomBar = {
-            BottomAppBar(
-                // CORREÇÃO: Deixa a barra inferior transparente
-                containerColor = Color.Transparent,
-                actions = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        IconButton(onClick = { /* TODO */ }) {
-                            Icon(Icons.Default.FavoriteBorder, "Curtir")
-                        }
-                        IconButton(onClick = { /* TODO */ }) {
-                            Icon(Icons.Default.Share, "Compartilhar")
+            },
+            bottomBar = {
+                BottomAppBar(
+                    // CORREÇÃO: Deixa a barra inferior transparente
+                    containerColor = Color.Transparent,
+                    actions = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            IconButton(onClick = { /* TODO */ }) {
+                                Icon(Icons.Default.FavoriteBorder, "Curtir")
+                            }
+                            IconButton(onClick = { /* TODO */ }) {
+                                Icon(Icons.Default.Share, "Compartilhar")
+                            }
                         }
                     }
+                )
+            },
+            // CORREÇÃO: Deixa o corpo do Scaffold transparente para revelar o fundo global
+            containerColor = Color.Transparent
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                when {
+                    uiState.isLoading -> CircularProgressIndicator()
+                    uiState.error != null -> Text(
+                        "Erro: ${uiState.error}",
+                        color = MaterialTheme.colorScheme.error
+                    )
+
+                    uiState.hymn != null -> HymnContent(
+                        hymn = uiState.hymn!!,
+                        fontScaleFactor = uiState.fontScaleFactor
+                    )
                 }
-            )
-        },
-        // CORREÇÃO: Deixa o corpo do Scaffold transparente para revelar o fundo global
-        containerColor = Color.Transparent
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            when {
-                uiState.isLoading -> CircularProgressIndicator()
-                uiState.error != null -> Text(
-                    "Erro: ${uiState.error}",
-                    color = MaterialTheme.colorScheme.error
-                )
-
-                uiState.hymn != null -> HymnContent(
-                    hymn = uiState.hymn!!,
-                    fontScaleFactor = uiState.fontScaleFactor
-                )
             }
         }
     }

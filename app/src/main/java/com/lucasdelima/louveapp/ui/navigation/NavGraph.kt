@@ -1,17 +1,13 @@
 package com.lucasdelima.louveapp.ui.navigation
 
-
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailScreen
-import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.lucasdelima.louveapp.ui.screens.home.HomeScreen
+import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailScreen
 import com.lucasdelima.louveapp.ui.screens.settings.SettingsScreen
 
 object Routes {
@@ -21,8 +17,12 @@ object Routes {
 }
 
 @Composable
-fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
-    NavHost(navController = navController, startDestination = Routes.HOME, modifier = Modifier.padding(innerPadding)) {
+fun NavGraph(navController: NavHostController) { // <-- REMOVIDO o parâmetro 'innerPadding'
+    NavHost(
+        navController = navController,
+        startDestination = Routes.HOME,
+        // O modifier que aplicava o padding foi removido daqui.
+    ) {
         composable(Routes.HOME) {
             HomeScreen(
                 onHymnSelected = { id ->
@@ -34,14 +34,10 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
             )
         }
 
-        // SUBSTITUA O SEU BLOCO composable() PARA A ROTA DE DETALHES POR ESTE:
         composable(
-            route = Routes.HYMN_DETAIL, // Usando a constante: "hymnDetail/{id}"
-            // Esta linha é a correção crucial.
-            // Ela diz ao NavHost: "a parte {id} da rota é um argumento e o tipo dele é Inteiro".
+            route = Routes.HYMN_DETAIL,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
-            // Agora o ViewModel receberá o ID corretamente.
             HymnDetailScreen(
                 onBack = { navController.popBackStack() }
             )

@@ -3,19 +3,28 @@ package com.lucasdelima.louveapp.ui.theme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Brush
 
 /**
- * Define todas as propriedades customizáveis de um tema no Louve App.
- *
- * @param colors O esquema de cores padrão do Material 3.
- * @param typography A definição da tipografia do app.
- * @param screenBackground Um Composable opcional para ser usado como plano de fundo global das telas.
- * Permite o uso de cores sólidas, gradientes ou imagens.
+ * Define os diferentes tipos de fundo que um tema pode ter.
+ */
+data class LouveBackgrounds(
+    /**
+     * O fundo para telas de navegação e listas (Home, Configurações).
+     */
+    val screenBackground: @Composable () -> Unit,
+
+    /**
+     * O fundo "especial" e imersivo para a tela de detalhes de um hino.
+     */
+    val detailScreenBackground: @Composable () -> Unit
+)
+
+/**
+ * Representa o DNA completo de um tema no Louve App.
  */
 data class LouveThemeData(
     val name: String,
     val colors: ColorScheme,
     val typography: Typography,
-    val screenBackground: @Composable (() -> Unit)? = null
+    val backgrounds: LouveBackgrounds
 )
