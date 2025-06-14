@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Brush
  * Permite o uso de cores sólidas, gradientes ou imagens.
  */
 data class LouveThemeData(
+    val name: String,
     val colors: ColorScheme,
     val typography: Typography,
     val screenBackground: @Composable (() -> Unit)? = null

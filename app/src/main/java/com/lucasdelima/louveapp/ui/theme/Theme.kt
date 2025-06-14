@@ -1,45 +1,62 @@
 package com.lucasdelima.louveapp.ui.theme
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.material3.Typography
 
-// 1. Criamos um "CompositionLocal" para "transportar" nosso tema pela árvore de componentes.
-//    Ele garante que toda parte do app tenha acesso ao tema ativo.
+/**
+ * CompositionLocal para prover os dados do tema customizado (`LouveThemeData`)
+ * na hierarquia de Composables de forma implícita.
+ */
 private val LocalLouveTheme = staticCompositionLocalOf<LouveThemeData> {
-    error("No LouveThemeData provided") // Medida de segurança: crasha se o tema não for fornecido.
+    // Medida de segurança: lança um erro se o tema não for fornecido na raiz do app.
+    error("No LouveThemeData provided")
 }
 
+/**
+ * O Composable principal do tema do aplicativo. Ele aplica um [LouveThemeData] customizado
+ * que define cores, tipografia e fundos.
+ *
+ * @param themeData O objeto de dados contendo todas as propriedades do tema a ser aplicado.
+ * @param content O conteúdo da UI que receberá este tema.
+ */
 @Composable
 fun LouveAppTheme(
-    themeData: LouveThemeData, // 2. Agora o tema recebe nosso objeto de dados, não mais um booleano "darkTheme".
+    themeData: LouveThemeData,
     content: @Composable () -> Unit
 ) {
-    // 3. O CompositionLocalProvider "injeta" o themeData na hierarquia da UI.
+    // Fornece o themeData para toda a árvore de componentes aninhada.
     CompositionLocalProvider(LocalLouveTheme provides themeData) {
-        // 4. O MaterialTheme agora é configurado com os dados do tema recebido.
+        // Aplica as cores e tipografia padrões do Material 3, lidas do nosso tema.
         MaterialTheme(
             colorScheme = themeData.colors,
             typography = themeData.typography
         ) {
-            // 5. Aplicamos nosso fundo de tela customizado, se ele existir.
-            Box(modifier = Modifier.fillMaxSize()) {
+            // Garante que sempre haverá um fundo de tela, usando a cor do tema.
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                // Aplica um fundo customizado (ex: gradiente) por cima do fundo base, se existir.
                 themeData.screenBackground?.invoke()
+                // Renderiza o conteúdo do app.
                 content()
             }
         }
     }
 }
 
-// 6. Criamos um objeto "LouveTheme" para acessar nosso tema de forma fácil e limpa
-//    em qualquer lugar do app, usando por exemplo: LouveTheme.colors.primary
+/**
+ * Objeto para acessar as propriedades do tema ativo de forma fácil e segura em qualquer Composable.
+ * Exemplo de uso: `Text(color = LouveTheme.colors.primary)`
+ */
 object LouveTheme {
     val colors: ColorScheme
         @Composable
@@ -50,6 +67,4 @@ object LouveTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalLouveTheme.current.typography
-
-    // Poderíamos adicionar outros acessos aqui no futuro, como fontes ou fundos.
 }

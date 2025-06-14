@@ -12,10 +12,12 @@ import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailScreen
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.lucasdelima.louveapp.ui.screens.home.HomeScreen
+import com.lucasdelima.louveapp.ui.screens.settings.SettingsScreen
 
 object Routes {
     const val HOME = "home"
     const val HYMN_DETAIL = "hymnDetail/{id}"
+    const val SETTINGS = "settings"
 }
 
 @Composable
@@ -25,6 +27,9 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
             HomeScreen(
                 onHymnSelected = { id ->
                     navController.navigate("hymnDetail/$id")
+                },
+                onSettingsClick = {
+                    navController.navigate(Routes.SETTINGS)
                 }
             )
         }
@@ -38,6 +43,12 @@ fun NavGraph(navController: NavHostController, innerPadding: PaddingValues) {
         ) {
             // Agora o ViewModel receberá o ID corretamente.
             HymnDetailScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.SETTINGS) {
+            SettingsScreen(
                 onBack = { navController.popBackStack() }
             )
         }

@@ -16,15 +16,9 @@ private val LightColorScheme = lightColorScheme(
     tertiary = Pink40
 )
 
-// Paleta de cores para o Tema Escuro
-private val DarkThemeColors = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
 // Definição do nosso Tema Padrão (já deve existir)
 val DefaultTheme = LouveThemeData(
+    name = "Padrão Claro",
     colors = lightColorScheme( // Usando o builder aqui para clareza
         primary = Purple40,
         secondary = PurpleGrey40,
@@ -34,11 +28,37 @@ val DefaultTheme = LouveThemeData(
     screenBackground = null
 )
 
-// NOVO: Definição do Tema Escuro
+
+// Definição do Tema Escuro - Paleta de cores para o Tema Escuro
+private val DarkThemeColors = darkColorScheme(
+    primary = Purple80,
+    onPrimary = Color(0xFF381E72),
+    primaryContainer = Color(0xFF4F378A),
+    onPrimaryContainer = Color(0xFFEADDFF),
+    secondary = PurpleGrey80,
+    onSecondary = Color(0xFF332D41),
+    secondaryContainer = Color(0xFF4A4458),
+    onSecondaryContainer = Color(0xFFE8DEF8),
+    tertiary = Pink80,
+    onTertiary = Color(0xFF492532),
+    tertiaryContainer = Color(0xFF633B48),
+    onTertiaryContainer = Color(0xFFFFD8E4),
+    background = Color(0xFF1C1B1F),
+    onBackground = Color(0xFFE6E1E5),
+    surface = Color(0xFF1C1B1F),
+    onSurface = Color(0xFFE6E1E5),
+    surfaceVariant = Color(0xFF49454E),
+    onSurfaceVariant = Color(0xFFCAC4CF),
+    error = Color(0xFFF2B8B5),
+    onError = Color(0xFF601410),
+    outline = Color(0xFF938F99)
+)
+
 val DarkTheme = LouveThemeData(
+    name = "Escuro",
     colors = DarkThemeColors,
-    typography = Typography, // Usamos a mesma tipografia por enquanto
-    screenBackground = null // O fundo escuro virá do próprio ColorScheme
+    typography = Typography,
+    screenBackground = null
 )
 
 // --- Paleta de Cores para o Tema Sweet Candy ---
@@ -63,6 +83,7 @@ private val SweetCandyColors = lightColorScheme(
 
 // NOVO: Definição do Tema Sweet Candy
 val SweetCandyTheme = LouveThemeData(
+    name = "Sweet Candy",
     colors = SweetCandyColors,
     typography = Typography,
     screenBackground = { // Exemplo de um fundo customizado com gradiente sutil
@@ -80,3 +101,6 @@ val SweetCandyTheme = LouveThemeData(
         )
     }
 )
+
+// Lista com todos os temas disponíveis que usaremos na UI
+val AllThemes = listOf(DefaultTheme, DarkTheme, SweetCandyTheme)
