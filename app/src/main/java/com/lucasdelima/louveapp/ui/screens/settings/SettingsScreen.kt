@@ -1,6 +1,5 @@
 package com.lucasdelima.louveapp.ui.screens.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,7 +26,7 @@ import com.lucasdelima.louveapp.ui.theme.LouveThemeData
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
-    viewModel: SettingsViewModel = hiltViewModel() // Pega o ViewModel via Hilt
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -41,9 +41,15 @@ fun SettingsScreen(
                             contentDescription = "Voltar"
                         )
                     }
-                }
+                },
+                // CORREÇÃO 1: Deixa a barra do topo transparente para se mesclar ao fundo
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                )
             )
-        }
+        },
+        // CORREÇÃO 2: Deixa o corpo do Scaffold transparente, revelando o fundo global
+        containerColor = Color.Transparent
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -57,11 +63,10 @@ fun SettingsScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Agrupa as opções de tema para acessibilidade
             Column(Modifier.selectableGroup()) {
                 uiState.availableThemes.forEach { themeData ->
                     ThemeSelectorRow(
-                        theme = themeData,
+                        themeName = themeData.name,
                         isSelected = themeData.name == uiState.selectedThemeName,
                         onSelected = { viewModel.selectTheme(themeData.name) }
                     )
@@ -73,7 +78,7 @@ fun SettingsScreen(
 
 @Composable
 private fun ThemeSelectorRow(
-    theme: LouveThemeData,
+    themeName: String,
     isSelected: Boolean,
     onSelected: () -> Unit
 ) {
@@ -91,10 +96,10 @@ private fun ThemeSelectorRow(
     ) {
         RadioButton(
             selected = isSelected,
-            onClick = null // O clique é gerenciado pelo Modifier.selectable
+            onClick = null
         )
         Text(
-            text = theme.name,
+            text = themeName,
             style = MaterialTheme.typography.bodyLarge
         )
     }
