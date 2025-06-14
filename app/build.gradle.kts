@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     // Kotlin serialization plugin for type safe routes and navigation arguments
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -44,6 +46,14 @@ android {
 }
 
 dependencies {
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
+
+    // DataStore
+    implementation(libs.datastore.preferences)
+
     // Jetpack Compose integration
     implementation(libs.androidx.navigation.compose)
 

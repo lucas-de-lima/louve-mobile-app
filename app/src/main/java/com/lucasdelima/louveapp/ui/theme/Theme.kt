@@ -1,58 +1,70 @@
 package com.lucasdelima.louveapp.ui.theme
 
 import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
+/**
+ * CompositionLocal para prover os dados do tema customizado (`LouveThemeData`).
+ */
+private val LocalLouveTheme = staticCompositionLocalOf<LouveThemeData> {
+    error("No LouveThemeData provided")
+}
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
+private val ColorScheme.isLight get() = this.background.luminance() > 0.5
 
 @Composable
 fun LouveAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    themeData: LouveThemeData,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+    val view = LocalView.current
+    val isLight = themeData.colors.isLight
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            val insetsController = WindowCompat.getInsetsController(window, view)
+            insetsController.isAppearanceLightStatusBars = isLight
+            insetsController.isAppearanceLightNavigationBars = isLight
+        }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    // O LouveAppTheme agora só fornece os dados. Cada tela desenha seu próprio fundo.
+    CompositionLocalProvider(LocalLouveTheme provides themeData) {
+        MaterialTheme(
+            colorScheme = themeData.colors,
+            typography = themeData.typography,
+            content = content
+        )
+    }
+}
+
+/**
+ * Objeto para acessar as propriedades do tema ativo de forma fácil e segura.
+ */
+object LouveTheme {
+    val colors: ColorScheme
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalLouveTheme.current.colors
+
+    val typography: Typography
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalLouveTheme.current.typography
+
+    val backgrounds: LouveBackgrounds
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalLouveTheme.current.backgrounds
 }

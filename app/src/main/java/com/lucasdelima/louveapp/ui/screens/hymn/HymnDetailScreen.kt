@@ -1,97 +1,117 @@
 package com.lucasdelima.louveapp.ui.screens.hymn
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.*
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.lucasdelima.louveapp.domain.model.Hymn
-import com.lucasdelima.louveapp.ui.theme.LouveAppTheme
+import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HymnDetailScreen(
     onBack: () -> Unit,
-    viewModel: HymnDetailViewModel = viewModel()
+    viewModel: HymnDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(uiState.hymn?.number?.toString()?.padStart(3, '0') ?: "...") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = viewModel::decreaseFontSize) {
-                        Icon(Icons.Default.KeyboardArrowDown, "Diminuir Fonte")
-                    }
-                    IconButton(onClick = viewModel::increaseFontSize) {
-                        Icon(Icons.Default.KeyboardArrowUp, "Aumentar Fonte")
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            BottomAppBar(
-                actions = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        IconButton(onClick = { /* TODO */ }) {
-                            Icon(Icons.Default.FavoriteBorder, "Curtir")
+    // O Box externo desenha o fundo especial desta tela por cima do fundo principal.
+    Box(modifier = Modifier.fillMaxSize()) {
+        LouveTheme.backgrounds.detailScreenBackground()
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(uiState.hymn?.number?.toString()?.padStart(3, '0') ?: "...") },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
                         }
-                        IconButton(onClick = { /* TODO */ }) {
-                            Icon(Icons.Default.Share, "Compartilhar")
+                    },
+                    actions = {
+                        IconButton(onClick = viewModel::decreaseFontSize) {
+                            Icon(Icons.Default.KeyboardArrowDown, "Diminuir Fonte")
                         }
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        // O Box agora só é usado para posicionar o Loading ou o Erro no centro.
-        Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-        ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                uiState.error != null -> {
-                    Text(
-                        "Erro: ${uiState.error}",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
+                        IconButton(onClick = viewModel::increaseFontSize) {
+                            Icon(Icons.Default.KeyboardArrowUp, "Aumentar Fonte")
+                        }
+                    },
+                    // CORREÇÃO: Deixa a barra do topo transparente
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Transparent
                     )
-                }
-                uiState.hymn != null -> {
-                    // Quando temos o hino, usamos o layout original, sem o Box centralizado.
-                    HymnContent(
+                )
+            },
+            bottomBar = {
+                BottomAppBar(
+                    // CORREÇÃO: Deixa a barra inferior transparente
+                    containerColor = Color.Transparent,
+                    actions = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            IconButton(onClick = { /* TODO */ }) {
+                                Icon(Icons.Default.FavoriteBorder, "Curtir")
+                            }
+                            IconButton(onClick = { /* TODO */ }) {
+                                Icon(Icons.Default.Share, "Compartilhar")
+                            }
+                        }
+                    }
+                )
+            },
+            // CORREÇÃO: Deixa o corpo do Scaffold transparente para revelar o fundo global
+            containerColor = Color.Transparent
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                when {
+                    uiState.isLoading -> CircularProgressIndicator()
+                    uiState.error != null -> Text(
+                        "Erro: ${uiState.error}",
+                        color = MaterialTheme.colorScheme.error
+                    )
+
+                    uiState.hymn != null -> HymnContent(
                         hymn = uiState.hymn!!,
                         fontScaleFactor = uiState.fontScaleFactor
                     )
@@ -101,7 +121,6 @@ fun HymnDetailScreen(
     }
 }
 
-// O conteúdo do hino, que usa o layout original que gostamos
 @Composable
 private fun HymnContent(hymn: Hymn, fontScaleFactor: Float, modifier: Modifier = Modifier) {
     Column(
@@ -119,10 +138,9 @@ private fun HymnContent(hymn: Hymn, fontScaleFactor: Float, modifier: Modifier =
         )
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Corrigindo a formatação da letra com AnnotatedString
         val formattedLyrics = buildAnnotatedString {
             hymn.verses.forEachIndexed { index, verse ->
-                if (index > 0) append("\n") // Espaço entre os versos
+                if (index > 0) append("\n")
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append("${index + 1}\n")
                 }
@@ -143,31 +161,5 @@ private fun HymnContent(hymn: Hymn, fontScaleFactor: Float, modifier: Modifier =
             fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScaleFactor,
             lineHeight = MaterialTheme.typography.bodyLarge.fontSize * 1.5 * fontScaleFactor
         )
-    }
-}
-
-// Preview antigo, agora renomeado para ser mais claro sobre o que ele mostra
-@Preview(name = "Apenas Conteúdo do Hino", showBackground = true)
-@Composable
-private fun HymnContentPreview() {
-    LouveAppTheme {
-        val previewHymn = Hymn(
-            id = 1, number = 101, title = "Graça Infinita",
-            verses = listOf("Sublime graça! Quão doce o som...", "Perdido estava, mas me encontrou..."),
-            chorus = "Oh, graça, vem me guiar..."
-        )
-        HymnContent(hymn = previewHymn, fontScaleFactor = 1.0f)
-    }
-}
-
-// NOVO: Preview da tela inteira
-@Preview(name = "Tela de Detalhes Completa", showBackground = true)
-@Composable
-private fun HymnDetailScreen_FullPreview() {
-    LouveAppTheme {
-        // Como o preview não pode criar um ViewModel real, chamamos a tela
-        // diretamente. Ela vai mostrar o estado inicial (loading).
-        // Isso é útil para ver a estrutura geral com Scaffold.
-        HymnDetailScreen(onBack = {})
     }
 }
