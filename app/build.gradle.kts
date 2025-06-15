@@ -1,4 +1,12 @@
+import java.util.Properties
+import java.io.FileInputStream
 
+// Lê as propriedades da keystore para uso no build
+val keystorePropertiesFile = rootProject.file("app/keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
 
 plugins {
     alias(libs.plugins.android.application)
@@ -24,13 +32,28 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Configuração da assinatura de lançamento
+    signingConfigs {
+        create("release") {
+            // Apenas configure se o arquivo de propriedades existir
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file("louve-app-keystore.jks")
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Diz ao build de release para usar a configuração de assinatura
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
