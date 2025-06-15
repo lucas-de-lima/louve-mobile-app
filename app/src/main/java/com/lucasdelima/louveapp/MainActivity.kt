@@ -17,6 +17,7 @@ import com.lucasdelima.louveapp.ui.theme.DefaultTheme
 import com.lucasdelima.louveapp.ui.theme.LouveAppTheme
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -37,7 +39,7 @@ class MainActivity : ComponentActivity() {
 
                     // O NavGraph é desenhado por cima e não precisa mais do padding.
                     val navController = rememberNavController()
-                    NavGraph(navController = navController)
+                    NavGraph(navController = navController) // <-- CHAMADA CORRIGIDA
                 }
             }
         }
