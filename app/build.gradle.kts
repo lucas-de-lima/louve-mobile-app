@@ -46,6 +46,9 @@ android {
 }
 
 dependencies {
+    // Splash Screen API
+    implementation(libs.androidx.splashscreen)
+
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
