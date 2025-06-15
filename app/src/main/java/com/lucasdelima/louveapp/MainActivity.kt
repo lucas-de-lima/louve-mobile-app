@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
 
                     // O NavGraph é desenhado por cima e não precisa mais do padding.
                     val navController = rememberNavController()
-                    NavGraph(navController = navController)
+                    NavGraph(navController = navController) // <-- CHAMADA CORRIGIDA
                 }
             }
         }
