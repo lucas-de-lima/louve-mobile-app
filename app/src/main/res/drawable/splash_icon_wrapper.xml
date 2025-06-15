@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Invólucro robusto para o ícone da splash screen.
+  Usa um <inset> para garantir que haja preenchimento (padding) ao redor
+  do ícone, forçando o sistema a exibi-lo completamente dentro da
+  área segura, sem cortar as bordas.
+-->
+<inset
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_splash_logo"
+    android:inset="20%" />
