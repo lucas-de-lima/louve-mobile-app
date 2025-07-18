@@ -78,6 +78,13 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    // Coil para imagens da internet
+    implementation(libs.coil.compose)
+
+    // Firebase/Firestore
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+
     // DataStore
     implementation(libs.datastore.preferences)
 
