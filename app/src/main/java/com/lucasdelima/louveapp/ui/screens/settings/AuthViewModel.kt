@@ -29,14 +29,12 @@ class AuthViewModel @Inject constructor(
         )
 
     /**
-     * Tenta iniciar o processo de login com a credencial especificada.
-     * Por enquanto, só lidaremos com o Google.
+     * Tenta realizar o login passando a credencial correta.
+     * A função agora espera um objeto AuthCredentials, como definido na nossa interface.
      */
-    fun signIn() {
+    fun signIn(credentials: AuthCredentials) {
         viewModelScope.launch {
-            // A lógica real do fluxo de UI do Login com Google será adicionada aqui.
-            // Por enquanto, chamamos o repositório.
-            authRepository.signIn(AuthCredentials.Google)
+            authRepository.signIn(credentials)
         }
     }
 

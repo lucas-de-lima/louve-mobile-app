@@ -1,5 +1,8 @@
 package com.lucasdelima.louveapp.ui.screens.settings
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,8 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,14 +35,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.lucasdelima.louveapp.R
 import com.lucasdelima.louveapp.domain.model.UserProfile
+import com.lucasdelima.louveapp.domain.repository.AuthCredentials
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,10 +55,29 @@ import com.lucasdelima.louveapp.ui.theme.LouveTheme
 fun SettingsScreen(
     onBack: () -> Unit,
     settingsViewModel: SettingsViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel() // Pega o ViewModel de autenticação
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val settingsUiState by settingsViewModel.uiState.collectAsState()
     val userProfile by authViewModel.userProfile.collectAsState()
+    val context = LocalContext.current
+
+    // --- LÓGICA DE LOGIN COM GoogleSignInClient (ESTÁVEL) ---
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = { result ->
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                // Se o login for bem-sucedido, pegamos a conta e o idToken.
+                val account = task.getResult(ApiException::class.java)!!
+                val idToken = account.idToken!!
+                // Enviamos o token para o nosso ViewModel para autenticar no Firebase.
+                authViewModel.signIn(AuthCredentials.Google(idToken))
+            } catch (e: ApiException) {
+                // Se o usuário cancelar ou ocorrer um erro, mostramos uma mensagem.
+                Toast.makeText(context, "Falha no login com o Google.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         LouveTheme.backgrounds.screenBackground()
@@ -77,16 +104,26 @@ fun SettingsScreen(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                // Seção de Perfil do Usuário
                 ProfileSection(
                     userProfile = userProfile,
-                    onSignInClick = { /* A lógica do clique virá aqui no próximo passo */ },
+                    onSignInClick = {
+                        val webClientId = context.getString(R.string.web_client_id)
+                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                            .requestIdToken(webClientId)
+                            .requestEmail()
+                            .build()
+                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
+
+                        // Garante que a tela de seleção de contas sempre apareça.
+                        googleSignInClient.signOut().addOnCompleteListener {
+                            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                        }
+                    },
                     onSignOutClick = { authViewModel.signOut() }
                 )
 
-                Divider(modifier = Modifier.padding(vertical = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
-                // Seção de Aparência (troca de tema)
                 Text(
                     text = "Aparência",
                     style = MaterialTheme.typography.titleLarge,
@@ -106,6 +143,7 @@ fun SettingsScreen(
     }
 }
 
+
 @Composable
 private fun ProfileSection(
     userProfile: UserProfile?,
@@ -119,21 +157,19 @@ private fun ProfileSection(
     )
 
     if (userProfile == null) {
-        // --- VISÃO "NÃO LOGADO" ---
         OutlinedButton(
             onClick = onSignInClick,
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_google_logo), // Ícone do Google
+                painter = painterResource(id = R.drawable.ic_google_logo),
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
-                tint = Color.Unspecified // Importante para não aplicar o tint do botão
+                tint = Color.Unspecified
             )
             Text("Entrar com o Google", modifier = Modifier.padding(start = 8.dp))
         }
     } else {
-        // --- VISÃO "LOGADO" ---
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -145,7 +181,7 @@ private fun ProfileSection(
                     .size(48.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
-                placeholder = painterResource(id = R.drawable.ic_splash_logo) // Um placeholder
+                placeholder = painterResource(id = R.drawable.ic_splash_logo)
             )
             Column(
                 modifier = Modifier
@@ -186,7 +222,7 @@ private fun ThemeSelectorRow(
     ) {
         RadioButton(
             selected = isSelected,
-            onClick = null // O clique é gerenciado pelo Modifier.selectable na Row
+            onClick = null
         )
         Text(
             text = themeName,
