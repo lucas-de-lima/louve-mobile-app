@@ -16,5 +16,9 @@ local.properties
 
 # Ignorar o arquivo de propriedades da keystore
 /app/keystore.properties
+/app/louve-app-keystore.jks
 /app/release/baselineProfiles/0/app-release.dm
 /app/release/baselineProfiles/1/app-release.dm
+
+# Firebase
+google-services.json

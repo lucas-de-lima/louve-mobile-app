@@ -16,6 +16,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -30,6 +31,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Cria um recurso de string chamado 'web_client_id' com o valor
+        // que lemos do nosso arquivo keystore.properties.
+        resValue(
+            "string",
+            "web_client_id",
+            keystoreProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "")
+        )
     }
 
     // Configuração da assinatura de lançamento
@@ -76,6 +84,16 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
+
+    // Coil para imagens da internet
+    implementation(libs.coil.compose)
+
+    // Firebase/Firestore
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+
+    implementation(libs.google.gms.auth)
+    implementation(libs.google.identity.googleid)
 
     // DataStore
     implementation(libs.datastore.preferences)
