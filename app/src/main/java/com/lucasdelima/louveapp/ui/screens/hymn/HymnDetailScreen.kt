@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -30,7 +31,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -119,16 +119,13 @@ fun HymnDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            // --- BOTÃO DE FAVORITOS (Placeholder) ---
-                            IconButton(onClick = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = "Função de Favoritos em breve! ❤️", // Mensagem gentil
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                            }) {
-                                Icon(Icons.Default.FavoriteBorder, "Curtir")
+                            // --- BOTÃO DE FAVORITOS ---
+                            IconButton(onClick = viewModel::onToggleFavorite) {
+                                Icon(
+                                    imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                    contentDescription = if (uiState.isFavorite) "Desfavoritar" else "Favoritar",
+                                    tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                )
                             }
 
                             // --- BOTÃO DE COMPARTILHAR (Abre a nossa folha customizada) ---
