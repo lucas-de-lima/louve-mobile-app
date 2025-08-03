@@ -1,9 +1,8 @@
 package com.lucasdelima.louveapp.domain.repository
 
+import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.model.UserSettings
-import com.lucasdelima.louveapp.domain.model.Result
-
 import kotlinx.coroutines.flow.Flow
 
 /**

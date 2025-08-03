@@ -5,6 +5,7 @@ import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.FavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -25,6 +26,7 @@ class DefaultFavoritesRepository @Inject constructor(
     private val remoteRepository: UserRepository // Reutilizando o UserRepository para a parte remota
 ) : FavoritesRepository {
 
+    @OptIn(ExperimentalCoroutinesApi::class) // flatMapLatest é experimental, verificar a sua disponibilidade ou mudar a lógica
     override fun getFavoriteHymnIds(): Flow<Result<Set<String>>> {
         // flatMapLatest é a chave aqui. Ele observa o estado de login.
         // Se o usuário logar/deslogar, ele cancela a subscrição antiga e

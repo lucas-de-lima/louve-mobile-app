@@ -1,12 +1,3 @@
-// =======================================================================================
-// ARQUIVO: di/AppModule.kt (CONSOLIDADO E CORRIGIDO)
-// =======================================================================================
-
-/**
- * Módulo Hilt que ensina ao Dagger/Hilt como prover as implementações
- * para as interfaces dos nossos repositórios e outras dependências do app.
- * Este arquivo centraliza toda a lógica de injeção de dependência.
- */
 package com.lucasdelima.louveapp.di
 
 import android.content.Context
@@ -14,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.lucasdelima.louveapp.data.repository.DataStoreLocalFavoritesRepository
 import com.lucasdelima.louveapp.data.repository.DefaultFavoritesRepository
+import com.lucasdelima.louveapp.data.repository.DefaultSettingsRepository
 import com.lucasdelima.louveapp.data.repository.FirebaseAuthRepositoryImpl
 import com.lucasdelima.louveapp.data.repository.FirestoreUserRepositoryImpl
 import com.lucasdelima.louveapp.data.repository.HymnRepositoryImpl
@@ -32,8 +24,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-// Módulo para bindings de interfaces.
-// Usamos @Binds para maior performance quando a implementação tem um construtor @Inject.
+/**
+ * Módulo Hilt que ensina ao Dagger/Hilt como prover as implementações
+ * para as interfaces dos nossos repositórios e outras dependências do app.
+ * Este arquivo centraliza toda a lógica de injeção de dependência.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
@@ -53,6 +48,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindFavoritesRepository(impl: DefaultFavoritesRepository): FavoritesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSettingsRepository(impl: DefaultSettingsRepository): SettingsRepository
 }
 
 // Módulo para provisão de classes que não podemos injetar via construtor
@@ -69,15 +68,6 @@ object AppModule {
     @Singleton
     fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    @Provides
-    @Singleton
-    fun provideSettingsRepository(@ApplicationContext context: Context): SettingsRepository {
-        return LocalSettingsRepository(context)
-    }
-
-    // CORREÇÃO: Adicionada a provisão para o HymnRepository.
-    // O Hilt agora sabe que, sempre que alguém pedir um HymnRepository,
-    // ele deve criar e fornecer uma instância de HymnRepositoryImpl.
     @Provides
     @Singleton
     fun provideHymnRepository(): HymnRepository {
