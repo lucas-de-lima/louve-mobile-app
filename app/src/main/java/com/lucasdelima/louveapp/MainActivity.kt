@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.lucasdelima.louveapp.ui.navigation.NavGraph
 import com.lucasdelima.louveapp.ui.theme.AllThemes
@@ -17,7 +18,6 @@ import com.lucasdelima.louveapp.ui.theme.DefaultTheme
 import com.lucasdelima.louveapp.ui.theme.LouveAppTheme
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -33,13 +33,10 @@ class MainActivity : ComponentActivity() {
             val selectedTheme = AllThemes.find { it.name == themeName } ?: DefaultTheme
 
             LouveAppTheme(themeData = selectedTheme) {
-                // O Box externo desenha o fundo principal uma única vez.
                 Box(modifier = Modifier.fillMaxSize()) {
                     LouveTheme.backgrounds.screenBackground()
-
-                    // O NavGraph é desenhado por cima e não precisa mais do padding.
                     val navController = rememberNavController()
-                    NavGraph(navController = navController) // <-- CHAMADA CORRIGIDA
+                    NavGraph(navController = navController)
                 }
             }
         }
