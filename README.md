@@ -118,7 +118,11 @@ app/
 
 ## 📢 Contato
 
-Para dúvidas, sugestões ou contribuições, abra uma issue ou entre em contato com os mantenedores do projeto.
+Para dúvidas, sugestões ou contribuições, abra uma issue ou entre em contato diretamente com o mantenedor principal:
+
+**Lucas de Lima**  
+📧 [dev.lucasdelima@gmail.com](mailto:dev.lucasdelima@gmail.com)  
+🔗 [linkedin.com/in/dev-lucasdelima](https://www.linkedin.com/in/dev-lucasdelima/)
 
 ---
 
