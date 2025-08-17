@@ -1,11 +1,24 @@
 package com.lucasdelima.louveapp.ui.components
 
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.lucasdelima.louveapp.ui.navigation.BottomNavItem
@@ -20,15 +33,19 @@ fun LouveBottomNavBar(navController: NavController) {
     )
 
     // A barra de navegação é transparente para permitir que o fundo do tema seja visível
+    // Altura reduzida para uma aparência mais compacta e profissional
     NavigationBar(
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        modifier = Modifier.height(84.dp) // Altura reduzida para ser mais compacta
     ) {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry.value?.destination?.route
 
         items.forEach { item ->
+            val isSelected = currentRoute == item.route
+            
             NavigationBarItem(
-                selected = currentRoute == item.route,
+                selected = isSelected,
                 onClick = {
                     navController.navigate(item.route) {
                         // Evita empilhar a mesma tela várias vezes
@@ -39,8 +56,37 @@ fun LouveBottomNavBar(navController: NavController) {
                         restoreState = true
                     }
                 },
-                icon = { Icon(item.icon, contentDescription = item.title) },
-                label = { Text(item.title) }
+                icon = { 
+                    // Usa ícones diferentes para indicar o estado ativo/inativo
+                    // Ícone preenchido para rota ativa, ícone vazio para rota inativa
+                    val icon = when (item.route) {
+                        BottomNavItem.Harpa.route -> if (isSelected) Icons.Filled.Home else Icons.Outlined.Home
+                        BottomNavItem.Favorites.route -> if (isSelected) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
+                        BottomNavItem.Discover.route -> if (isSelected) Icons.Filled.Search else Icons.Outlined.Search
+                        BottomNavItem.More.route -> if (isSelected) Icons.Filled.Menu else Icons.Outlined.Menu
+                        else -> Icons.Outlined.Home
+                    }
+                    
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = item.title,
+                        modifier = Modifier.padding(vertical = 2.dp) // Padding reduzido para ícones
+                    ) 
+                },
+                label = { 
+                    Text(
+                        text = item.title,
+                        modifier = Modifier.padding(top = 1.dp) // Padding reduzido para texto
+                    ) 
+                },
+                // Remove as cores de seleção para usar apenas os ícones como indicador
+                colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Unspecified,
+                    unselectedIconColor = Color.Unspecified,
+                    selectedTextColor = Color.Unspecified,
+                    unselectedTextColor = Color.Unspecified,
+                    indicatorColor = Color.Transparent // Remove o indicador colorido
+                )
             )
         }
     }

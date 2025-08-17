@@ -59,7 +59,7 @@ fun MainScreen(rootNavController: NavHostController) {
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 40.dp) // Ajustado para ficar bem posicionada
+                .padding(bottom = 24.dp) // Ajustado para a nova altura da barra (64dp)
         ) {
             LouveBottomNavBar(navController = bottomNavController)
         }

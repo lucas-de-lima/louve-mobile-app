@@ -47,7 +47,7 @@ fun FavoritesScreen(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
-                    .padding(bottom = 160.dp) // Espaço adequado para a barra de navegação
+                    .padding(bottom = 100.dp) // Espaço ajustado para a nova altura da barra (64dp + padding)
             ) {
                 if (uiState.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
