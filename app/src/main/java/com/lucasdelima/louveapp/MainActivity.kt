@@ -7,6 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -27,14 +30,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        
+        // Habilita o modo edge-to-edge para que o conteúdo possa se estender
+        // até as bordas da tela, incluindo as áreas das barras de sistema
         enableEdgeToEdge()
+        
         setContent {
             val themeName by viewModel.themeName.collectAsState()
             val selectedTheme = AllThemes.find { it.name == themeName } ?: DefaultTheme
 
             LouveAppTheme(themeData = selectedTheme) {
                 Box(modifier = Modifier.fillMaxSize()) {
+                    // O fundo do tema agora preenche toda a tela, incluindo as áreas das barras de sistema
+                    // O enableEdgeToEdge() permite que o fundo se estenda até as bordas
                     LouveTheme.backgrounds.screenBackground()
+                    
+                    // O conteúdo de navegação é renderizado por cima do fundo
                     val navController = rememberNavController()
                     NavGraph(navController = navController)
                 }

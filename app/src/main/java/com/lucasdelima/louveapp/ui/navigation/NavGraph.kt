@@ -20,10 +20,14 @@ object Routes {
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+    // O fundo do tema já está sendo desenhado na MainActivity
+    // Aqui apenas renderizamos o conteúdo de navegação
+    // O enableEdgeToEdge() permite que o fundo se estenda até as bordas
     NavHost(
         navController = navController,
         startDestination = Routes.SPLASH,
     ) {
+        // Tela de splash que tem seu próprio fundo
         composable(Routes.SPLASH) {
             SplashScreen(
                 onAnimationFinished = {
@@ -34,11 +38,15 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // A rota "main" agora carrega a MainScreen, que tem sua própria navegação interna.
+        // Tela principal com navegação inferior
+        // Esta tela usa o fundo do tema desenhado na MainActivity
+        // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
         composable(Routes.MAIN) {
             MainScreen(rootNavController = navController)
         }
 
+        // Tela de detalhes do hino que tem seu próprio fundo especial
+        // Este fundo é desenhado por cima do fundo principal
         composable(
             route = Routes.HYMN_DETAIL,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
@@ -48,6 +56,8 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
+        // Tela de configurações que usa o fundo do tema
+        // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
         composable(Routes.SETTINGS) {
             SettingsScreen(
                 onBack = { navController.popBackStack() }

@@ -79,6 +79,9 @@ fun SettingsScreen(
         }
     )
 
+    // O fundo do tema já está sendo desenhado na MainActivity
+    // Aqui apenas renderizamos o conteúdo da tela
+    // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
     Box(modifier = Modifier.fillMaxSize()) {
         LouveTheme.backgrounds.screenBackground()
 

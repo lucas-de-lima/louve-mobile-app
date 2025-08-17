@@ -84,6 +84,9 @@ fun HymnDetailScreen(
 
     // ------------------------------------------
 
+    // Esta tela tem seu próprio fundo especial (detailScreenBackground)
+    // que é desenhado por cima do fundo principal
+    // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
     Box(modifier = Modifier.fillMaxSize()) {
         LouveTheme.backgrounds.detailScreenBackground()
 

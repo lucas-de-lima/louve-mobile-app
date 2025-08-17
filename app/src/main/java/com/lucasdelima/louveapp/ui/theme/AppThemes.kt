@@ -58,9 +58,12 @@ private val SweetCandyColors = lightColorScheme(
 //------------------------------------------------------------------
 @Composable
 private fun SolidColorBackground(color: Color) {
-    Surface(color = color, modifier = Modifier.fillMaxSize()) {}
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+    ) {}
 }
-
 
 //------------------------------------------------------------------
 // DEFINIÇÕES COMPLETAS DOS TEMAS
@@ -92,6 +95,10 @@ val SweetCandyTheme = LouveThemeData(
     typography = Typography,
     backgrounds = LouveBackgrounds(
         screenBackground = {
+            // Este fundo é desenhado na MainActivity e cobre toda a tela
+            // incluindo as áreas das barras de sistema
+            // O enableEdgeToEdge() permite que o gradiente se estenda até as bordas
+            // O fillMaxSize() garante que o fundo cubra toda a área disponível
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -100,12 +107,17 @@ val SweetCandyTheme = LouveThemeData(
                             colors = listOf(
                                 CandyPink.copy(alpha = 0.2f),
                                 CandyBlue.copy(alpha = 0.3f)
-                            )
+                            ),
+                            startY = 0f,
+                            endY = Float.POSITIVE_INFINITY
                         )
                     )
             )
         },
         detailScreenBackground = {
+            // Este fundo é desenhado por cima do fundo principal
+            // para criar um efeito de camadas
+            // O fillMaxSize() garante que o fundo cubra toda a área disponível
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -114,7 +126,9 @@ val SweetCandyTheme = LouveThemeData(
                             colors = listOf(
                                 Color.White,
                                 CandyPink.copy(alpha = 0.4f)
-                            ), radius = 1200f
+                            ), 
+                            radius = 1200f,
+                            center = androidx.compose.ui.geometry.Offset(0f, 0f)
                         )
                     )
             )

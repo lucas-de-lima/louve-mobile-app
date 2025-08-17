@@ -34,12 +34,16 @@ fun LouveAppTheme(
         SideEffect {
             val window = (view.context as Activity).window
             val insetsController = WindowCompat.getInsetsController(window, view)
+            // Configura a aparência das barras de sistema baseada no tema
+            // Isso garante que os ícones sejam visíveis sobre o fundo do tema
             insetsController.isAppearanceLightStatusBars = isLight
             insetsController.isAppearanceLightNavigationBars = isLight
         }
     }
 
-    // O LouveAppTheme agora só fornece os dados. Cada tela desenha seu próprio fundo.
+    // O LouveAppTheme fornece os dados do tema e o MaterialTheme
+    // O fundo do tema é desenhado na MainActivity para cobrir toda a tela
+    // O enableEdgeToEdge() permite que o fundo se estenda até as bordas
     CompositionLocalProvider(LocalLouveTheme provides themeData) {
         MaterialTheme(
             colorScheme = themeData.colors,
@@ -51,6 +55,10 @@ fun LouveAppTheme(
 
 /**
  * Objeto para acessar as propriedades do tema ativo de forma fácil e segura.
+ * 
+ * Este objeto fornece acesso às cores, tipografia e fundos do tema ativo.
+ * Os fundos são renderizados na MainActivity para cobrir toda a tela,
+ * incluindo as áreas das barras de sistema graças ao enableEdgeToEdge().
  */
 object LouveTheme {
     val colors: ColorScheme

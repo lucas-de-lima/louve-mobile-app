@@ -55,66 +55,67 @@ fun HomeScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.screenBackground() // Usa o fundo padrão de tela
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text("Louve App") }, // Pode ser o nome do seu app
-                    // Deixa a TopAppBar transparente também para se mesclar ao gradiente
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Transparent
-                    ),
-                    actions = {
-                        IconButton(onClick = onSettingsClick) {
-                            Icon(
-                                imageVector = Icons.Default.Settings,
-                                contentDescription = "Configurações"
-                            )
-                        }
+    // O fundo do tema já está sendo desenhado na MainActivity
+    // Aqui apenas renderizamos o conteúdo da tela
+    // O Scaffold é transparente para permitir que o fundo do tema seja visível
+    // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Louve App") }, // Pode ser o nome do seu app
+                // Deixa a TopAppBar transparente também para se mesclar ao gradiente
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                ),
+                actions = {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Configurações"
+                        )
                     }
-                )
-            },
-            containerColor = Color.Transparent
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                // Nosso novo campo de busca estilizado
-                SearchField(
-                    query = uiState.searchQuery,
-                    onQueryChanged = viewModel::onSearchQueryChanged // Referência direta da função
-                )
+                }
+            )
+        },
+        containerColor = Color.Transparent
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            // Nosso novo campo de busca estilizado
+            SearchField(
+                query = uiState.searchQuery,
+                onQueryChanged = viewModel::onSearchQueryChanged // Referência direta da função
+            )
 
-                // Lógica de exibição da lista ou loading/erro
-                if (uiState.isLoading && uiState.hymns.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Nenhum hino encontrado para \"${uiState.searchQuery}\"")
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        state = listState // 3. Passe o estado para o LazyColumn
-                    ) {
-                        items(uiState.hymns, key = { it.id }) { hymn ->
-                            HymnCardItem(hymn = hymn) {
-                                onHymnSelected(hymn.id)
-                            }
+            // Lógica de exibição da lista ou loading/erro
+            if (uiState.isLoading && uiState.hymns.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Nenhum hino encontrado para \"${uiState.searchQuery}\"")
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    state = listState // 3. Passe o estado para o LazyColumn
+                ) {
+                    items(uiState.hymns, key = { it.id }) { hymn ->
+                        HymnCardItem(hymn = hymn) {
+                            onHymnSelected(hymn.id)
                         }
                     }
                 }

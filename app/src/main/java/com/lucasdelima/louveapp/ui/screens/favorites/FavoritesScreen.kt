@@ -25,6 +25,10 @@ fun FavoritesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    // O fundo do tema já está sendo desenhado na MainActivity
+    // Aqui apenas renderizamos o conteúdo da tela
+    // O Scaffold é transparente para permitir que o fundo do tema seja visível
+    // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
