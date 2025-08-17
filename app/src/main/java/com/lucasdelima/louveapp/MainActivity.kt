@@ -41,9 +41,9 @@ class MainActivity : ComponentActivity() {
 
             LouveAppTheme(themeData = selectedTheme) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // O fundo do tema agora preenche toda a tela, incluindo as áreas das barras de sistema
+                    // O fundo do tema agora é renderizado diretamente em cada tela
+                    // para evitar suavização causada por camadas intermediárias
                     // O enableEdgeToEdge() permite que o fundo se estenda até as bordas
-                    LouveTheme.backgrounds.screenBackground()
                     
                     // O conteúdo de navegação é renderizado por cima do fundo
                     val navController = rememberNavController()

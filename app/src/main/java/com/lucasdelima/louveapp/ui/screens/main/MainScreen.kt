@@ -2,9 +2,11 @@ package com.lucasdelima.louveapp.ui.screens.main
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,45 +22,46 @@ fun MainScreen(rootNavController: NavHostController) {
 
     // O fundo do tema já está sendo desenhado na MainActivity
     // Aqui apenas renderizamos o conteúdo com a barra de navegação
-    // O Scaffold é transparente para permitir que o fundo do tema seja visível
-    // O enableEdgeToEdge() permite que o fundo se estenda até as bordas
-    Scaffold(
-        bottomBar = { LouveBottomNavBar(navController = bottomNavController) },
-        containerColor = androidx.compose.ui.graphics.Color.Transparent
-    ) { innerPadding ->
-        // O fundo do tema já está sendo desenhado na MainActivity
-        // Aqui apenas aplicamos o padding necessário para o conteúdo
-        // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
-        Box(modifier = Modifier.padding(innerPadding)) {
-            // NavHost aninhado para o conteúdo principal
-            // Este NavHost renderiza as telas de navegação inferior
-            NavHost(
-                navController = bottomNavController,
-                startDestination = BottomNavItem.Harpa.route
-            ) {
-                // Tela principal da harpa
-                composable(BottomNavItem.Harpa.route) {
-                    HomeScreen(
-                        onHymnSelected = { hymnId ->
-                            rootNavController.navigate("hymnDetail/$hymnId")
-                        },
-                        onSettingsClick = {
-                            rootNavController.navigate("settings")
-                        }
-                    )
-                }
-                // Tela de favoritos
-                composable(BottomNavItem.Favorites.route) {
-                    FavoritesScreen(
-                        onHymnClick = { hymnId ->
-                            rootNavController.navigate("hymnDetail/$hymnId")
-                        }
-                    )
-                }
-                // Adicionar outras rotas conforme necessário
-                // composable(BottomNavItem.Discover.route) { DiscoverScreen() }
-                // composable(BottomNavItem.More.route) { MoreScreen() }
+    // Removido o Scaffold para evitar camadas adicionais que suavizam as cores
+    Box(modifier = Modifier.fillMaxSize()) {
+        // NavHost aninhado para o conteúdo principal
+        // Este NavHost renderiza as telas de navegação inferior
+        NavHost(
+            navController = bottomNavController,
+            startDestination = BottomNavItem.Harpa.route
+        ) {
+            // Tela principal da harpa
+            composable(BottomNavItem.Harpa.route) {
+                HomeScreen(
+                    onHymnSelected = { hymnId ->
+                        rootNavController.navigate("hymnDetail/$hymnId")
+                    },
+                    onSettingsClick = {
+                        rootNavController.navigate("settings")
+                    }
+                )
             }
+            // Tela de favoritos
+            composable(BottomNavItem.Favorites.route) {
+                FavoritesScreen(
+                    onHymnClick = { hymnId ->
+                        rootNavController.navigate("hymnDetail/$hymnId")
+                    }
+                )
+            }
+            // Adicionar outras rotas conforme necessário
+            // composable(BottomNavItem.Discover.route) { DiscoverScreen() }
+            // composable(BottomNavItem.More.route) { MoreScreen() }
+        }
+        
+        // Barra de navegação inferior posicionada na parte inferior
+        // Posicionada de forma absoluta para não interferir com o layout
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 40.dp) // Ajustado para ficar bem posicionada
+        ) {
+            LouveBottomNavBar(navController = bottomNavController)
         }
     }
 }

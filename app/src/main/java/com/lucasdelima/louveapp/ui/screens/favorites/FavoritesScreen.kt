@@ -16,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.lucasdelima.louveapp.ui.screens.home.HymnUi
 import com.lucasdelima.louveapp.ui.screens.home.components.HymnCardItem
 import com.lucasdelima.louveapp.ui.screens.home.toHymnUi
+import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,41 +28,45 @@ fun FavoritesScreen(
 
     // O fundo do tema já está sendo desenhado na MainActivity
     // Aqui apenas renderizamos o conteúdo da tela
-    // O Scaffold é transparente para permitir que o fundo do tema seja visível
-    // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Hinos Favoritos") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
+    // Renderizamos o fundo diretamente como na SettingsScreen para evitar suavização
+    Box(modifier = Modifier.fillMaxSize()) {
+        LouveTheme.backgrounds.screenBackground()
+
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text("Hinos Favoritos") },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Transparent
+                    )
                 )
-            )
-        },
-        containerColor = Color.Transparent
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-        ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (uiState.error != null) {
-                Text(
-                    text = "Erro: ${uiState.error}",
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else if (uiState.favoriteHymns.isEmpty()) {
-                EmptyFavoritesState()
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.favoriteHymns, key = { it.id }) { hymn: HymnUi ->
-                        HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
+            },
+            containerColor = Color.Transparent
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(bottom = 160.dp) // Espaço adequado para a barra de navegação
+            ) {
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                } else if (uiState.error != null) {
+                    Text(
+                        text = "Erro: ${uiState.error}",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else if (uiState.favoriteHymns.isEmpty()) {
+                    EmptyFavoritesState()
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(uiState.favoriteHymns, key = { it.id }) { hymn: HymnUi ->
+                            HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
+                        }
                     }
                 }
             }
