@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -38,6 +37,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     onHymnSelected: (Int) -> Unit,
     onSettingsClick: () -> Unit,
+    onComposingTopBar: (@Composable () -> Unit) -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -55,70 +55,61 @@ fun HomeScreen(
         }
     }
 
-    // O fundo do tema já está sendo desenhado na MainActivity
+    // Informa à MainScreen qual TopAppBar renderizar
+    LaunchedEffect(Unit) {
+        onComposingTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Louve App") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                ),
+                actions = {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Configurações"
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    // O fundo do tema já está sendo desenhado na MainScreen
     // Aqui apenas renderizamos o conteúdo da tela
-    // Renderizamos o fundo diretamente como na SettingsScreen para evitar suavização
-    Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.screenBackground()
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Nosso novo campo de busca estilizado
+        SearchField(
+            query = uiState.searchQuery,
+            onQueryChanged = viewModel::onSearchQueryChanged
+        )
 
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text("Louve App") }, // Pode ser o nome do seu app
-                    // Deixa a TopAppBar transparente também para se mesclar ao gradiente
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Transparent
-                    ),
-                    actions = {
-                        IconButton(onClick = onSettingsClick) {
-                            Icon(
-                                imageVector = Icons.Default.Settings,
-                                contentDescription = "Configurações"
-                            )
-                        }
-                    }
-                )
-            },
-            containerColor = Color.Transparent
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(bottom = 100.dp) // Espaço ajustado para a nova altura da barra (64dp + padding)
+        // Lógica de exibição da lista ou loading/erro
+        if (uiState.isLoading && uiState.hymns.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                // Nosso novo campo de busca estilizado
-                SearchField(
-                    query = uiState.searchQuery,
-                    onQueryChanged = viewModel::onSearchQueryChanged // Referência direta da função
-                )
-
-                // Lógica de exibição da lista ou loading/erro
-                if (uiState.isLoading && uiState.hymns.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Nenhum hino encontrado para \"${uiState.searchQuery}\"")
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        state = listState // 3. Passe o estado para o LazyColumn
-                    ) {
-                        items(uiState.hymns, key = { it.id }) { hymn ->
-                            HymnCardItem(hymn = hymn) {
-                                onHymnSelected(hymn.id)
-                            }
-                        }
+                CircularProgressIndicator()
+            }
+        } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Nenhum hino encontrado para \"${uiState.searchQuery}\"")
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                state = listState
+            ) {
+                items(uiState.hymns, key = { it.id }) { hymn ->
+                    HymnCardItem(hymn = hymn) {
+                        onHymnSelected(hymn.id)
                     }
                 }
             }

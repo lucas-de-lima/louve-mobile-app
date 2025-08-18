@@ -33,8 +33,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.ui.screens.settings.AuthViewModel
-import com.lucasdelima.louveapp.ui.theme.LouveTheme
-import android.content.Context
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,7 +41,8 @@ fun MoreScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAbout: () -> Unit,
-    onNavigateToSupport: () -> Unit
+    onNavigateToSupport: () -> Unit,
+    onComposingTopBar: (@Composable () -> Unit) -> Unit
 ) {
     val context = LocalContext.current
     val viewModel: MoreViewModel = hiltViewModel()
@@ -65,52 +64,50 @@ fun MoreScreen(
         viewModel.trackScreenView()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.screenBackground()
-        
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Mais") },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent
-                    )
+    // Informa à MainScreen qual TopAppBar renderizar
+    LaunchedEffect(Unit) {
+        onComposingTopBar {
+            TopAppBar(
+                title = { Text("Mais") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
                 )
-            }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(paddingValues)
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
-            ) {
-                // Seção de Perfil (Topo)
-                ProfileSection(
-                    userProfile = userProfile,
-                    onProfileClick = onNavigateToProfile
-                )
-                
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                // Seção de Ações
-                ActionsSection(
-                    onSettingsClick = onNavigateToSettings,
-                    onShareAppClick = { 
-                        showShareSheet = true
-                        viewModel.trackShareApp()
-                    }
-                )
-                
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                // Seção de Informações e Suporte
-                InfoAndSupportSection(
-                    onAboutClick = onNavigateToAbout,
-                    onSupportClick = onNavigateToSupport
-                )
-            }
+            )
         }
+    }
+
+    // O fundo do tema já está sendo desenhado na MainScreen
+    // Aqui apenas renderizamos o conteúdo da tela
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+    ) {
+        // Seção de Perfil (Topo)
+        ProfileSection(
+            userProfile = userProfile,
+            onProfileClick = onNavigateToProfile
+        )
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        // Seção de Ações
+        ActionsSection(
+            onSettingsClick = onNavigateToSettings,
+            onShareAppClick = { 
+                showShareSheet = true
+                viewModel.trackShareApp()
+            }
+        )
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        // Seção de Informações e Suporte
+        InfoAndSupportSection(
+            onAboutClick = onNavigateToAbout,
+            onSupportClick = onNavigateToSupport
+        )
     }
 }
 
@@ -265,7 +262,7 @@ private fun InfoAndSupportSection(
 ) {
     Column {
         Text(
-            text = "Informações e Suporte",
+            text = "Informações",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(bottom = 16.dp)

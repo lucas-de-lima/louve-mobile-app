@@ -51,17 +51,6 @@ fun NavGraph(navController: NavHostController) {
             MainScreen(rootNavController = navController)
         }
 
-        // Tela de detalhes do hino que tem seu próprio fundo especial
-        // Este fundo é desenhado por cima do fundo principal
-        composable(
-            route = Routes.HYMN_DETAIL,
-            arguments = listOf(navArgument("id") { type = NavType.IntType })
-        ) {
-            HymnDetailScreen(
-                onBack = { navController.popBackStack() }
-            )
-        }
-
         // Tela de configurações que usa o fundo do tema
         // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
         composable(Routes.SETTINGS) {

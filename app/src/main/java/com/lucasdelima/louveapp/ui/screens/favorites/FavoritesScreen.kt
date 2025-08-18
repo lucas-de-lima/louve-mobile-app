@@ -22,52 +22,45 @@ import com.lucasdelima.louveapp.ui.theme.LouveTheme
 @Composable
 fun FavoritesScreen(
     onHymnClick: (Int) -> Unit,
+    onComposingTopBar: (@Composable () -> Unit) -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // O fundo do tema já está sendo desenhado na MainActivity
-    // Aqui apenas renderizamos o conteúdo da tela
-    // Renderizamos o fundo diretamente como na SettingsScreen para evitar suavização
-    Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.screenBackground()
-
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text("Hinos Favoritos") },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Transparent
-                    )
+    // Informa à MainScreen qual TopAppBar renderizar
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        onComposingTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Hinos Favoritos") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
                 )
-            },
-            containerColor = Color.Transparent
-        ) { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .padding(bottom = 100.dp) // Espaço ajustado para a nova altura da barra (64dp + padding)
+            )
+        }
+    }
+
+    // O fundo do tema já está sendo desenhado na MainScreen
+    // Aqui apenas renderizamos o conteúdo da tela
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (uiState.isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        } else if (uiState.error != null) {
+            Text(
+                text = "Erro: ${uiState.error}",
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else if (uiState.favoriteHymns.isEmpty()) {
+            EmptyFavoritesState()
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                } else if (uiState.error != null) {
-                    Text(
-                        text = "Erro: ${uiState.error}",
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                } else if (uiState.favoriteHymns.isEmpty()) {
-                    EmptyFavoritesState()
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(uiState.favoriteHymns, key = { it.id }) { hymn: HymnUi ->
-                            HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
-                        }
-                    }
+                items(uiState.favoriteHymns, key = { it.id }) { hymn: HymnUi ->
+                    HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
                 }
             }
         }

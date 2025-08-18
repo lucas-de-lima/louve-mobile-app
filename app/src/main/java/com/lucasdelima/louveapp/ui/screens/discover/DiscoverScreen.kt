@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,25 +22,26 @@ import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiscoverScreen() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.screenBackground()
-
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text("Descubra") },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Transparent
-                    )
+fun DiscoverScreen(
+    onComposingTopBar: (@Composable () -> Unit) -> Unit
+) {
+    // Informa à MainScreen qual TopAppBar renderizar
+    LaunchedEffect(Unit) {
+        onComposingTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Descubra") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
                 )
-            },
-            containerColor = Color.Transparent
-        ) { innerPadding ->
+            )
+        }
+    }
+
+    // O fundo do tema já está sendo desenhado na MainScreen
+    // Aqui apenas renderizamos o conteúdo da tela
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
                     .padding(24.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -224,6 +226,4 @@ fun DiscoverScreen() {
                     }
                 }
             }
-        }
-    }
 }

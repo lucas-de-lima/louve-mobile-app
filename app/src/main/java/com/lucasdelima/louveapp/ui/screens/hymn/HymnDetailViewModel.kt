@@ -32,7 +32,8 @@ class HymnDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val hymnId: String = savedStateHandle.get<Int>("id")!!.toString()
+    private val hymnIdArg: Int? = savedStateHandle.get<Int>("hymnId") ?: savedStateHandle.get<Int>("id")
+    private val hymnId: String = hymnIdArg?.toString() ?: ""
     private val _uiState = MutableStateFlow(HymnDetailUiState())
     val uiState: StateFlow<HymnDetailUiState> = _uiState.asStateFlow()
 
@@ -44,8 +45,16 @@ class HymnDetailViewModel @Inject constructor(
     }
 
     init {
-        // MODIFICAÇÃO: A lógica de carregamento agora é reativa.
-        observeHymnDetails()
+        // Se não houver ID válido, finalize o loading e apresente erro
+        if (hymnIdArg == null) {
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                error = "Hino não encontrado."
+            )
+        } else {
+            // MODIFICAÇÃO: A lógica de carregamento agora é reativa.
+            observeHymnDetails()
+        }
     }
 
     private fun observeHymnDetails() {
@@ -55,8 +64,9 @@ class HymnDetailViewModel @Inject constructor(
         val favoritesFlow: Flow<Result<Set<String>>> = favoritesRepository.getFavoriteHymnIds()
         // Como `getHymnById` é uma suspend fun, nós a envolvemos em um
         // construtor `flow` para criar um Flow que emite o valor uma única vez.
+        val id = hymnIdArg!!
         val hymnFlow: Flow<Hymn?> = flow {
-            emit(hymnRepository.getHymnById(hymnId.toInt()))
+            emit(hymnRepository.getHymnById(id))
         }
 
         // Agora, a chamada ao `combine` funciona, pois os tipos dos parâmetros são Flows.
