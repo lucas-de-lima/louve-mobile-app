@@ -1,12 +1,14 @@
 package com.lucasdelima.louveapp.di
 
 import android.content.Context
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.lucasdelima.louveapp.data.repository.DataStoreLocalFavoritesRepository
 import com.lucasdelima.louveapp.data.repository.DefaultFavoritesRepository
 import com.lucasdelima.louveapp.data.repository.DefaultSettingsRepository
 import com.lucasdelima.louveapp.data.repository.FirebaseAuthRepositoryImpl
+import com.lucasdelima.louveapp.data.repository.FirebaseAnalyticsService
 import com.lucasdelima.louveapp.data.repository.FirestoreUserRepositoryImpl
 import com.lucasdelima.louveapp.data.repository.HymnRepositoryImpl
 import com.lucasdelima.louveapp.data.repository.LocalSettingsRepository
@@ -14,6 +16,7 @@ import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.FavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
 import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
+import com.lucasdelima.louveapp.domain.repository.AnalyticsService
 import com.lucasdelima.louveapp.domain.repository.SettingsRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
 import dagger.Binds
@@ -32,6 +35,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindAnalyticsService(impl: FirebaseAnalyticsService): AnalyticsService
 
     @Binds
     @Singleton
@@ -72,5 +79,11 @@ object AppModule {
     @Singleton
     fun provideHymnRepository(): HymnRepository {
         return HymnRepositoryImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics {
+        return FirebaseAnalytics.getInstance(context)
     }
 }

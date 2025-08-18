@@ -91,6 +91,7 @@ dependencies {
     // Firebase/Firestore
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.analytics)
 
     implementation(libs.google.gms.auth)
     implementation(libs.google.identity.googleid)

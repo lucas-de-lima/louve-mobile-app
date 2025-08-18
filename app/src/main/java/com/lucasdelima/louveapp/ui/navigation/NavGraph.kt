@@ -10,12 +10,18 @@ import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailScreen
 import com.lucasdelima.louveapp.ui.screens.main.MainScreen
 import com.lucasdelima.louveapp.ui.screens.settings.SettingsScreen
 import com.lucasdelima.louveapp.ui.screens.splash.SplashScreen
+import com.lucasdelima.louveapp.ui.screens.profile.ProfileScreen
+import com.lucasdelima.louveapp.ui.screens.about.AboutScreen
+import com.lucasdelima.louveapp.ui.screens.support.SupportScreen
 
 object Routes {
     const val SPLASH = "splash"
     const val MAIN = "main"
     const val HYMN_DETAIL = "hymnDetail/{id}"
     const val SETTINGS = "settings"
+    const val PROFILE = "profile"
+    const val ABOUT = "about"
+    const val SUPPORT = "support"
 }
 
 @Composable
@@ -60,6 +66,27 @@ fun NavGraph(navController: NavHostController) {
         // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
         composable(Routes.SETTINGS) {
             SettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Tela de perfil do usuário
+        composable(Routes.PROFILE) {
+            ProfileScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Tela sobre o app
+        composable(Routes.ABOUT) {
+            AboutScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Tela de suporte e ajuda
+        composable(Routes.SUPPORT) {
+            SupportScreen(
                 onBack = { navController.popBackStack() }
             )
         }

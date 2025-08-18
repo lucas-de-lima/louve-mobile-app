@@ -1,8 +1,6 @@
 package com.lucasdelima.louveapp.ui.screens.settings
 
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,9 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import com.lucasdelima.louveapp.ui.common.auth.rememberGoogleSignInLauncher
 import com.lucasdelima.louveapp.R
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.repository.AuthCredentials
@@ -61,23 +57,10 @@ fun SettingsScreen(
     val userProfile by authViewModel.userProfile.collectAsState()
     val context = LocalContext.current
 
-    // --- LÓGICA DE LOGIN COM GoogleSignInClient (ESTÁVEL) ---
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-        onResult = { result ->
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                // Se o login for bem-sucedido, pegamos a conta e o idToken.
-                val account = task.getResult(ApiException::class.java)!!
-                val idToken = account.idToken!!
-                // Enviamos o token para o nosso ViewModel para autenticar no Firebase.
-                authViewModel.signIn(AuthCredentials.Google(idToken))
-            } catch (e: ApiException) {
-                // Se o usuário cancelar ou ocorrer um erro, mostramos uma mensagem.
-                Toast.makeText(context, "Falha no login com o Google.", Toast.LENGTH_SHORT).show()
-            }
-        }
-    )
+    // Launcher reutilizável para Google Sign-In
+    val startGoogleSignIn = rememberGoogleSignInLauncher { idToken ->
+        authViewModel.signIn(AuthCredentials.Google(idToken))
+    }
 
     // O fundo do tema já está sendo desenhado na MainActivity
     // Aqui apenas renderizamos o conteúdo da tela
@@ -109,19 +92,7 @@ fun SettingsScreen(
             ) {
                 ProfileSection(
                     userProfile = userProfile,
-                    onSignInClick = {
-                        val webClientId = context.getString(R.string.web_client_id)
-                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                            .requestIdToken(webClientId)
-                            .requestEmail()
-                            .build()
-                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
-
-                        // Garante que a tela de seleção de contas sempre apareça.
-                        googleSignInClient.signOut().addOnCompleteListener {
-                            googleSignInLauncher.launch(googleSignInClient.signInIntent)
-                        }
-                    },
+                    onSignInClick = { startGoogleSignIn() },
                     onSignOutClick = { authViewModel.signOut() }
                 )
 

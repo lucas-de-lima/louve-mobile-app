@@ -46,4 +46,15 @@ class AuthViewModel @Inject constructor(
             authRepository.signOut()
         }
     }
+    
+    /**
+     * Inicia o processo de login com Google.
+     * Esta função deve ser chamada quando o usuário clicar no botão de login.
+     * A implementação real do login está na UI que usa o GoogleSignInClient.
+     */
+    fun signInWithGoogle() {
+        // Esta função é um placeholder para o tracking de analytics.
+        // A implementação real do login está na UI que usa o GoogleSignInClient.
+        // O tracking será feito antes de chamar esta função.
+    }
 }

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.NavDestination.Companion.hierarchy
 import com.lucasdelima.louveapp.ui.navigation.BottomNavItem
 
 @Composable
@@ -43,7 +45,7 @@ fun LouveBottomNavBar(navController: NavController) {
 
         items.forEach { item ->
             val isSelected = currentRoute == item.route
-            
+
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
@@ -56,7 +58,7 @@ fun LouveBottomNavBar(navController: NavController) {
                         restoreState = true
                     }
                 },
-                icon = { 
+                icon = {
                     // Usa ícones diferentes para indicar o estado ativo/inativo
                     // Ícone preenchido para rota ativa, ícone vazio para rota inativa
                     val icon = when (item.route) {
@@ -66,18 +68,18 @@ fun LouveBottomNavBar(navController: NavController) {
                         BottomNavItem.More.route -> if (isSelected) Icons.Filled.Menu else Icons.Outlined.Menu
                         else -> Icons.Outlined.Home
                     }
-                    
+
                     Icon(
                         imageVector = icon,
                         contentDescription = item.title,
                         modifier = Modifier.padding(vertical = 2.dp) // Padding reduzido para ícones
-                    ) 
+                    )
                 },
-                label = { 
+                label = {
                     Text(
                         text = item.title,
                         modifier = Modifier.padding(top = 1.dp) // Padding reduzido para texto
-                    ) 
+                    )
                 },
                 // Remove as cores de seleção para usar apenas os ícones como indicador
                 colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
@@ -85,7 +87,7 @@ fun LouveBottomNavBar(navController: NavController) {
                     unselectedIconColor = Color.Unspecified,
                     selectedTextColor = Color.Unspecified,
                     unselectedTextColor = Color.Unspecified,
-                    indicatorColor = Color.Transparent // Remove o indicador colorido
+                    indicatorColor = Color.Transparent
                 )
             )
         }

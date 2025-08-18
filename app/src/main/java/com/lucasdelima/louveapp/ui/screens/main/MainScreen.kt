@@ -15,6 +15,8 @@ import com.lucasdelima.louveapp.ui.components.LouveBottomNavBar
 import com.lucasdelima.louveapp.ui.navigation.BottomNavItem
 import com.lucasdelima.louveapp.ui.screens.favorites.FavoritesScreen
 import com.lucasdelima.louveapp.ui.screens.home.HomeScreen
+import com.lucasdelima.louveapp.ui.screens.discover.DiscoverScreen
+import com.lucasdelima.louveapp.ui.screens.more.MoreScreen
 
 @Composable
 fun MainScreen(rootNavController: NavHostController) {
@@ -49,9 +51,20 @@ fun MainScreen(rootNavController: NavHostController) {
                     }
                 )
             }
-            // Adicionar outras rotas conforme necessário
-            // composable(BottomNavItem.Discover.route) { DiscoverScreen() }
-            // composable(BottomNavItem.More.route) { MoreScreen() }
+            // Tela de descoberta
+            composable(BottomNavItem.Discover.route) {
+                DiscoverScreen()
+            }
+            
+            // Tela mais (centro de controle)
+            composable(BottomNavItem.More.route) {
+                MoreScreen(
+                    onNavigateToProfile = { rootNavController.navigate("profile") },
+                    onNavigateToSettings = { rootNavController.navigate("settings") },
+                    onNavigateToAbout = { rootNavController.navigate("about") },
+                    onNavigateToSupport = { rootNavController.navigate("support") }
+                )
+            }
         }
         
         // Barra de navegação inferior posicionada na parte inferior
