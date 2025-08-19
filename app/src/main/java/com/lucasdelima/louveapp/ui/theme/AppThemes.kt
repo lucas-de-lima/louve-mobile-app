@@ -105,8 +105,8 @@ val SweetCandyTheme = LouveThemeData(
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
-                                CandyPink.copy(alpha = 0.2f),
-                                CandyBlue.copy(alpha = 0.3f)
+                                CandyPink.copy(alpha = 0.5f),
+                                CandyBlue.copy(alpha = 0.6f)
                             ),
                             startY = 0f,
                             endY = Float.POSITIVE_INFINITY
