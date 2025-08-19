@@ -206,7 +206,9 @@ fun MainScreen(rootNavController: NavHostController) {
                     HymnDetailScreen(
                         uiState = uiState,
                         onBack = { bottomNavController.popBackStack() },
-                        onToggleFavorite = viewModel::onToggleFavorite
+                        onToggleFavorite = viewModel::onToggleFavorite,
+                        onIncreaseFontSize = viewModel::increaseFontSize,
+                        onDecreaseFontSize = viewModel::decreaseFontSize
                     )
                 }
             }

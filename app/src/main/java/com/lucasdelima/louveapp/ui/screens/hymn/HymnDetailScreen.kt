@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -35,8 +37,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,7 +53,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.lucasdelima.louveapp.domain.model.Hymn
 import kotlinx.coroutines.launch
 
@@ -60,15 +61,15 @@ import kotlinx.coroutines.launch
 fun HymnDetailScreen(
     uiState: HymnDetailUiState,
     onBack: () -> Unit,
-    onToggleFavorite: () -> Unit
+    onToggleFavorite: () -> Unit,
+    onIncreaseFontSize: () -> Unit,
+    onDecreaseFontSize: () -> Unit
 ) {
-    // --- LÓGICA PARA AS NOVAS FUNCIONALIDADES ---
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    var showShareSheet by remember { mutableStateOf(false) } // Estado para controlar a folha de compartilhamento
+    var showShareSheet by remember { mutableStateOf(false) }
 
-    // Exibe a folha de compartilhamento customizada se showShareSheet for true
     if (showShareSheet) {
         uiState.hymn?.let { hymnToShare ->
             ShareBottomSheet(
@@ -78,12 +79,7 @@ fun HymnDetailScreen(
         }
     }
 
-    // ------------------------------------------
-
-    // O fundo agora é controlado pela MainScreen
-    // Esta tela é focada apenas no seu conteúdo
     Scaffold(
-        // Adiciona o host do Snackbar para exibir nossas mensagens
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             BottomAppBar(
@@ -93,7 +89,6 @@ fun HymnDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        // --- BOTÃO DE FAVORITOS ---
                         IconButton(onClick = onToggleFavorite) {
                             Icon(
                                 imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -102,9 +97,8 @@ fun HymnDetailScreen(
                             )
                         }
 
-                        // --- BOTÃO DE COMPARTILHAR (Abre a nossa folha customizada) ---
                         IconButton(onClick = {
-                            showShareSheet = true // Apenas mostra a folha
+                            showShareSheet = true
                         }) {
                             Icon(Icons.Default.Share, "Compartilhar")
                         }
@@ -129,17 +123,15 @@ fun HymnDetailScreen(
 
                 uiState.hymn != null -> HymnContent(
                     hymn = uiState.hymn!!,
-                    fontScaleFactor = uiState.fontScaleFactor
+                    fontScaleFactor = uiState.fontScaleFactor,
+                    onIncreaseFont = onIncreaseFontSize,
+                    onDecreaseFont = onDecreaseFontSize
                 )
             }
         }
     }
 }
 
-/**
- * Uma folha de compartilhamento ("bottom sheet") que mostra uma pré-visualização
- * bonita do conteúdo antes de compartilhar.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ShareBottomSheet(
@@ -163,7 +155,6 @@ private fun ShareBottomSheet(
             Text("Compartilhar Hino", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Card de pré-visualização
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -185,10 +176,8 @@ private fun ShareBottomSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Botão final para compartilhar
             Button(
                 onClick = {
-                    // --- O TEXTO DE COMPARTILHAMENTO APRIMORADO ---
                     val firstVerse = hymn.verses.firstOrNull()?.replace("\n", " ") ?: ""
                     val shareText = """
                     📖 *${hymn.title} (Hino ${hymn.number})*
@@ -198,7 +187,6 @@ private fun ShareBottomSheet(
                     Enviado pelo Louve App! 🎵
                     (Link para a loja em breve)
                     """.trimIndent()
-                    // ---------------------------------------------
 
                     val sendIntent: Intent = Intent().apply {
                         action = Intent.ACTION_SEND
@@ -224,10 +212,31 @@ private fun ShareBottomSheet(
 }
 
 @Composable
-private fun HymnContent(hymn: Hymn, fontScaleFactor: Float, modifier: Modifier = Modifier) {
+private fun HymnContent(
+    hymn: Hymn,
+    fontScaleFactor: Float,
+    onIncreaseFont: () -> Unit,
+    onDecreaseFont: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var accumulatedZoom by remember { mutableFloatStateOf(1f) }
+    val zoomThreshold = 0.25f
+
+    val transformState = rememberTransformableState { zoomChange, _, _ ->
+        accumulatedZoom *= zoomChange
+        if (accumulatedZoom >= 1f + zoomThreshold) {
+            onIncreaseFont()
+            accumulatedZoom = 1f
+        } else if (accumulatedZoom <= 1f - zoomThreshold) {
+            onDecreaseFont()
+            accumulatedZoom = 1f
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
+            .transformable(state = transformState)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
