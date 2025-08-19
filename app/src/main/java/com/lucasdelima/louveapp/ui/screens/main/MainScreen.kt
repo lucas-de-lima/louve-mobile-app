@@ -10,21 +10,32 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.lucasdelima.louveapp.ui.components.DiscoverTopAppBar
+import com.lucasdelima.louveapp.ui.components.FavoritesTopAppBar
+import com.lucasdelima.louveapp.ui.components.HomeTopAppBar
+import com.lucasdelima.louveapp.ui.components.HymnDetailTopAppBar
+import com.lucasdelima.louveapp.ui.components.MoreTopAppBar
 import com.lucasdelima.louveapp.ui.components.LouveBottomNavBar
 import com.lucasdelima.louveapp.ui.navigation.BottomNavItem
+import com.lucasdelima.louveapp.ui.screens.discover.DiscoverScreen
 import com.lucasdelima.louveapp.ui.screens.favorites.FavoritesScreen
 import com.lucasdelima.louveapp.ui.screens.home.HomeScreen
-import com.lucasdelima.louveapp.ui.screens.discover.DiscoverScreen
+import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailScreen
+import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailViewModel
 import com.lucasdelima.louveapp.ui.screens.more.MoreScreen
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
@@ -32,44 +43,42 @@ import com.lucasdelima.louveapp.ui.theme.LouveTheme
 @Composable
 fun MainScreen(rootNavController: NavHostController) {
     val bottomNavController = rememberNavController()
-    
-    // Estado para controlar qual TopAppBar deve ser renderizada
-    var topBarState by remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
-    
-    // Estado para controlar qual fundo deve ser exibido
-    var currentBackground by remember {
-        mutableStateOf<@Composable () -> Unit>({ LouveTheme.backgrounds.screenBackground() })
-    }
-    
+
     // Estado para controlar a visibilidade da BottomBar
     val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    
-    val isBottomBarVisible = when (currentRoute) {
-        // Lista de rotas onde a barra deve ser escondida
-        "hymnDetail/{hymnId}" -> false
-        else -> true
+
+    // PASSO 1: Estado para a TopAppBar (controlado pelo bloco composable)
+    val topBarState = remember {
+        mutableStateOf<@Composable () -> Unit>({})
+    }
+    val topBar = topBarState.value
+
+    // Estado derivado para o fundo atual (mais declarativo)
+    val currentBackground by remember(currentRoute) {
+        mutableStateOf<@Composable () -> Unit>({
+            when {
+                currentRoute?.startsWith("hymnDetail/") == true -> {
+                    LouveTheme.backgrounds.detailScreenBackground()
+                }
+
+                else -> {
+                    LouveTheme.backgrounds.screenBackground()
+                }
+            }
+        })
     }
 
-    // Atualiza o fundo baseado na rota atual
-    LaunchedEffect(currentRoute) {
-        currentBackground = when {
-            currentRoute?.startsWith("hymnDetail/") == true -> {
-                // Se a rota for de detalhes, use o fundo de detalhe
-                { LouveTheme.backgrounds.detailScreenBackground() }
-            }
-            else -> {
-                // Para todas as outras rotas, use o fundo padrão
-                { LouveTheme.backgrounds.screenBackground() }
-            }
-        }
+    val isBottomBarVisible = when {
+        // Esconde em qualquer rota de detalhes de hino
+        currentRoute?.startsWith("hymnDetail/") == true -> false
+        else -> true
     }
 
     // Scaffold central que gerencia toda a estrutura da UI
     Scaffold(
-        // TopAppBar dinâmica controlada pelas telas filhas
-        topBar = { topBarState?.invoke() },
-        
+        // TopAppBar dinâmica controlada pelo estado
+        topBar = topBar,
         // BottomBar com animação de visibilidade
         bottomBar = {
             AnimatedVisibility(
@@ -80,16 +89,16 @@ fun MainScreen(rootNavController: NavHostController) {
                 LouveBottomNavBar(navController = bottomNavController)
             }
         },
-        
+
         // Container transparente para permitir que o fundo personalizado seja desenhado
-        containerColor = androidx.compose.ui.graphics.Color.Transparent
+        containerColor = Color.Transparent
     ) { innerPadding ->
         // DESENHAMOS O FUNDO AQUI, DENTRO DA ÁREA DE CONTEÚDO
         // Ele vai preencher o espaço atrás do NavHost e respeitar o Scaffold
         Box(modifier = Modifier.fillMaxSize()) {
             // O fundo atual é desenhado aqui, ocupando a tela inteira
             currentBackground()
-            
+
             // NavHost aninhado para o conteúdo principal
             // Este NavHost renderiza as telas de navegação inferior
             NavHost(
@@ -99,57 +108,105 @@ fun MainScreen(rootNavController: NavHostController) {
             ) {
                 // Tela principal da harpa
                 composable(BottomNavItem.Harpa.route) {
+                    // PASSO 2: Cada tela define seu próprio header usando componentes especializados
+                    LaunchedEffect(Unit) {
+                        topBarState.value = {
+                            HomeTopAppBar(
+                                onSettingsClick = { rootNavController.navigate("settings") }
+                            )
+                        }
+                    }
+                    
                     HomeScreen(
                         onHymnSelected = { hymnId ->
                             bottomNavController.navigate("hymnDetail/$hymnId")
                         },
                         onSettingsClick = {
                             rootNavController.navigate("settings")
-                        },
-                        onComposingTopBar = { topBar -> topBarState = topBar }
+                        }
                     )
                 }
-                
+
                 // Tela de favoritos
                 composable(BottomNavItem.Favorites.route) {
+                    LaunchedEffect(Unit) {
+                        topBarState.value = {
+                            FavoritesTopAppBar()
+                        }
+                    }
+                    
                     FavoritesScreen(
                         onHymnClick = { hymnId ->
                             bottomNavController.navigate("hymnDetail/$hymnId")
-                        },
-                        onComposingTopBar = { topBar -> topBarState = topBar }
+                        }
                     )
                 }
-                
+
                 // Tela de descoberta
                 composable(BottomNavItem.Discover.route) {
-                    DiscoverScreen(
-                        onComposingTopBar = { topBar -> topBarState = topBar }
-                    )
+                    LaunchedEffect(Unit) {
+                        topBarState.value = {
+                            DiscoverTopAppBar()
+                        }
+                    }
+                    
+                    DiscoverScreen()
                 }
-                
+
                 // Tela mais (centro de controle)
                 composable(BottomNavItem.More.route) {
+                    LaunchedEffect(Unit) {
+                        topBarState.value = {
+                            MoreTopAppBar()
+                        }
+                    }
+                    
                     MoreScreen(
                         onNavigateToProfile = { rootNavController.navigate("profile") },
                         onNavigateToSettings = { rootNavController.navigate("settings") },
                         onNavigateToAbout = { rootNavController.navigate("about") },
-                        onNavigateToSupport = { rootNavController.navigate("support") },
-                        onComposingTopBar = { topBar -> topBarState = topBar }
+                        onNavigateToSupport = { rootNavController.navigate("support") }
                     )
                 }
-                
+
                 // Tela de detalhes do hino (esconde a bottom bar)
+                // PASSO 3: O bloco composable orquestra tudo usando componentes especializados
                 composable(
                     route = "hymnDetail/{hymnId}",
                     arguments = listOf(
-                        androidx.navigation.navArgument("hymnId") { 
-                            type = androidx.navigation.NavType.IntType 
+                        navArgument("hymnId") {
+                            type = NavType.IntType
                         }
                     )
                 ) { backStackEntry ->
                     val hymnId = backStackEntry.arguments?.getInt("hymnId") ?: 0
-                    com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailScreen(
-                        onBack = { bottomNavController.popBackStack() }
+                    
+                    // 1. ViewModel instanciado no lugar certo
+                    val viewModel: HymnDetailViewModel = hiltViewModel()
+                    val uiState by viewModel.uiState.collectAsState()
+
+                    // 2. Define o hymnId no ViewModel quando a tela é carregada
+                    LaunchedEffect(hymnId) {
+                        viewModel.setHymnId(hymnId)
+                    }
+
+                    // 3. TopAppBar construída usando componente especializado
+                    LaunchedEffect(uiState) {
+                        topBarState.value = {
+                            HymnDetailTopAppBar(
+                                uiState = uiState,
+                                onBackClick = { bottomNavController.popBackStack() },
+                                onIncreaseFont = viewModel::increaseFontSize,
+                                onDecreaseFont = viewModel::decreaseFontSize
+                            )
+                        }
+                    }
+
+                    // 4. Tela simplificada (sem ViewModel próprio)
+                    HymnDetailScreen(
+                        uiState = uiState,
+                        onBack = { bottomNavController.popBackStack() },
+                        onToggleFavorite = viewModel::onToggleFavorite
                     )
                 }
             }

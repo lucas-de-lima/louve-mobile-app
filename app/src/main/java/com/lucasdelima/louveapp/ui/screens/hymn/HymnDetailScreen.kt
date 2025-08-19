@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -23,7 +22,6 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,9 +32,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,17 +53,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lucasdelima.louveapp.domain.model.Hymn
-import com.lucasdelima.louveapp.ui.theme.LouveTheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HymnDetailScreen(
+    uiState: HymnDetailUiState,
     onBack: () -> Unit,
-    viewModel: HymnDetailViewModel = hiltViewModel()
+    onToggleFavorite: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-
     // --- LÓGICA PARA AS NOVAS FUNCIONALIDADES ---
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -87,79 +83,58 @@ fun HymnDetailScreen(
     // O fundo agora é controlado pela MainScreen
     // Esta tela é focada apenas no seu conteúdo
     Scaffold(
-            // Adiciona o host do Snackbar para exibir nossas mensagens
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text(uiState.hymn?.number?.toString()?.padStart(3, '0') ?: "...") },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
+        // Adiciona o host do Snackbar para exibir nossas mensagens
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        bottomBar = {
+            BottomAppBar(
+                containerColor = Color.Transparent,
+                actions = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        // --- BOTÃO DE FAVORITOS ---
+                        IconButton(onClick = onToggleFavorite) {
+                            Icon(
+                                imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = if (uiState.isFavorite) "Desfavoritar" else "Favoritar",
+                                tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                            )
                         }
-                    },
-                    actions = {
-                        IconButton(onClick = viewModel::decreaseFontSize) {
-                            Icon(Icons.Default.KeyboardArrowDown, "Diminuir Fonte")
-                        }
-                        IconButton(onClick = viewModel::increaseFontSize) {
-                            Icon(Icons.Default.KeyboardArrowUp, "Aumentar Fonte")
-                        }
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Transparent
-                    )
-                )
-            },
-            bottomBar = {
-                BottomAppBar(
-                    containerColor = Color.Transparent,
-                    actions = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            // --- BOTÃO DE FAVORITOS ---
-                            IconButton(onClick = viewModel::onToggleFavorite) {
-                                Icon(
-                                    imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                    contentDescription = if (uiState.isFavorite) "Desfavoritar" else "Favoritar",
-                                    tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                )
-                            }
 
-                            // --- BOTÃO DE COMPARTILHAR (Abre a nossa folha customizada) ---
-                            IconButton(onClick = {
-                                showShareSheet = true // Apenas mostra a folha
-                            }) {
-                                Icon(Icons.Default.Share, "Compartilhar")
-                            }
+                        // --- BOTÃO DE COMPARTILHAR (Abre a nossa folha customizada) ---
+                        IconButton(onClick = {
+                            showShareSheet = true // Apenas mostra a folha
+                        }) {
+                            Icon(Icons.Default.Share, "Compartilhar")
                         }
                     }
-                )
-            },
-            containerColor = Color.Transparent
-        ) { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                when {
-                    uiState.isLoading -> CircularProgressIndicator()
-                    uiState.error != null -> Text(
-                        "Erro: ${uiState.error}",
-                        color = MaterialTheme.colorScheme.error
-                    )
-
-                    uiState.hymn != null -> HymnContent(
-                        hymn = uiState.hymn!!,
-                        fontScaleFactor = uiState.fontScaleFactor
-                    )
                 }
+            )
+        },
+        containerColor = Color.Transparent
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                uiState.isLoading -> CircularProgressIndicator()
+                uiState.error != null -> Text(
+                    "Erro: ${uiState.error}",
+                    color = MaterialTheme.colorScheme.error
+                )
+
+                uiState.hymn != null -> HymnContent(
+                    hymn = uiState.hymn!!,
+                    fontScaleFactor = uiState.fontScaleFactor
+                )
             }
         }
     }
+}
 
 /**
  * Uma folha de compartilhamento ("bottom sheet") que mostra uma pré-visualização

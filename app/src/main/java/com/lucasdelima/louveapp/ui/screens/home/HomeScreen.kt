@@ -37,7 +37,6 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     onHymnSelected: (Int) -> Unit,
     onSettingsClick: () -> Unit,
-    onComposingTopBar: (@Composable () -> Unit) -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -52,26 +51,6 @@ fun HomeScreen(
             scope.launch {
                 listState.animateScrollToItem(0)
             }
-        }
-    }
-
-    // Informa à MainScreen qual TopAppBar renderizar
-    LaunchedEffect(Unit) {
-        onComposingTopBar {
-            CenterAlignedTopAppBar(
-                title = { Text("Louve App") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
-                ),
-                actions = {
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Configurações"
-                        )
-                    }
-                }
-            )
         }
     }
 

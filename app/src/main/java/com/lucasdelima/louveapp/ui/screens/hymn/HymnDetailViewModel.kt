@@ -28,12 +28,12 @@ import javax.inject.Inject
 class HymnDetailViewModel @Inject constructor(
     private val hymnRepository: HymnRepository,
     private val favoritesRepository: FavoritesRepository,
-    private val authRepository: AuthRepository,
-    savedStateHandle: SavedStateHandle
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    private val hymnIdArg: Int? = savedStateHandle.get<Int>("hymnId") ?: savedStateHandle.get<Int>("id")
-    private val hymnId: String = hymnIdArg?.toString() ?: ""
+    private var _hymnId: Int? = null
+    private val hymnId: Int get() = _hymnId ?: throw IllegalStateException("hymnId não foi definido")
+    
     private val _uiState = MutableStateFlow(HymnDetailUiState())
     val uiState: StateFlow<HymnDetailUiState> = _uiState.asStateFlow()
 
@@ -44,17 +44,13 @@ class HymnDetailViewModel @Inject constructor(
         data class ShowSnackbar(val message: String) : HymnDetailEvent()
     }
 
+    fun setHymnId(id: Int) {
+        _hymnId = id
+        observeHymnDetails()
+    }
+
     init {
-        // Se não houver ID válido, finalize o loading e apresente erro
-        if (hymnIdArg == null) {
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                error = "Hino não encontrado."
-            )
-        } else {
-            // MODIFICAÇÃO: A lógica de carregamento agora é reativa.
-            observeHymnDetails()
-        }
+        // O hymnId será definido explicitamente via setHymnId()
     }
 
     private fun observeHymnDetails() {
@@ -64,7 +60,7 @@ class HymnDetailViewModel @Inject constructor(
         val favoritesFlow: Flow<Result<Set<String>>> = favoritesRepository.getFavoriteHymnIds()
         // Como `getHymnById` é uma suspend fun, nós a envolvemos em um
         // construtor `flow` para criar um Flow que emite o valor uma única vez.
-        val id = hymnIdArg!!
+        val id = hymnId
         val hymnFlow: Flow<Hymn?> = flow {
             emit(hymnRepository.getHymnById(id))
         }
@@ -78,7 +74,7 @@ class HymnDetailViewModel @Inject constructor(
                 isLoading = false,
                 hymn = hymn,
                 isUserLoggedIn = isUserLoggedIn,
-                isFavorite = favoriteIds.contains(hymnId),
+                isFavorite = favoriteIds.contains(hymnId.toString()),
                 error = if (hymn == null) "Hino não encontrado." else null
             )
         }
@@ -98,9 +94,9 @@ class HymnDetailViewModel @Inject constructor(
         viewModelScope.launch {
             // MODIFICAÇÃO: A chamada é a mesma, a lógica de roteamento está no repositório.
             val result = if (newFavoriteState) {
-                favoritesRepository.addFavorite(hymnId)
+                favoritesRepository.addFavorite(hymnId.toString())
             } else {
-                favoritesRepository.removeFavorite(hymnId)
+                favoritesRepository.removeFavorite(hymnId.toString())
             }
             if (result is Result.Error) {
                 _uiState.update { it.copy(isFavorite = isCurrentlyFavorite) }

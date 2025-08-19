@@ -41,8 +41,7 @@ fun MoreScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAbout: () -> Unit,
-    onNavigateToSupport: () -> Unit,
-    onComposingTopBar: (@Composable () -> Unit) -> Unit
+    onNavigateToSupport: () -> Unit
 ) {
     val context = LocalContext.current
     val viewModel: MoreViewModel = hiltViewModel()
@@ -62,18 +61,6 @@ fun MoreScreen(
     // Track da tela
     LaunchedEffect(Unit) {
         viewModel.trackScreenView()
-    }
-
-    // Informa à MainScreen qual TopAppBar renderizar
-    LaunchedEffect(Unit) {
-        onComposingTopBar {
-            TopAppBar(
-                title = { Text("Mais") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        }
     }
 
     // O fundo do tema já está sendo desenhado na MainScreen

@@ -22,20 +22,7 @@ import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiscoverScreen(
-    onComposingTopBar: (@Composable () -> Unit) -> Unit
-) {
-    // Informa à MainScreen qual TopAppBar renderizar
-    LaunchedEffect(Unit) {
-        onComposingTopBar {
-            CenterAlignedTopAppBar(
-                title = { Text("Descubra") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        }
-    }
+fun DiscoverScreen() {
 
     // O fundo do tema já está sendo desenhado na MainScreen
     // Aqui apenas renderizamos o conteúdo da tela

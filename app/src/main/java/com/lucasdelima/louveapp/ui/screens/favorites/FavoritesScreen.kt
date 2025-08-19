@@ -22,22 +22,9 @@ import com.lucasdelima.louveapp.ui.theme.LouveTheme
 @Composable
 fun FavoritesScreen(
     onHymnClick: (Int) -> Unit,
-    onComposingTopBar: (@Composable () -> Unit) -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    // Informa à MainScreen qual TopAppBar renderizar
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        onComposingTopBar {
-            CenterAlignedTopAppBar(
-                title = { Text("Hinos Favoritos") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        }
-    }
 
     // O fundo do tema já está sendo desenhado na MainScreen
     // Aqui apenas renderizamos o conteúdo da tela
