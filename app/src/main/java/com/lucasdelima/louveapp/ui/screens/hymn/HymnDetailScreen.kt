@@ -84,13 +84,9 @@ fun HymnDetailScreen(
 
     // ------------------------------------------
 
-    // Esta tela tem seu próprio fundo especial (detailScreenBackground)
-    // que é desenhado por cima do fundo principal
-    // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
-    Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.detailScreenBackground()
-
-        Scaffold(
+    // O fundo agora é controlado pela MainScreen
+    // Esta tela é focada apenas no seu conteúdo
+    Scaffold(
             // Adiciona o host do Snackbar para exibir nossas mensagens
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             topBar = {
@@ -164,7 +160,6 @@ fun HymnDetailScreen(
             }
         }
     }
-}
 
 /**
  * Uma folha de compartilhamento ("bottom sheet") que mostra uma pré-visualização

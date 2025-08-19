@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,16 +36,33 @@ fun MainScreen(rootNavController: NavHostController) {
     // Estado para controlar qual TopAppBar deve ser renderizada
     var topBarState by remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
     
+    // Estado para controlar qual fundo deve ser exibido
+    var currentBackground by remember {
+        mutableStateOf<@Composable () -> Unit>({ LouveTheme.backgrounds.screenBackground() })
+    }
+    
     // Estado para controlar a visibilidade da BottomBar
     val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     
     val isBottomBarVisible = when (currentRoute) {
         // Lista de rotas onde a barra deve ser escondida
-        // Adicione a rota de detalhes do hino aqui quando ela for movida
-        // "hymn_detail_route/{hymnId}" -> false
         "hymnDetail/{hymnId}" -> false
         else -> true
+    }
+
+    // Atualiza o fundo baseado na rota atual
+    LaunchedEffect(currentRoute) {
+        currentBackground = when {
+            currentRoute?.startsWith("hymnDetail/") == true -> {
+                // Se a rota for de detalhes, use o fundo de detalhe
+                { LouveTheme.backgrounds.detailScreenBackground() }
+            }
+            else -> {
+                // Para todas as outras rotas, use o fundo padrão
+                { LouveTheme.backgrounds.screenBackground() }
+            }
+        }
     }
 
     // Scaffold central que gerencia toda a estrutura da UI
@@ -69,7 +87,8 @@ fun MainScreen(rootNavController: NavHostController) {
         // DESENHAMOS O FUNDO AQUI, DENTRO DA ÁREA DE CONTEÚDO
         // Ele vai preencher o espaço atrás do NavHost e respeitar o Scaffold
         Box(modifier = Modifier.fillMaxSize()) {
-            LouveTheme.backgrounds.screenBackground()
+            // O fundo atual é desenhado aqui, ocupando a tela inteira
+            currentBackground()
             
             // NavHost aninhado para o conteúdo principal
             // Este NavHost renderiza as telas de navegação inferior
