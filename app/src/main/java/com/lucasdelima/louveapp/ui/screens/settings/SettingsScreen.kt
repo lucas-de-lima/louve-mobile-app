@@ -31,6 +31,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -205,7 +206,7 @@ private fun ThemePreviewCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp)
+            .height(72.dp)
             .selectable(
                 selected = isSelected,
                 onClick = onSelected,
@@ -230,13 +231,19 @@ private fun ThemePreviewCard(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 RadioButton(
                     selected = isSelected,
-                    onClick = null
+                    onClick = null,
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = themeData.colors.primary,
+                        unselectedColor = themeData.colors.onSurfaceVariant,
+                        disabledSelectedColor = themeData.colors.primary.copy(alpha = 0.38f),
+                        disabledUnselectedColor = themeData.colors.onSurfaceVariant.copy(alpha = 0.38f)
+                    )
                 )
                 
                 Column {
@@ -245,16 +252,6 @@ private fun ThemePreviewCard(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = themeData.colors.onSurface
-                    )
-                    
-                    Text(
-                        text = when (themeData.category) {
-                            is ThemeCategory.Light -> "Tema Claro"
-                            is ThemeCategory.Dark -> "Tema Escuro"
-                            is ThemeCategory.Custom -> "Tema Personalizado"
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = themeData.colors.onSurfaceVariant
                     )
                 }
                 
