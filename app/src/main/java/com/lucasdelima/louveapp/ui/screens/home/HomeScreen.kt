@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -27,6 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.lucasdelima.louveapp.ui.components.HomeTopAppBar
+import com.lucasdelima.louveapp.ui.components.LouveBottomNavBar
 import com.lucasdelima.louveapp.ui.screens.home.components.HymnCardItem
 import com.lucasdelima.louveapp.ui.screens.home.components.SearchField
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
@@ -36,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    bottomNavController: NavHostController,
     onHymnSelected: (Int) -> Unit,
     onSettingsClick: () -> Unit,
     viewModel: HomeViewModel = viewModel()
@@ -55,44 +60,64 @@ fun HomeScreen(
         }
     }
 
-    // O fundo do tema já está sendo desenhado na MainScreen
-    // Aqui apenas renderizamos o conteúdo da tela
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Nosso novo campo de busca estilizado
-        SearchField(
-            query = uiState.searchQuery,
-            onQueryChanged = viewModel::onSearchQueryChanged
-        )
-
-        // Lógica de exibição da lista ou loading/erro
-        if (uiState.isLoading && uiState.hymns.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+    // Cada tela agora tem seu próprio Scaffold
+    Scaffold(
+        topBar = {
+            HomeTopAppBar(
+                onSettingsClick = onSettingsClick
+            )
+        },
+        bottomBar = {
+            LouveBottomNavBar(navController = bottomNavController)
+        },
+        containerColor = Color.Transparent // Mantém o fundo personalizado
+    ) { innerPadding ->
+        // DESENHAMOS O FUNDO DO TEMA AQUI, DENTRO DA ÁREA DE CONTEÚDO
+        Box(modifier = Modifier.fillMaxSize()) {
+            // O fundo do tema é desenhado aqui, ocupando a tela inteira
+            LouveTheme.backgrounds.screenBackground()
+            
+            // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
             ) {
-                CircularProgressIndicator()
-            }
-        } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    "Nenhum hino encontrado para \"${uiState.searchQuery}\"",
-                    color = MaterialTheme.colorScheme.onSurface
+                // Nosso novo campo de busca estilizado
+                SearchField(
+                    query = uiState.searchQuery,
+                    onQueryChanged = viewModel::onSearchQueryChanged
                 )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                state = listState
-            ) {
-                items(uiState.hymns, key = { it.id }) { hymn ->
-                    HymnCardItem(hymn = hymn) {
-                        onHymnSelected(hymn.id)
+
+                // Lógica de exibição da lista ou loading/erro
+                if (uiState.isLoading && uiState.hymns.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "Nenhum hino encontrado para \"${uiState.searchQuery}\"",
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        state = listState
+                    ) {
+                        items(uiState.hymns, key = { it.id }) { hymn ->
+                            HymnCardItem(hymn = hymn) {
+                                onHymnSelected(hymn.id)
+                            }
+                        }
                     }
                 }
             }

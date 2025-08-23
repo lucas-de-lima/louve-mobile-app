@@ -51,7 +51,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.lucasdelima.louveapp.domain.model.Hymn
+import com.lucasdelima.louveapp.ui.components.HymnDetailTopAppBar
 import kotlinx.coroutines.launch
+import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +78,16 @@ fun HymnDetailScreen(
         }
     }
 
+    // Cada tela agora tem seu próprio Scaffold
     Scaffold(
+        topBar = {
+            HymnDetailTopAppBar(
+                uiState = uiState,
+                onBackClick = onBack,
+                onIncreaseFont = onIncreaseFontSize,
+                onDecreaseFont = onDecreaseFontSize
+            )
+        },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             BottomAppBar(
@@ -109,25 +120,32 @@ fun HymnDetailScreen(
         },
         containerColor = Color.Transparent
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            when {
-                uiState.isLoading -> CircularProgressIndicator()
-                uiState.error != null -> Text(
-                    "Erro: ${uiState.error}",
-                    color = MaterialTheme.colorScheme.error
-                )
+        // DESENHAMOS O FUNDO ESPECIAL DO TEMA AQUI, DENTRO DA ÁREA DE CONTEÚDO
+        Box(modifier = Modifier.fillMaxSize()) {
+            // O fundo especial para tela de detalhes é desenhado aqui, ocupando a tela inteira
+            LouveTheme.backgrounds.detailScreenBackground()
+            
+            // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                when {
+                    uiState.isLoading -> CircularProgressIndicator()
+                    uiState.error != null -> Text(
+                        "Erro: ${uiState.error}",
+                        color = MaterialTheme.colorScheme.error
+                    )
 
-                uiState.hymn != null -> HymnContent(
-                    hymn = uiState.hymn!!,
-                    fontScaleFactor = uiState.fontScaleFactor,
-                    onIncreaseFont = onIncreaseFontSize,
-                    onDecreaseFont = onDecreaseFontSize
-                )
+                    uiState.hymn != null -> HymnContent(
+                        hymn = uiState.hymn!!,
+                        fontScaleFactor = uiState.fontScaleFactor,
+                        onIncreaseFont = onIncreaseFontSize,
+                        onDecreaseFont = onDecreaseFontSize
+                    )
+                }
             }
         }
     }

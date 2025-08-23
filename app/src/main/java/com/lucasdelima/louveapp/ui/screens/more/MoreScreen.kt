@@ -30,14 +30,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.lucasdelima.louveapp.domain.model.UserProfile
+import com.lucasdelima.louveapp.ui.components.MoreTopAppBar
+import com.lucasdelima.louveapp.ui.components.LouveBottomNavBar
 import com.lucasdelima.louveapp.ui.screens.settings.AuthViewModel
 import kotlinx.coroutines.launch
+import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoreScreen(
+    bottomNavController: NavHostController,
     onNavigateToProfile: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAbout: () -> Unit,
@@ -63,38 +68,55 @@ fun MoreScreen(
         viewModel.trackScreenView()
     }
 
-    // O fundo do tema já está sendo desenhado na MainScreen
-    // Aqui apenas renderizamos o conteúdo da tela
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-    ) {
-        // Seção de Perfil (Topo)
-        ProfileSection(
-            userProfile = userProfile,
-            onProfileClick = onNavigateToProfile
-        )
-        
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        // Seção de Ações
-        ActionsSection(
-            onSettingsClick = onNavigateToSettings,
-            onShareAppClick = { 
-                showShareSheet = true
-                viewModel.trackShareApp()
+    // Cada tela agora tem seu próprio Scaffold
+    Scaffold(
+        topBar = {
+            MoreTopAppBar()
+        },
+        bottomBar = {
+            LouveBottomNavBar(navController = bottomNavController)
+        },
+        containerColor = Color.Transparent // Mantém o fundo personalizado
+    ) { innerPadding ->
+        // DESENHAMOS O FUNDO DO TEMA AQUI, DENTRO DA ÁREA DE CONTEÚDO
+        Box(modifier = Modifier.fillMaxSize()) {
+            // O fundo do tema é desenhado aqui, ocupando a tela inteira
+            LouveTheme.backgrounds.screenBackground()
+            
+            // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
+            ) {
+                // Seção de Perfil (Topo)
+                ProfileSection(
+                    userProfile = userProfile,
+                    onProfileClick = onNavigateToProfile
+                )
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                // Seção de Ações
+                ActionsSection(
+                    onSettingsClick = onNavigateToSettings,
+                    onShareAppClick = { 
+                        showShareSheet = true
+                        viewModel.trackShareApp()
+                    }
+                )
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                // Seção de Informações e Suporte
+                InfoAndSupportSection(
+                    onAboutClick = onNavigateToAbout,
+                    onSupportClick = onNavigateToSupport
+                )
             }
-        )
-        
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        // Seção de Informações e Suporte
-        InfoAndSupportSection(
-            onAboutClick = onNavigateToAbout,
-            onSupportClick = onNavigateToSupport
-        )
+        }
     }
 }
 

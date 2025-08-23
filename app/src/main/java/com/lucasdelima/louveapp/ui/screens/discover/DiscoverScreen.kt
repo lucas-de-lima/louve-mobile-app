@@ -18,17 +18,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.lucasdelima.louveapp.ui.components.DiscoverTopAppBar
+import com.lucasdelima.louveapp.ui.components.LouveBottomNavBar
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiscoverScreen() {
-
-    // O fundo do tema já está sendo desenhado na MainScreen
-    // Aqui apenas renderizamos o conteúdo da tela
+fun DiscoverScreen(
+    bottomNavController: NavHostController
+) {
+    // Cada tela agora tem seu próprio Scaffold
+    Scaffold(
+        topBar = {
+            DiscoverTopAppBar()
+        },
+        bottomBar = {
+            LouveBottomNavBar(navController = bottomNavController)
+        },
+        containerColor = Color.Transparent // Mantém o fundo personalizado
+    ) { innerPadding ->
+        // DESENHAMOS O FUNDO DO TEMA AQUI, DENTRO DA ÁREA DE CONTEÚDO
+        Box(modifier = Modifier.fillMaxSize()) {
+            // O fundo do tema é desenhado aqui, ocupando a tela inteira
+            LouveTheme.backgrounds.screenBackground()
+            
+            // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(innerPadding)
                     .padding(24.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -221,4 +240,6 @@ fun DiscoverScreen() {
                     }
                 }
             }
+        }
+    }
 }

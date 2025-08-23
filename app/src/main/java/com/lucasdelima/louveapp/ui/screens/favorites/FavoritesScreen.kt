@@ -13,6 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.lucasdelima.louveapp.ui.components.FavoritesTopAppBar
+import com.lucasdelima.louveapp.ui.components.LouveBottomNavBar
 import com.lucasdelima.louveapp.ui.screens.home.HymnUi
 import com.lucasdelima.louveapp.ui.screens.home.components.HymnCardItem
 import com.lucasdelima.louveapp.ui.screens.home.toHymnUi
@@ -21,34 +24,53 @@ import com.lucasdelima.louveapp.ui.theme.LouveTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(
+    bottomNavController: NavHostController,
     onHymnClick: (Int) -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // O fundo do tema já está sendo desenhado na MainScreen
-    // Aqui apenas renderizamos o conteúdo da tela
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        if (uiState.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        } else if (uiState.error != null) {
-            Text(
-                text = "Erro: ${uiState.error}",
-                modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        } else if (uiState.favoriteHymns.isEmpty()) {
-            EmptyFavoritesState()
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+    // Cada tela agora tem seu próprio Scaffold
+    Scaffold(
+        topBar = {
+            FavoritesTopAppBar()
+        },
+        bottomBar = {
+            LouveBottomNavBar(navController = bottomNavController)
+        },
+        containerColor = Color.Transparent // Mantém o fundo personalizado
+    ) { innerPadding ->
+        // DESENHAMOS O FUNDO DO TEMA AQUI, DENTRO DA ÁREA DE CONTEÚDO
+        Box(modifier = Modifier.fillMaxSize()) {
+            // O fundo do tema é desenhado aqui, ocupando a tela inteira
+            LouveTheme.backgrounds.screenBackground()
+            
+            // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
             ) {
-                items(uiState.favoriteHymns, key = { it.id }) { hymn: HymnUi ->
-                    HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                } else if (uiState.error != null) {
+                    Text(
+                        text = "Erro: ${uiState.error}",
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                } else if (uiState.favoriteHymns.isEmpty()) {
+                    EmptyFavoritesState()
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(uiState.favoriteHymns, key = { it.id }) { hymn: HymnUi ->
+                            HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
+                        }
+                    }
                 }
             }
         }
