@@ -1,19 +1,28 @@
 package com.lucasdelima.louveapp.ui.screens.settings
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -28,6 +37,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,14 +47,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.lucasdelima.louveapp.ui.common.auth.rememberGoogleSignInLauncher
 import com.lucasdelima.louveapp.R
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.repository.AuthCredentials
-import com.lucasdelima.louveapp.ui.theme.LouveTheme
+import com.lucasdelima.louveapp.ui.theme.LouveThemeData
+import com.lucasdelima.louveapp.ui.theme.ThemeCategory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +79,7 @@ fun SettingsScreen(
     // Aqui apenas renderizamos o conteúdo da tela
     // O fundo cobre toda a tela, incluindo as áreas das barras de sistema
     Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.screenBackground()
+        // ✅ REMOVIDO: Fundo duplicado - agora é desenhado apenas na MainActivity
 
         Scaffold(
             topBar = {
@@ -110,8 +123,8 @@ fun SettingsScreen(
                 )
                 Column(Modifier.selectableGroup()) {
                     settingsUiState.availableThemes.forEach { themeData ->
-                        ThemeSelectorRow(
-                            themeName = themeData.name,
+                        ThemePreviewCard(
+                            themeData = themeData,
                             isSelected = themeData.name == settingsUiState.selectedThemeName,
                             onSelected = { settingsViewModel.selectTheme(themeData.name) }
                         )
@@ -184,31 +197,79 @@ private fun ProfileSection(
 }
 
 @Composable
-private fun ThemeSelectorRow(
-    themeName: String,
+private fun ThemePreviewCard(
+    themeData: LouveThemeData,
     isSelected: Boolean,
     onSelected: () -> Unit
 ) {
-    Row(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
+            .height(80.dp)
             .selectable(
                 selected = isSelected,
                 onClick = onSelected,
                 role = Role.RadioButton
             )
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            }
+        ),
+        border = if (isSelected) {
+            BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        } else null
     ) {
-        RadioButton(
-            selected = isSelected,
-            onClick = null
-        )
-        Text(
-            text = themeName,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            // ✅ Preview do fundo do tema
+            themeData.backgrounds.screenBackground()
+            
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                RadioButton(
+                    selected = isSelected,
+                    onClick = null
+                )
+                
+                Column {
+                    Text(
+                        text = themeData.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = themeData.colors.onSurface
+                    )
+                    
+                    Text(
+                        text = when (themeData.category) {
+                            is ThemeCategory.Light -> "Tema Claro"
+                            is ThemeCategory.Dark -> "Tema Escuro"
+                            is ThemeCategory.Custom -> "Tema Personalizado"
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = themeData.colors.onSurfaceVariant
+                    )
+                }
+                
+                Spacer(modifier = Modifier.weight(1f))
+                
+                // Indicador visual do tema selecionado
+                if (isSelected) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Tema selecionado",
+                        tint = themeData.colors.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        }
     }
 }

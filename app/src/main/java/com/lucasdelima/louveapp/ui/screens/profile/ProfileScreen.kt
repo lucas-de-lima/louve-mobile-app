@@ -51,7 +51,7 @@ fun ProfileScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.screenBackground()
+        // ✅ REMOVIDO: Fundo duplicado - agora é desenhado apenas na MainActivity
         
         // Track screen view
         LaunchedEffect(Unit) {

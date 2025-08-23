@@ -1,43 +1,58 @@
 package com.lucasdelima.louveapp.ui.screens.more
 
-import androidx.compose.foundation.layout.*
+import android.content.Intent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import android.content.Intent
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.lucasdelima.louveapp.domain.model.UserProfile
-import com.lucasdelima.louveapp.ui.components.MoreTopAppBar
 import com.lucasdelima.louveapp.ui.components.LouveBottomNavBar
+import com.lucasdelima.louveapp.ui.components.MoreTopAppBar
 import com.lucasdelima.louveapp.ui.screens.settings.AuthViewModel
 import kotlinx.coroutines.launch
-import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,10 +67,10 @@ fun MoreScreen(
     val viewModel: MoreViewModel = hiltViewModel()
     val authViewModel: AuthViewModel = hiltViewModel()
     val userProfile by authViewModel.userProfile.collectAsState()
-    
+
     // Estado para controlar o modal de compartilhamento
     var showShareSheet by remember { mutableStateOf(false) }
-    
+
     // Exibe a folha de compartilhamento se showShareSheet for true
     if (showShareSheet) {
         ShareAppBottomSheet(
@@ -78,44 +93,39 @@ fun MoreScreen(
         },
         containerColor = Color.Transparent // Mantém o fundo personalizado
     ) { innerPadding ->
-        // DESENHAMOS O FUNDO DO TEMA AQUI, DENTRO DA ÁREA DE CONTEÚDO
-        Box(modifier = Modifier.fillMaxSize()) {
-            // O fundo do tema é desenhado aqui, ocupando a tela inteira
-            LouveTheme.backgrounds.screenBackground()
-            
-            // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
-            ) {
-                // Seção de Perfil (Topo)
-                ProfileSection(
-                    userProfile = userProfile,
-                    onProfileClick = onNavigateToProfile
-                )
-                
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                // Seção de Ações
-                ActionsSection(
-                    onSettingsClick = onNavigateToSettings,
-                    onShareAppClick = { 
-                        showShareSheet = true
-                        viewModel.trackShareApp()
-                    }
-                )
-                
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                // Seção de Informações e Suporte
-                InfoAndSupportSection(
-                    onAboutClick = onNavigateToAbout,
-                    onSupportClick = onNavigateToSupport
-                )
-            }
+        // ✅ REMOVIDO: Fundo duplicado - agora é desenhado apenas na MainActivity
+        // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        ) {
+            // Seção de Perfil (Topo)
+            ProfileSection(
+                userProfile = userProfile,
+                onProfileClick = onNavigateToProfile
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Seção de Ações
+            ActionsSection(
+                onSettingsClick = onNavigateToSettings,
+                onShareAppClick = {
+                    showShareSheet = true
+                    viewModel.trackShareApp()
+                }
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Seção de Informações e Suporte
+            InfoAndSupportSection(
+                onAboutClick = onNavigateToAbout,
+                onSupportClick = onNavigateToSupport
+            )
         }
     }
 }
@@ -152,9 +162,9 @@ private fun ProfileSection(
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column {
                 Text(
                     text = userProfile?.name ?: "Visitante",
@@ -176,9 +186,9 @@ private fun ProfileSection(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.weight(1f))
-            
+
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Ver perfil",
@@ -201,7 +211,7 @@ private fun ActionsSection(
             modifier = Modifier.padding(bottom = 16.dp),
             color = MaterialTheme.colorScheme.onSurface
         )
-        
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -221,7 +231,7 @@ private fun ActionsSection(
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = "Configurações",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -232,9 +242,9 @@ private fun ActionsSection(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(12.dp))
-        
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -254,7 +264,7 @@ private fun ActionsSection(
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = "Compartilhar App",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -275,13 +285,13 @@ private fun InfoAndSupportSection(
 ) {
     Column {
         Text(
-            text = "Informações",
+            text = "Informações e Suporte",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(bottom = 16.dp),
             color = MaterialTheme.colorScheme.onSurface
         )
-        
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -300,8 +310,8 @@ private fun InfoAndSupportSection(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
-                    text = "Sobre",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = "Sobre o App",
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -312,9 +322,9 @@ private fun InfoAndSupportSection(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(12.dp))
-        
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -328,13 +338,13 @@ private fun InfoAndSupportSection(
             ) {
                 Icon(
                     imageVector = Icons.Default.Star,
-                    contentDescription = "Ajuda",
+                    contentDescription = "Suporte",
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = "Ajuda e Suporte",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -370,7 +380,11 @@ private fun ShareAppBottomSheet(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Compartilhar App", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                "Compartilhar App",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             // Card de pré-visualização

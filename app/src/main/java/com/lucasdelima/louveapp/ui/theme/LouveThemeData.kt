@@ -5,6 +5,15 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 
 /**
+ * Define as categorias de temas disponíveis no app
+ */
+sealed class ThemeCategory {
+    object Light : ThemeCategory()
+    object Dark : ThemeCategory()
+    object Custom : ThemeCategory()
+}
+
+/**
  * Define os diferentes tipos de fundo que um tema pode ter.
  * 
  * - screenBackground: Fundo para telas de navegação e listas (Home, Configurações)
@@ -36,8 +45,11 @@ data class LouveBackgrounds(
  * incluindo as áreas das barras de sistema.
  */
 data class LouveThemeData(
+    val id: String,
     val name: String,
+    val category: ThemeCategory,
     val colors: ColorScheme,
     val typography: Typography,
-    val backgrounds: LouveBackgrounds
+    val backgrounds: LouveBackgrounds,
+    val isDefault: Boolean = false
 )

@@ -72,51 +72,46 @@ fun HomeScreen(
         },
         containerColor = Color.Transparent // Mantém o fundo personalizado
     ) { innerPadding ->
-        // DESENHAMOS O FUNDO DO TEMA AQUI, DENTRO DA ÁREA DE CONTEÚDO
-        Box(modifier = Modifier.fillMaxSize()) {
-            // O fundo do tema é desenhado aqui, ocupando a tela inteira
-            LouveTheme.backgrounds.screenBackground()
-            
-            // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                // Nosso novo campo de busca estilizado
-                SearchField(
-                    query = uiState.searchQuery,
-                    onQueryChanged = viewModel::onSearchQueryChanged
-                )
+        // ✅ REMOVIDO: Fundo duplicado - agora é desenhado apenas na MainActivity
+        // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            // Nosso novo campo de busca estilizado
+            SearchField(
+                query = uiState.searchQuery,
+                onQueryChanged = viewModel::onSearchQueryChanged
+            )
 
-                // Lógica de exibição da lista ou loading/erro
-                if (uiState.isLoading && uiState.hymns.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            "Nenhum hino encontrado para \"${uiState.searchQuery}\"",
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        state = listState
-                    ) {
-                        items(uiState.hymns, key = { it.id }) { hymn ->
-                            HymnCardItem(hymn = hymn) {
-                                onHymnSelected(hymn.id)
-                            }
+            // Lógica de exibição da lista ou loading/erro
+            if (uiState.isLoading && uiState.hymns.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Nenhum hino encontrado para \"${uiState.searchQuery}\"",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    state = listState
+                ) {
+                    items(uiState.hymns, key = { it.id }) { hymn ->
+                        HymnCardItem(hymn = hymn) {
+                            onHymnSelected(hymn.id)
                         }
                     }
                 }

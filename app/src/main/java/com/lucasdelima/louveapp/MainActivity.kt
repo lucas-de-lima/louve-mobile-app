@@ -1,17 +1,16 @@
 package com.lucasdelima.louveapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
@@ -36,20 +35,32 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         
         setContent {
-            val themeName by viewModel.themeName.collectAsState()
-            val selectedTheme = AllThemes.find { it.name == themeName } ?: DefaultTheme
+            LouveApp(viewModel)
+        }
+    }
+}
 
-            LouveAppTheme(themeData = selectedTheme) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    // O fundo do tema agora é renderizado diretamente em cada tela
-                    // para evitar suavização causada por camadas intermediárias
-                    // O enableEdgeToEdge() permite que o fundo se estenda até as bordas
-                    
-                    // O conteúdo de navegação é renderizado por cima do fundo
-                    val navController = rememberNavController()
-                    NavGraph(navController = navController)
-                }
-            }
+@Composable
+fun LouveApp(viewModel: MainViewModel) {
+    // ✅ SOLUÇÃO SIMPLES: Observa diretamente o tema atual
+    val currentTheme by viewModel.currentTheme.collectAsState()
+    
+    // ✅ Encontra o tema ou usa o padrão
+    val selectedTheme = AllThemes.find { it.name == currentTheme } 
+        ?: run {
+            Log.w("MainActivity", "Tema '$currentTheme' não encontrado, usando padrão")
+            AllThemes.find { it.isDefault } ?: DefaultTheme
+        }
+    
+    // ✅ Aplica o tema e renderiza o app
+    LouveAppTheme(themeData = selectedTheme) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // ✅ Fundo principal desenhado UMA VEZ na MainActivity
+            LouveTheme.backgrounds.screenBackground()
+            
+            // ✅ NavGraph gerencia toda a navegação, incluindo o splash
+            val navController = rememberNavController()
+            NavGraph(navController = navController)
         }
     }
 }

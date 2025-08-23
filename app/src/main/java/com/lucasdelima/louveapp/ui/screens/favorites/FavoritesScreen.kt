@@ -40,36 +40,31 @@ fun FavoritesScreen(
         },
         containerColor = Color.Transparent // Mantém o fundo personalizado
     ) { innerPadding ->
-        // DESENHAMOS O FUNDO DO TEMA AQUI, DENTRO DA ÁREA DE CONTEÚDO
-        Box(modifier = Modifier.fillMaxSize()) {
-            // O fundo do tema é desenhado aqui, ocupando a tela inteira
-            LouveTheme.backgrounds.screenBackground()
-            
-            // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                } else if (uiState.error != null) {
-                    Text(
-                        text = "Erro: ${uiState.error}",
-                        modifier = Modifier.align(Alignment.Center),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                } else if (uiState.favoriteHymns.isEmpty()) {
-                    EmptyFavoritesState()
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(uiState.favoriteHymns, key = { it.id }) { hymn: HymnUi ->
-                            HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
-                        }
+        // ✅ REMOVIDO: Fundo duplicado - agora é desenhado apenas na MainActivity
+        // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            if (uiState.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (uiState.error != null) {
+                Text(
+                    text = "Erro: ${uiState.error}",
+                    modifier = Modifier.align(Alignment.Center),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            } else if (uiState.favoriteHymns.isEmpty()) {
+                EmptyFavoritesState()
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.favoriteHymns, key = { it.id }) { hymn: HymnUi ->
+                        HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
                     }
                 }
             }

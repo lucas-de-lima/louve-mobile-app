@@ -67,17 +67,22 @@ private fun SolidColorBackground(color: Color) {
 //------------------------------------------------------------------
 
 val DefaultTheme = LouveThemeData(
+    id = "default_light",
     name = "Padrão Claro",
+    category = ThemeCategory.Light,
     colors = LightThemeColors,
     typography = Typography,
     backgrounds = LouveBackgrounds(
         screenBackground = { SolidColorBackground(LightThemeColors.background) },
         detailScreenBackground = { SolidColorBackground(LightThemeColors.surface) }
-    )
+    ),
+    isDefault = true
 )
 
 val DarkTheme = LouveThemeData(
+    id = "dark",
     name = "Escuro",
+    category = ThemeCategory.Dark,
     colors = DarkThemeColors,
     typography = Typography,
     backgrounds = LouveBackgrounds(
@@ -87,7 +92,9 @@ val DarkTheme = LouveThemeData(
 )
 
 val SweetCandyTheme = LouveThemeData(
+    id = "sweet_candy",
     name = "Sweet Candy",
+    category = ThemeCategory.Custom,
     colors = SweetCandyColors,
     typography = Typography,
     backgrounds = LouveBackgrounds(

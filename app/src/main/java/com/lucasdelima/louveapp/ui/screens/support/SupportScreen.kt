@@ -47,7 +47,7 @@ fun SupportScreen(
     var showSuccessDialog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.screenBackground()
+        // ✅ REMOVIDO: Fundo duplicado - agora é desenhado apenas na MainActivity
         
         // Track screen view
         LaunchedEffect(Unit) {

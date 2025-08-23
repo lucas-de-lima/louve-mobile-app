@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -33,6 +34,9 @@ import kotlinx.coroutines.launch
 fun SplashScreen(
     onAnimationFinished: () -> Unit
 ) {
+    // ✅ CORREÇÃO: Flag para controlar se a animação já foi executada
+    val animationStarted = remember { mutableStateOf(false) }
+    
     // --- ESTADOS DE ANIMAÇÃO ---
     val density = LocalDensity.current
     val screenWidth = with(density) {
@@ -60,42 +64,53 @@ fun SplashScreen(
 
     // --- ROTEIRO DA ANIMAÇÃO (VERSÃO FINAL POLIDA) ---
     LaunchedEffect(key1 = true) {
-        // ATO I: A CHEGADA (1200ms)
-        // O movimento de chegada é um pouco mais rápido.
-        launch {
-            silhouettesAlpha.animateTo(1f, animationSpec = tween(1200, easing = FastOutSlowInEasing))
-        }
-        launch {
-            manOffsetX.animateTo(targetValue = manTargetX, animationSpec = tween(1200, easing = FastOutSlowInEasing))
-        }
-        womanOffsetX.animateTo(targetValue = womanTargetX, animationSpec = tween(1200, easing = FastOutSlowInEasing))
+        // ✅ CORREÇÃO: Evita múltiplas execuções da animação
+        if (animationStarted.value) return@LaunchedEffect
+        animationStarted.value = true
+        
+        try {
+            // ATO I: A CHEGADA (1200ms)
+            // O movimento de chegada é um pouco mais rápido.
+            launch {
+                silhouettesAlpha.animateTo(1f, animationSpec = tween(1200, easing = FastOutSlowInEasing))
+            }
+            launch {
+                manOffsetX.animateTo(targetValue = manTargetX, animationSpec = tween(1200, easing = FastOutSlowInEasing))
+            }
+            womanOffsetX.animateTo(targetValue = womanTargetX, animationSpec = tween(1200, easing = FastOutSlowInEasing))
 
-        // Pausa curta após a chegada.
-        delay(200)
+            // Pausa curta após a chegada.
+            delay(200)
 
-        // ATO II: O LOUVOR E A LUZ (Duração total ~1500ms)
-        // A ascensão do louvor e a explosão de luz agora são mais rápidas e decisivas.
-        launch {
-            notesAlpha.animateTo(1f, animationSpec = tween(300))
-            // Desaparecem mais rápido.
-            notesAlpha.animateTo(0f, animationSpec = tween(durationMillis = 1000, delayMillis = 500))
-        }
-        launch {
-            notesScale.animateTo(1.0f, animationSpec = tween(1500, easing = FastOutSlowInEasing))
-            notesTranslateY.animateTo(-screenHeight * 0.5f, animationSpec = tween(1500, easing = LinearEasing))
-        }
-        launch {
-            delay(500) // Luz explode mais cedo.
-            lightEffectAlpha.animateTo(0.8f, animationSpec = tween(300))
-            lightEffectScale.animateTo(2.0f, animationSpec = tween(800, easing = FastOutSlowInEasing))
-            lightEffectAlpha.animateTo(0f, animationSpec = tween(400)) // Dissipa-se mais rápido.
-        }
+            // ATO II: O LOUVOR E A LUZ (Duração total ~1500ms)
+            // A ascensão do louvor e a explosão de luz agora são mais rápidas e decisivas.
+            launch {
+                notesAlpha.animateTo(1f, animationSpec = tween(300))
+                // Desaparecem mais rápido.
+                notesAlpha.animateTo(0f, animationSpec = tween(durationMillis = 1000, delayMillis = 500))
+            }
+            launch {
+                notesScale.animateTo(1.0f, animationSpec = tween(1500, easing = FastOutSlowInEasing))
+                notesTranslateY.animateTo(-screenHeight * 0.5f, animationSpec = tween(1500, easing = LinearEasing))
+            }
+            launch {
+                delay(500) // Luz explode mais cedo.
+                lightEffectAlpha.animateTo(0.8f, animationSpec = tween(300))
+                lightEffectScale.animateTo(2.0f, animationSpec = tween(800, easing = FastOutSlowInEasing))
+                lightEffectAlpha.animateTo(0f, animationSpec = tween(400)) // Dissipa-se mais rápido.
+            }
 
-        // ATO III: A TRANSIÇÃO SUAVE
-        // Duração total da cena visível é de aprox. 1.2s + 0.2s + 1.5s = 2.9s
-        // Damos um pequeno tempo para o olho descansar antes de mudar de tela.
-        delay(2900)
-        onAnimationFinished()
+            // ATO III: A TRANSIÇÃO SUAVE
+            // Duração total da cena visível é de aprox. 1.2s + 0.2s + 1.5s = 2.9s
+            // Damos um pequeno tempo para o olho descansar antes de mudar de tela.
+            delay(2900)
+            
+            // ✅ CORREÇÃO: Chama o callback apenas se a animação foi executada com sucesso
+            onAnimationFinished()
+        } catch (e: Exception) {
+            // ✅ CORREÇÃO: Em caso de erro, chama o callback para não travar
+            onAnimationFinished()
+        }
     }
 
     // --- MONTAGEM DAS CAMADAS VISUAIS ---
