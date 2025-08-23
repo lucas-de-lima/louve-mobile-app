@@ -328,8 +328,7 @@ private fun NotLoggedInContent(
         Text(
             text = "Entrar com Google",
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
+            fontWeight = FontWeight.SemiBold
         )
     }
     

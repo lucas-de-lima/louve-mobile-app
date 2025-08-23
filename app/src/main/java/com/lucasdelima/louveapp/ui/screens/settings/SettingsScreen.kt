@@ -160,7 +160,7 @@ private fun ProfileSection(
                 modifier = Modifier.size(18.dp),
                 tint = Color.Unspecified
             )
-            Text("Entrar com o Google", modifier = Modifier.padding(start = 8.dp), color = MaterialTheme.colorScheme.onSurface)
+            Text("Entrar com o Google", modifier = Modifier.padding(start = 8.dp))
         }
     } else {
         Row(

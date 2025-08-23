@@ -101,7 +101,7 @@ fun AboutScreen(
                     onClick = { /* TODO: Abrir política de privacidade */ },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Política de Privacidade", color = MaterialTheme.colorScheme.onSurface)
+                    Text("Política de Privacidade")
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -110,7 +110,7 @@ fun AboutScreen(
                     onClick = { /* TODO: Abrir licenças */ },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Licenças de Código Aberto", color = MaterialTheme.colorScheme.onSurface)
+                    Text("Licenças de Código Aberto")
                 }
                 
                 Spacer(modifier = Modifier.height(32.dp))
