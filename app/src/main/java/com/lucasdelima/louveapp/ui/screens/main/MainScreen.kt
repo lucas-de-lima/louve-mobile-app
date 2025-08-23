@@ -1,8 +1,5 @@
 package com.lucasdelima.louveapp.ui.screens.main
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,26 +26,14 @@ fun MainScreen(rootNavController: NavHostController) {
     val bottomNavController = rememberNavController()
 
     // O NavHost agora é o componente principal. Sem Scaffold ao redor dele.
+    // Usando as animações padrão nativas do Android - suaves e familiares
     NavHost(
         navController = bottomNavController,
         startDestination = BottomNavItem.Harpa.route,
-        modifier = Modifier.fillMaxSize(),
-        // ANIMAÇÃO REAL E TESTADA: Slide horizontal para navegação master-detail
-        enterTransition = {
-            slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(300))
-        },
-        exitTransition = {
-            slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(300))
-        },
-        popEnterTransition = {
-            slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(300))
-        },
-        popExitTransition = {
-            slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(300))
-        }
+        modifier = Modifier.fillMaxSize()
     ) {
         // Tela principal da harpa
-        composable(BottomNavItem.Harpa.route) {
+        composable(route = BottomNavItem.Harpa.route) {
             HomeScreen(
                 bottomNavController = bottomNavController,
                 onHymnSelected = { hymnId ->
@@ -61,7 +46,7 @@ fun MainScreen(rootNavController: NavHostController) {
         }
 
         // Tela de favoritos
-        composable(BottomNavItem.Favorites.route) {
+        composable(route = BottomNavItem.Favorites.route) {
             FavoritesScreen(
                 bottomNavController = bottomNavController,
                 onHymnClick = { hymnId ->
@@ -71,14 +56,14 @@ fun MainScreen(rootNavController: NavHostController) {
         }
 
         // Tela de descoberta
-        composable(BottomNavItem.Discover.route) {
+        composable(route = BottomNavItem.Discover.route) {
             DiscoverScreen(
                 bottomNavController = bottomNavController
             )
         }
 
         // Tela mais (centro de controle)
-        composable(BottomNavItem.More.route) {
+        composable(route = BottomNavItem.More.route) {
             MoreScreen(
                 bottomNavController = bottomNavController,
                 onNavigateToProfile = { rootNavController.navigate("profile") },
