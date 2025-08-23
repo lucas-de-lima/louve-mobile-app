@@ -31,7 +31,7 @@ fun HymnCardItem(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp), // Espaçamento entre os cards
+            .padding(vertical = 4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         // Define as cores do card baseadas no tema ativo
         colors = CardDefaults.cardColors(

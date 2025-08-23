@@ -2,7 +2,6 @@ package com.lucasdelima.louveapp.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lucasdelima.louveapp.data.repository.FakeHymnRepository // Use a interface se for injetar
 import com.lucasdelima.louveapp.data.repository.HymnRepositoryImpl
 import com.lucasdelima.louveapp.domain.model.Hymn // Importe o Hymn do domain
 import com.lucasdelima.louveapp.domain.repository.HymnRepository

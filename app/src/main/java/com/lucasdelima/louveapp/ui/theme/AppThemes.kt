@@ -3,15 +3,12 @@ package com.lucasdelima.louveapp.ui.theme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-
-// (As definições de paletas de cores `LightThemeColors`, `DarkThemeColors`, `SweetCandyColors`, etc. continuam as mesmas de antes)
 
 // --- Paleta Padrão Claro ---
 private val LightThemeColors = lightColorScheme(
@@ -126,7 +123,7 @@ val SweetCandyTheme = LouveThemeData(
                             colors = listOf(
                                 Color.White,
                                 CandyPink.copy(alpha = 0.4f)
-                            ), 
+                            ),
                             radius = 1200f,
                             center = androidx.compose.ui.geometry.Offset(0f, 0f)
                         )
