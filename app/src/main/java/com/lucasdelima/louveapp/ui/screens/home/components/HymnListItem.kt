@@ -22,7 +22,8 @@ fun HymnListItem(
     ) {
         Text(
             text = hymn.title,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(

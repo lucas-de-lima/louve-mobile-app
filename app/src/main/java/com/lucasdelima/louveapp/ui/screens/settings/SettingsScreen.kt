@@ -101,7 +101,8 @@ fun SettingsScreen(
                 Text(
                     text = "Aparência",
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Column(Modifier.selectableGroup()) {
                     settingsUiState.availableThemes.forEach { themeData ->
@@ -127,7 +128,8 @@ private fun ProfileSection(
     Text(
         text = "Conta",
         style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.padding(bottom = 8.dp)
+        modifier = Modifier.padding(bottom = 8.dp),
+        color = MaterialTheme.colorScheme.onSurface
     )
 
     if (userProfile == null) {
@@ -141,7 +143,7 @@ private fun ProfileSection(
                 modifier = Modifier.size(18.dp),
                 tint = Color.Unspecified
             )
-            Text("Entrar com o Google", modifier = Modifier.padding(start = 8.dp))
+            Text("Entrar com o Google", modifier = Modifier.padding(start = 8.dp), color = MaterialTheme.colorScheme.onSurface)
         }
     } else {
         Row(
@@ -165,12 +167,13 @@ private fun ProfileSection(
                 Text(
                     userProfile.name ?: "Usuário",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Text(userProfile.email ?: "", style = MaterialTheme.typography.bodyMedium)
+                Text(userProfile.email ?: "", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
             }
             OutlinedButton(onClick = onSignOutClick) {
-                Text("Sair")
+                Text("Sair", color = MaterialTheme.colorScheme.onSurface)
             }
         }
     }
@@ -200,7 +203,8 @@ private fun ThemeSelectorRow(
         )
         Text(
             text = themeName,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

@@ -93,7 +93,8 @@ fun SupportScreen(
                     text = "Como podemos ajudar?",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -137,9 +138,9 @@ fun SupportScreen(
                 showSuccessDialog = false
                 onBack()
             },
-            title = { Text("Ticket Enviado!") },
+            title = { Text("Ticket Enviado!", color = MaterialTheme.colorScheme.onSurface) },
             text = { 
-                Text("Obrigado pelo seu feedback! Nossa equipe analisará o problema e entrará em contato em breve.")
+                Text("Obrigado pelo seu feedback! Nossa equipe analisará o problema e entrará em contato em breve.", color = MaterialTheme.colorScheme.onSurface)
             },
             confirmButton = {
                 TextButton(
@@ -148,7 +149,7 @@ fun SupportScreen(
                         onBack()
                     }
                 ) {
-                    Text("OK")
+                    Text("OK", color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         )
@@ -180,7 +181,7 @@ private fun SupportForm(
             OutlinedTextField(
                 value = name,
                 onValueChange = onNameChange,
-                label = { Text("Nome") },
+                label = { Text("Nome", color = MaterialTheme.colorScheme.onSurface) },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
                     Icon(
@@ -196,7 +197,7 @@ private fun SupportForm(
             OutlinedTextField(
                 value = email,
                 onValueChange = onEmailChange,
-                label = { Text("E-mail") },
+                label = { Text("E-mail", color = MaterialTheme.colorScheme.onSurface) },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
                     Icon(
@@ -212,7 +213,7 @@ private fun SupportForm(
             OutlinedTextField(
                 value = description,
                 onValueChange = onDescriptionChange,
-                label = { Text("Descrição do problema") },
+                label = { Text("Descrição do problema", color = MaterialTheme.colorScheme.onSurface) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 4,
                 maxLines = 6,
@@ -250,7 +251,8 @@ private fun SupportForm(
                             Text(
                                 text = "Screenshot anexado",
                                 style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "Uma captura da tela foi incluída para ajudar na análise",
@@ -276,14 +278,14 @@ private fun SupportForm(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Enviando...")
+                    Text("Enviando...", color = MaterialTheme.colorScheme.onSurface)
                 } else {
                     Icon(
                         imageVector = Icons.Default.Send,
                         contentDescription = "Enviar"
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Enviar Ticket")
+                    Text("Enviar Ticket", color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         }

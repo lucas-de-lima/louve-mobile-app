@@ -149,9 +149,10 @@ private fun ShareBottomSheet(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Compartilhar Hino", style = MaterialTheme.typography.titleLarge)
+            Text("Compartilhar Hino", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Card de pré-visualização
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -160,19 +161,22 @@ private fun ShareBottomSheet(
                     Text(
                         text = "${hymn.number} - ${hymn.title}",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = hymn.verses.firstOrNull() ?: "Confira este hino no Louve App!",
                         style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 3
+                        maxLines = 3,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Botão final para compartilhar
             Button(
                 onClick = {
                     val firstVerse = hymn.verses.firstOrNull()?.replace("\n", " ") ?: ""
@@ -201,7 +205,7 @@ private fun ShareBottomSheet(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("COMPARTILHAR AGORA")
+                Text("COMPARTILHAR AGORA", color = MaterialTheme.colorScheme.onSurface)
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -239,11 +243,11 @@ private fun HymnContent(
     ) {
         Text(
             text = hymn.title,
-            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.headlineMedium,
             fontSize = MaterialTheme.typography.headlineMedium.fontSize * fontScaleFactor,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -266,10 +270,10 @@ private fun HymnContent(
 
         Text(
             text = formattedLyrics,
-            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyLarge,
             fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScaleFactor,
-            lineHeight = MaterialTheme.typography.bodyLarge.fontSize * 1.5 * fontScaleFactor
+            lineHeight = MaterialTheme.typography.bodyLarge.fontSize * 1.5 * fontScaleFactor,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

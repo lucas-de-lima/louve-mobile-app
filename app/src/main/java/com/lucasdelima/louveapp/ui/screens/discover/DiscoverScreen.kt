@@ -48,7 +48,8 @@ fun DiscoverScreen() {
                     text = "Descubra Novos Tesouros",
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -85,7 +86,8 @@ fun DiscoverScreen() {
                             Text(
                                 text = "Jornadas de Louvor",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         
@@ -94,7 +96,8 @@ fun DiscoverScreen() {
                         Text(
                             text = "Trilhas temáticas curadas que te guiarão através de hinos sobre temas específicos como Graça, Consolo, Adoração e muito mais.",
                             style = MaterialTheme.typography.bodyMedium,
-                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2
+                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -122,7 +125,8 @@ fun DiscoverScreen() {
                             Text(
                                 text = "História dos Hinos",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         
@@ -131,7 +135,8 @@ fun DiscoverScreen() {
                         Text(
                             text = "Descubra as histórias por trás dos hinos, os autores que os escreveram e o contexto histórico que os inspirou.",
                             style = MaterialTheme.typography.bodyMedium,
-                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2
+                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -159,7 +164,8 @@ fun DiscoverScreen() {
                             Text(
                                 text = "Recomendações Inteligentes",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         
@@ -168,7 +174,8 @@ fun DiscoverScreen() {
                         Text(
                             text = "Nossa IA analisa seus padrões de uso e sugere hinos que você pode amar, baseado no que já explorou.",
                             style = MaterialTheme.typography.bodyMedium,
-                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2
+                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -199,7 +206,8 @@ fun DiscoverScreen() {
                             text = "Estamos trabalhando para transformar sua experiência com a Harpa Cristã em algo verdadeiramente extraordinário.",
                             style = MaterialTheme.typography.bodyLarge,
                             textAlign = TextAlign.Center,
-                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2
+                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         
                         Spacer(modifier = Modifier.height(16.dp))

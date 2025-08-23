@@ -79,7 +79,8 @@ fun LouveBottomNavBar(navController: NavController) {
 				label = {
 					Text(
 						text = item.title,
-						modifier = Modifier.padding(top = 1.dp) // Padding reduzido para texto
+						modifier = Modifier.padding(top = 1.dp), // Padding reduzido para texto
+						color = MaterialTheme.colorScheme.onSurface
 					)
 				},
 				// Remove as cores de seleção para usar apenas os ícones como indicador

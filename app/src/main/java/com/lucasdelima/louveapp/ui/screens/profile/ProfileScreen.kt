@@ -162,7 +162,8 @@ private fun UserProfileContent(
         text = userProfile.name ?: "Usuário",
         style = MaterialTheme.typography.headlineLarge,
         fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onSurface
     )
     
     Spacer(modifier = Modifier.height(8.dp))
@@ -190,7 +191,8 @@ private fun UserProfileContent(
             Text(
                 text = "Estatísticas",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -229,7 +231,8 @@ private fun UserProfileContent(
             Text(
                 text = "Gerenciamento da Conta",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -244,7 +247,7 @@ private fun UserProfileContent(
                     contentDescription = "Sair"
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Sair da Conta")
+                Text("Sair da Conta", color = MaterialTheme.colorScheme.onSurface)
             }
             
             Spacer(modifier = Modifier.height(12.dp))
@@ -262,7 +265,7 @@ private fun UserProfileContent(
                     contentDescription = "Excluir"
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Excluir Conta")
+                Text("Excluir Conta", color = MaterialTheme.colorScheme.onSurface)
             }
         }
     }
@@ -285,7 +288,8 @@ private fun NotLoggedInContent(
         text = "Usuário não logado",
         style = MaterialTheme.typography.headlineLarge,
         fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onSurface
     )
     
     Spacer(modifier = Modifier.height(16.dp))
@@ -320,7 +324,8 @@ private fun NotLoggedInContent(
         Text(
             text = "Entrar com Google",
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
     
@@ -355,7 +360,8 @@ private fun StatItem(
         Text(
             text = value,
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
         )
         
         Text(
@@ -376,19 +382,21 @@ private fun DeleteAccountDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Excluir Conta") },
+        title = { Text("Excluir Conta", color = MaterialTheme.colorScheme.onSurface) },
         text = {
             Column {
                 Text(
                     text = "Esta ação é irreversível e todos os seus dados (favoritos, configurações) serão permanentemente apagados.",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
                     text = "Para confirmar, digite 'excluir' no campo abaixo:",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -396,7 +404,7 @@ private fun DeleteAccountDialog(
                 OutlinedTextField(
                     value = confirmationText,
                     onValueChange = { confirmationText = it },
-                    label = { Text("Digite 'excluir'") },
+                    label = { Text("Digite 'excluir'", color = MaterialTheme.colorScheme.onSurface) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -407,12 +415,12 @@ private fun DeleteAccountDialog(
                 onClick = onConfirm,
                 enabled = isConfirmEnabled
             ) {
-                Text("Excluir Conta")
+                Text("Excluir Conta", color = MaterialTheme.colorScheme.onSurface)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text("Cancelar", color = MaterialTheme.colorScheme.onSurface)
             }
         }
     )

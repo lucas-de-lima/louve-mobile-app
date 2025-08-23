@@ -36,7 +36,8 @@ fun FavoritesScreen(
         } else if (uiState.error != null) {
             Text(
                 text = "Erro: ${uiState.error}",
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
+                color = MaterialTheme.colorScheme.onSurface
             )
         } else if (uiState.favoriteHymns.isEmpty()) {
             EmptyFavoritesState()
@@ -63,7 +64,8 @@ private fun EmptyFavoritesState(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = "Sua lista está vazia",
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(

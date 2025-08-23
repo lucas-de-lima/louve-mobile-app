@@ -14,6 +14,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailUiState
+import androidx.compose.material3.MaterialTheme
 
 /**
  * Componente especializado para a TopAppBar da tela principal (Harpa)
@@ -22,7 +23,7 @@ import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailUiState
 @Composable
 fun HomeTopAppBar(onSettingsClick: () -> Unit) {
     CenterAlignedTopAppBar(
-        title = { Text("Louve App") },
+        title = { Text("Louve App", color = MaterialTheme.colorScheme.onSurface) },
         actions = {
             IconButton(onClick = onSettingsClick) {
                 Icon(
@@ -44,7 +45,7 @@ fun HomeTopAppBar(onSettingsClick: () -> Unit) {
 @Composable
 fun FavoritesTopAppBar() {
     CenterAlignedTopAppBar(
-        title = { Text("Favoritos") },
+        title = { Text("Favoritos", color = MaterialTheme.colorScheme.onSurface) },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.Transparent
         )
@@ -58,7 +59,7 @@ fun FavoritesTopAppBar() {
 @Composable
 fun DiscoverTopAppBar() {
     CenterAlignedTopAppBar(
-        title = { Text("Descubra") },
+        title = { Text("Descubra", color = MaterialTheme.colorScheme.onSurface) },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.Transparent
         )
@@ -72,7 +73,7 @@ fun DiscoverTopAppBar() {
 @Composable
 fun MoreTopAppBar() {
     CenterAlignedTopAppBar(
-        title = { Text("Mais") },
+        title = { Text("Mais", color = MaterialTheme.colorScheme.onSurface) },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.Transparent
         )
@@ -94,7 +95,8 @@ fun HymnDetailTopAppBar(
     CenterAlignedTopAppBar(
         title = { 
             Text(
-                text = uiState.hymn?.number?.toString()?.padStart(3, '0') ?: "..."
+                text = uiState.hymn?.number?.toString()?.padStart(3, '0') ?: "...",
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         navigationIcon = {

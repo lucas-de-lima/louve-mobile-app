@@ -66,7 +66,8 @@ fun AboutScreen(
                     text = "Louve App",
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -85,7 +86,8 @@ fun AboutScreen(
                     text = "O Louve App nasce de uma convicção simples, mas profunda: um hino é muito mais do que uma letra numa página. É um testemunho, uma oração, uma peça de teologia musicada e um elo que nos conecta a gerações de fiéis que cantaram as mesmas palavras em momentos de alegria, dor, dúvida e celebração.",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
-                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2
+                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -95,7 +97,7 @@ fun AboutScreen(
                     onClick = { /* TODO: Abrir política de privacidade */ },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Política de Privacidade")
+                    Text("Política de Privacidade", color = MaterialTheme.colorScheme.onSurface)
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -104,7 +106,7 @@ fun AboutScreen(
                     onClick = { /* TODO: Abrir licenças */ },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Licenças de Código Aberto")
+                    Text("Licenças de Código Aberto", color = MaterialTheme.colorScheme.onSurface)
                 }
                 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -122,26 +124,31 @@ fun AboutScreen(
                         Text(
                             text = "Informações Técnicas",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         Text(
                             text = "• Desenvolvido com Jetpack Compose",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = "• Arquitetura Clean Architecture",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = "• Firebase para autenticação e dados",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = "• 640 hinos da Harpa Cristã",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }

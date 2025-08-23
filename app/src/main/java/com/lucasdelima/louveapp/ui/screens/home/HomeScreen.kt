@@ -31,6 +31,7 @@ import com.lucasdelima.louveapp.ui.screens.home.components.HymnCardItem
 import com.lucasdelima.louveapp.ui.screens.home.components.SearchField
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 import kotlinx.coroutines.launch
+import androidx.compose.material3.MaterialTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +79,10 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Nenhum hino encontrado para \"${uiState.searchQuery}\"")
+                Text(
+                    "Nenhum hino encontrado para \"${uiState.searchQuery}\"",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         } else {
             LazyColumn(

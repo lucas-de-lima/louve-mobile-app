@@ -137,7 +137,8 @@ private fun ProfileSection(
                 Text(
                     text = userProfile?.name ?: "Visitante",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 if (userProfile?.email != null) {
                     Text(
@@ -175,7 +176,8 @@ private fun ActionsSection(
             text = "Ações",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            color = MaterialTheme.colorScheme.onSurface
         )
         
         Card(
@@ -197,7 +199,8 @@ private fun ActionsSection(
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = "Configurações",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
@@ -229,7 +232,8 @@ private fun ActionsSection(
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = "Compartilhar App",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
@@ -252,7 +256,8 @@ private fun InfoAndSupportSection(
             text = "Informações",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            color = MaterialTheme.colorScheme.onSurface
         )
         
         Card(
@@ -274,7 +279,8 @@ private fun InfoAndSupportSection(
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = "Sobre",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
@@ -306,7 +312,8 @@ private fun InfoAndSupportSection(
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = "Ajuda e Suporte",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
@@ -341,7 +348,7 @@ private fun ShareAppBottomSheet(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Compartilhar App", style = MaterialTheme.typography.titleLarge)
+            Text("Compartilhar App", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(16.dp))
 
             // Card de pré-visualização
@@ -353,13 +360,15 @@ private fun ShareAppBottomSheet(
                     Text(
                         text = "Louve App - Harpa Cristã",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "640 hinos, busca inteligente e temas dinâmicos. A Harpa Cristã em seu bolso!",
                         style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 3
+                        maxLines = 3,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -400,7 +409,7 @@ private fun ShareAppBottomSheet(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("COMPARTILHAR AGORA")
+                Text("COMPARTILHAR AGORA", color = MaterialTheme.colorScheme.onSurface)
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
