@@ -33,7 +33,11 @@ fun AboutScreen(
                     title = { Text("Sobre o Louve App") },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Voltar",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

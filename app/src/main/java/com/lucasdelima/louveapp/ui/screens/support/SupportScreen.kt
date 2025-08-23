@@ -60,7 +60,11 @@ fun SupportScreen(
                     title = { Text("Ajuda e Suporte") },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Voltar",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -186,7 +190,8 @@ private fun SupportForm(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = "Nome"
+                        contentDescription = "Nome",
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             )
@@ -202,7 +207,8 @@ private fun SupportForm(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Email,
-                        contentDescription = "E-mail"
+                        contentDescription = "E-mail",
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             )
@@ -220,7 +226,8 @@ private fun SupportForm(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Descrição"
+                        contentDescription = "Descrição",
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             )

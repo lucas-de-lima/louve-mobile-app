@@ -62,9 +62,9 @@ fun HymnDetailScreen(
     onIncreaseFontSize: () -> Unit,
     onDecreaseFontSize: () -> Unit
 ) {
-    val context = LocalContext.current
+    LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    rememberCoroutineScope()
     var showShareSheet by remember { mutableStateOf(false) }
 
     if (showShareSheet) {
@@ -97,7 +97,11 @@ fun HymnDetailScreen(
                         IconButton(onClick = {
                             showShareSheet = true
                         }) {
-                            Icon(Icons.Default.Share, "Compartilhar")
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Compartilhar",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 }
@@ -149,7 +153,11 @@ private fun ShareBottomSheet(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Compartilhar Hino", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                "Compartilhar Hino",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             // Card de pré-visualização

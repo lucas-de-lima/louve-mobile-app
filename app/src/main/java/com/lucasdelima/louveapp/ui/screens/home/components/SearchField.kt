@@ -31,7 +31,8 @@ fun SearchField(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "Ícone de busca"
+                contentDescription = "Ícone de busca",
+                tint = MaterialTheme.colorScheme.onSurface
             )
         },
         shape = RoundedCornerShape(percent = 50), // Deixa as bordas totalmente arredondadas (formato de pílula)
