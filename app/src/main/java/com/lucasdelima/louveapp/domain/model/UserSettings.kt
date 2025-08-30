@@ -7,7 +7,7 @@ package com.lucasdelima.louveapp.domain.model
  * a manteremos como um modelo de dados puro.
  */
 data class UserSettings(
-    // O ID do tema, ex: "dark_theme", "sweet_candy_theme", etc.
-    // Usamos um valor padrão para garantir a criação segura do objeto.
-    val themeId: String = "default_light_theme"
+    // O ID do tema, ex: "default_light", "dark", "sweet_candy", etc.
+    // Usamos o ID correto do DefaultTheme para garantir a criação segura do objeto.
+    val themeId: String = "default_light"
 )

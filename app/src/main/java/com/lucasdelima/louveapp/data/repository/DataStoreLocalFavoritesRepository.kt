@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
+import com.lucasdelima.louveapp.domain.repository.UserRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -26,7 +27,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 @Singleton
 class DataStoreLocalFavoritesRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val userRepository: UserRepository
 ) : LocalFavoritesRepository {
 
     private object PreferencesKeys {
@@ -45,6 +47,13 @@ class DataStoreLocalFavoritesRepository @Inject constructor(
                 val currentFavorites = preferences[PreferencesKeys.FAVORITE_HYMN_IDS] ?: emptySet()
                 preferences[PreferencesKeys.FAVORITE_HYMN_IDS] = currentFavorites + hymnId
             }
+            
+            try {
+                userRepository.addFavorite(hymnId)
+            } catch (e: Exception) {
+                // Ignora erro de nuvem - usuário pode não estar logado
+            }
+            
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error("Falha ao salvar favorito localmente.", e)
@@ -57,6 +66,13 @@ class DataStoreLocalFavoritesRepository @Inject constructor(
                 val currentFavorites = preferences[PreferencesKeys.FAVORITE_HYMN_IDS] ?: emptySet()
                 preferences[PreferencesKeys.FAVORITE_HYMN_IDS] = currentFavorites - hymnId
             }
+            
+            try {
+                userRepository.removeFavorite(hymnId)
+            } catch (e: Exception) {
+                // Ignora erro de nuvem - usuário pode não estar logado
+            }
+            
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error("Falha ao remover favorito localmente.", e)
@@ -71,6 +87,17 @@ class DataStoreLocalFavoritesRepository @Inject constructor(
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error("Falha ao limpar favoritos locais.", e)
+        }
+    }
+    
+    override suspend fun syncFavorites(favorites: Set<String>): Result<Unit> {
+        return try {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.FAVORITE_HYMN_IDS] = favorites
+            }
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error("Falha ao sincronizar favoritos locais.", e)
         }
     }
 }

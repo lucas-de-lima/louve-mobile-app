@@ -5,6 +5,9 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.lucasdelima.louveapp.data.repository.DataStoreLocalFavoritesRepository
+import com.lucasdelima.louveapp.data.repository.DataMigrationService
+import com.lucasdelima.louveapp.data.repository.BidirectionalSyncService
+import com.lucasdelima.louveapp.data.repository.ConnectivityMonitorService
 import com.lucasdelima.louveapp.data.repository.DefaultFavoritesRepository
 import com.lucasdelima.louveapp.data.repository.DefaultSettingsRepository
 import com.lucasdelima.louveapp.data.repository.FirebaseAuthRepositoryImpl
@@ -19,6 +22,7 @@ import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.AnalyticsService
 import com.lucasdelima.louveapp.domain.repository.SettingsRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
+
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -59,6 +63,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindSettingsRepository(impl: DefaultSettingsRepository): SettingsRepository
+    
+    @Binds
+    @Singleton
+    abstract fun bindLocalSettingsRepository(impl: com.lucasdelima.louveapp.data.repository.LocalSettingsRepository): com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository
 }
 
 // Módulo para provisão de classes que não podemos injetar via construtor
@@ -86,4 +94,6 @@ object AppModule {
     fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics {
         return FirebaseAnalytics.getInstance(context)
     }
+
+
 }

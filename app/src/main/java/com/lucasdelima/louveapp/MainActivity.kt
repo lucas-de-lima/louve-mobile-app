@@ -20,11 +20,14 @@ import com.lucasdelima.louveapp.ui.theme.DefaultTheme
 import com.lucasdelima.louveapp.ui.theme.LouveAppTheme
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
+    
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -34,10 +37,14 @@ class MainActivity : ComponentActivity() {
         // até as bordas da tela, incluindo as áreas das barras de sistema
         enableEdgeToEdge()
         
+
+        
         setContent {
             LouveApp(viewModel)
         }
     }
+    
+
 }
 
 @Composable

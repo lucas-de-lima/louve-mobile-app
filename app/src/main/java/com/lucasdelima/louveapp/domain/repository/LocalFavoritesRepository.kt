@@ -13,4 +13,10 @@ interface LocalFavoritesRepository {
     suspend fun addFavorite(hymnId: String): Result<Unit>
     suspend fun removeFavorite(hymnId: String): Result<Unit>
     suspend fun clearFavorites(): Result<Unit>
+    
+    /**
+     * Sincroniza favoritos locais com uma nova lista.
+     * Substitui todos os favoritos existentes pelos novos.
+     */
+    suspend fun syncFavorites(favorites: Set<String>): Result<Unit>
 }

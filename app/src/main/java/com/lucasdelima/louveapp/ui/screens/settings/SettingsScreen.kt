@@ -13,16 +13,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -41,7 +39,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,19 +48,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.lucasdelima.louveapp.ui.common.auth.rememberGoogleSignInLauncher
 import com.lucasdelima.louveapp.R
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.repository.AuthCredentials
-import com.lucasdelima.louveapp.ui.screens.settings.AuthUiState
-import com.lucasdelima.louveapp.ui.screens.settings.AuthError
+import com.lucasdelima.louveapp.ui.common.auth.rememberGoogleSignInLauncher
 import com.lucasdelima.louveapp.ui.theme.LouveThemeData
-import com.lucasdelima.louveapp.ui.theme.ThemeCategory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,7 +124,7 @@ fun SettingsScreen(
                     authState = authState,
                     onSignInClick = { startGoogleSignIn() },
                     onSignOutClick = { authViewModel.signOut() },
-                    onRetryClick = { 
+                    onRetryClick = {
                         // Extrair credenciais do estado atual para retry
                         (authState as? AuthUiState.Error)?.retry?.invoke()
                     }
@@ -184,10 +176,12 @@ private fun ProfileSection(
                 onSignOutClick = onSignOutClick
             )
         }
+
         authState is AuthUiState.Loading -> {
             // Estado de loading
             LoadingCard()
         }
+
         authState is AuthUiState.Error -> {
             // Estado de erro com retry
             ErrorCard(
@@ -196,6 +190,7 @@ private fun ProfileSection(
                 onSignInClick = onSignInClick
             )
         }
+
         else -> {
             // Estado inicial - botão de login
             SignInButton(onClick = onSignInClick)
@@ -265,7 +260,7 @@ private fun ErrorCard(
                     color = MaterialTheme.colorScheme.onError
                 )
             }
-            
+
             Text(
                 text = when (error) {
                     is AuthError.NetworkError -> "Verifique sua conexão com a internet e tente novamente."
@@ -278,9 +273,9 @@ private fun ErrorCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onError
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -353,7 +348,11 @@ private fun UserProfileCard(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Text(userProfile.email ?: "", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                userProfile.email ?: "",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
         OutlinedButton(onClick = onSignOutClick) {
             Text("Sair", color = MaterialTheme.colorScheme.onSurface)
@@ -391,7 +390,7 @@ private fun ThemePreviewCard(
         Box(modifier = Modifier.fillMaxSize()) {
             // ✅ Preview do fundo do tema
             themeData.backgrounds.screenBackground()
-            
+
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -409,7 +408,7 @@ private fun ThemePreviewCard(
                         disabledUnselectedColor = themeData.colors.onSurfaceVariant.copy(alpha = 0.38f)
                     )
                 )
-                
+
                 Column {
                     Text(
                         text = themeData.name,
@@ -418,9 +417,9 @@ private fun ThemePreviewCard(
                         color = themeData.colors.onSurface
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.weight(1f))
-                
+
                 // Indicador visual do tema selecionado
                 if (isSelected) {
                     Icon(

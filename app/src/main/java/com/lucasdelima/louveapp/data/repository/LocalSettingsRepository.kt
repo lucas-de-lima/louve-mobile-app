@@ -7,6 +7,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lucasdelima.louveapp.domain.repository.SettingsRepository
+import com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository
+import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.ui.theme.DefaultTheme
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +27,7 @@ private val Context.settingsDataStore: DataStore<Preferences> by preferencesData
 @Singleton
 class LocalSettingsRepository @Inject constructor(
     @ApplicationContext private val context: Context
-) : SettingsRepository {
+) : com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository {
 
     // Chave para salvar o nome do tema
     private object Keys {
@@ -43,4 +45,6 @@ class LocalSettingsRepository @Inject constructor(
             settings[Keys.APP_THEME] = themeName
         }
     }
+    
+
 }

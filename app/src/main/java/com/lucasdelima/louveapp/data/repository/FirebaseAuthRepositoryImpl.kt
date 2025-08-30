@@ -5,12 +5,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.AuthCredentials
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
+import com.lucasdelima.louveapp.domain.repository.UserRepository
+import com.lucasdelima.louveapp.data.repository.DataMigrationService
 import com.lucasdelima.louveapp.ui.screens.settings.AuthUiState
 import com.lucasdelima.louveapp.ui.screens.settings.AuthError
 import kotlinx.coroutines.channels.awaitClose
@@ -26,7 +26,8 @@ private const val TAG = "FirebaseAuthRepository"
 
 class FirebaseAuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val userRepository: UserRepository,
+    private val dataMigrationService: DataMigrationService
 ) : AuthRepository {
 
     /**
@@ -48,7 +49,8 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                     uid = firebaseUser.uid,
                     name = firebaseUser.displayName,
                     email = firebaseUser.email,
-                    photoUrl = firebaseUser.photoUrl?.toString()
+                    photoUrl = firebaseUser.photoUrl?.toString(),
+                    createdAt = System.currentTimeMillis()
                 )
                 trySend(userProfile)
                 _authState.value = AuthUiState.Success(userProfile)
@@ -81,24 +83,33 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                     val firebaseCredential = GoogleAuthProvider.getCredential(credentials.idToken, null)
                     val authResult = auth.signInWithCredential(firebaseCredential).await()
 
-                    // --- LÓGICA DE ROBUSTEZ ADICIONADA ---
-                    // Após o login bem-sucedido, garantimos que um perfil de usuário
-                    // existe no nosso banco de dados Firestore.
-                    val user = authResult.user
-                    if (user != null) {
-                        val userProfileData = mapOf(
-                            "uid" to user.uid,
-                            "name" to user.displayName,
-                            "email" to user.email,
-                            "photoUrl" to user.photoUrl?.toString(),
-                            "createdAt" to System.currentTimeMillis()
+                    // Após login bem-sucedido, garantir que a estrutura do usuário existe
+                    val firebaseUser = authResult.user
+                    if (firebaseUser != null) {
+                        val userProfile = UserProfile(
+                            uid = firebaseUser.uid,
+                            name = firebaseUser.displayName,
+                            email = firebaseUser.email,
+                            photoUrl = firebaseUser.photoUrl?.toString(),
+                            createdAt = System.currentTimeMillis()
                         )
-                        // Usamos .set() com SetOptions.merge() para criar o documento se ele
-                        // não existir, ou atualizar os dados se ele já existir, sem
-                        // sobrescrever outros campos (como a lista de favoritos no futuro).
-                        firestore.collection("users").document(user.uid)
-                            .set(userProfileData, SetOptions.merge())
-                            .await()
+                        
+                        Log.d(TAG, "🔧 Garantindo estrutura do usuário após login")
+                        val structureResult = userRepository.ensureUserStructure(userProfile)
+                        if (structureResult is Result.Error) {
+                            Log.w(TAG, "⚠️ Falha ao criar estrutura do usuário: ${structureResult.message}")
+                        } else {
+                            Log.d(TAG, "✅ Estrutura do usuário criada/verificada com sucesso")
+                            
+                            // Após criar a estrutura, migrar dados locais para a nuvem
+                            Log.d(TAG, "🔄 Iniciando migração de dados locais para a nuvem")
+                            val migrationResult = dataMigrationService.migrateLocalDataToCloud()
+                            if (migrationResult is Result.Error) {
+                                Log.w(TAG, "⚠️ Falha na migração de dados: ${migrationResult.message}")
+                            } else {
+                                Log.d(TAG, "✅ Migração de dados concluída com sucesso")
+                            }
+                        }
                     }
 
                     // Estado de sucesso será definido pelo AuthStateListener
