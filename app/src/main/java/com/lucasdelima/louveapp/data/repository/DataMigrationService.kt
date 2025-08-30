@@ -173,7 +173,7 @@ class DataMigrationService @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            // Tratamento de erro silencioso
+            //  TODO: Tratamento de erro silencioso
         }
     }
     
@@ -186,7 +186,7 @@ class DataMigrationService @Inject constructor(
                 userRepository.addFavorite(hymnId)
             }
         } catch (e: Exception) {
-            // Tratamento de erro silencioso
+            // TODO:Tratamento de erro silencioso
         }
     }
     
@@ -199,7 +199,7 @@ class DataMigrationService @Inject constructor(
                 com.lucasdelima.louveapp.domain.model.UserSettings(themeId = DefaultTheme.name)
             )
         } catch (e: Exception) {
-            // Tratamento de erro silencioso
+            //  TODO: Tratamento de erro silencioso
         }
     }
     
