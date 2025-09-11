@@ -36,13 +36,19 @@ import com.lucasdelima.louveapp.ui.screens.home.components.SearchField
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 import kotlinx.coroutines.launch
 import androidx.compose.material3.MaterialTheme
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.lucasdelima.louveapp.domain.model.UserProfile
+import com.lucasdelima.louveapp.ui.screens.settings.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     bottomNavController: NavHostController,
     onHymnSelected: (Int) -> Unit,
-    onSettingsClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    onThemeSelected: (String) -> Unit,
+    currentTheme: String,
+    userProfile: UserProfile?,
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -64,7 +70,10 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             HomeTopAppBar(
-                onSettingsClick = onSettingsClick
+                currentTheme = currentTheme,
+                onThemeSelected = onThemeSelected,
+                userProfile = userProfile,
+                onProfileClick = onProfileClick
             )
         },
         bottomBar = {

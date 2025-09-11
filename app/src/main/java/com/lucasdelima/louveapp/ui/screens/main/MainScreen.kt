@@ -20,10 +20,20 @@ import com.lucasdelima.louveapp.ui.screens.home.HomeScreen
 import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailScreen
 import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailViewModel
 import com.lucasdelima.louveapp.ui.screens.more.MoreScreen
+import com.lucasdelima.louveapp.ui.screens.settings.AuthViewModel
+import com.lucasdelima.louveapp.ui.screens.settings.SettingsViewModel
 
 @Composable
 fun MainScreen(rootNavController: NavHostController) {
     val bottomNavController = rememberNavController()
+    
+    // ViewModels para gerenciar estado do usuário e temas
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
+    
+    // Estados observados
+    val userProfile by authViewModel.userProfile.collectAsState()
+    val settingsUiState by settingsViewModel.uiState.collectAsState()
 
     // O NavHost agora é o componente principal. Sem Scaffold ao redor dele.
     // Usando as animações padrão nativas do Android - suaves e familiares
@@ -39,9 +49,14 @@ fun MainScreen(rootNavController: NavHostController) {
                 onHymnSelected = { hymnId ->
                     bottomNavController.navigate("hymnDetail/$hymnId")
                 },
-                onSettingsClick = {
-                    rootNavController.navigate("settings")
-                }
+                onProfileClick = {
+                    rootNavController.navigate("profile")
+                },
+                onThemeSelected = { themeName ->
+                    settingsViewModel.selectTheme(themeName)
+                },
+                currentTheme = settingsUiState.selectedThemeName,
+                userProfile = userProfile
             )
         }
 
