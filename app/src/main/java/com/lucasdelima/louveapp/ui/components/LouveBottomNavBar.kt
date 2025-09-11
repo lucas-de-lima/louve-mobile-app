@@ -50,13 +50,16 @@ fun LouveBottomNavBar(navController: NavController) {
 			NavigationBarItem(
 				selected = isSelected,
 				onClick = {
-					navController.navigate(item.route) {
-						// Evita empilhar a mesma tela várias vezes
-						popUpTo(navController.graph.startDestinationId) {
-							saveState = true
+					// Navegação otimizada para melhor performance
+					if (currentRoute != item.route) {
+						navController.navigate(item.route) {
+							// Evita empilhar a mesma tela várias vezes
+							popUpTo(navController.graph.startDestinationId) {
+								saveState = true
+							}
+							launchSingleTop = true
+							restoreState = true
 						}
-						launchSingleTop = true
-						restoreState = true
 					}
 				},
 				icon = {
@@ -83,13 +86,13 @@ fun LouveBottomNavBar(navController: NavController) {
 						color = MaterialTheme.colorScheme.onSurface
 					)
 				},
-				// Remove as cores de seleção para usar apenas os ícones como indicador
+				// Cores baseadas no tema ativo para feedback visual consistente
 				colors = NavigationBarItemDefaults.colors(
-					selectedIconColor = Color.Unspecified,
-					unselectedIconColor = Color.Unspecified,
-					selectedTextColor = Color.Unspecified,
-					unselectedTextColor = Color.Unspecified,
-					indicatorColor = Color.Transparent
+					selectedIconColor = MaterialTheme.colorScheme.primary,
+					unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+					selectedTextColor = MaterialTheme.colorScheme.primary,
+					unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+					indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
 				)
 			)
 		}
