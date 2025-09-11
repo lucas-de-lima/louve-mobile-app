@@ -48,7 +48,7 @@ fun LouveBottomNavBar(navController: NavController) {
 			val isSelected = currentRoute == item.route
 
 			NavigationBarItem(
-				selected = isSelected,
+				selected = false, // Sempre false para permitir efeito ripple temporário
 				onClick = {
 					// Navegação otimizada para melhor performance
 					if (currentRoute != item.route) {
@@ -88,11 +88,11 @@ fun LouveBottomNavBar(navController: NavController) {
 				},
 				// Cores baseadas no tema ativo para feedback visual consistente
 				colors = NavigationBarItemDefaults.colors(
-					selectedIconColor = MaterialTheme.colorScheme.primary,
-					unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-					selectedTextColor = MaterialTheme.colorScheme.primary,
-					unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-					indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+					selectedIconColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+					unselectedIconColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+					selectedTextColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+					unselectedTextColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+					// Efeito ripple temporário natural com selected = false
 				)
 			)
 		}
