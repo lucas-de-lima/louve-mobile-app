@@ -69,41 +69,41 @@ fun SplashScreen(
         animationStarted.value = true
         
         try {
-            // ATO I: A CHEGADA (1200ms)
-            // O movimento de chegada é um pouco mais rápido.
+            // ATO I: A CHEGADA (720ms - reduzido 40%)
+            // O movimento de chegada é mais rápido e dinâmico.
             launch {
-                silhouettesAlpha.animateTo(1f, animationSpec = tween(1200, easing = FastOutSlowInEasing))
+                silhouettesAlpha.animateTo(1f, animationSpec = tween(720, easing = FastOutSlowInEasing))
             }
             launch {
-                manOffsetX.animateTo(targetValue = manTargetX, animationSpec = tween(1200, easing = FastOutSlowInEasing))
+                manOffsetX.animateTo(targetValue = manTargetX, animationSpec = tween(720, easing = FastOutSlowInEasing))
             }
-            womanOffsetX.animateTo(targetValue = womanTargetX, animationSpec = tween(1200, easing = FastOutSlowInEasing))
+            womanOffsetX.animateTo(targetValue = womanTargetX, animationSpec = tween(720, easing = FastOutSlowInEasing))
 
             // Pausa curta após a chegada.
-            delay(200)
+            delay(120) // Reduzido de 200ms para 120ms
 
-            // ATO II: O LOUVOR E A LUZ (Duração total ~1500ms)
-            // A ascensão do louvor e a explosão de luz agora são mais rápidas e decisivas.
+            // ATO II: O LOUVOR E A LUZ (Duração total ~900ms - reduzido 40%)
+            // A ascensão do louvor e a explosão de luz são mais rápidas e dinâmicas.
             launch {
-                notesAlpha.animateTo(1f, animationSpec = tween(300))
+                notesAlpha.animateTo(1f, animationSpec = tween(180)) // Reduzido de 300ms
                 // Desaparecem mais rápido.
-                notesAlpha.animateTo(0f, animationSpec = tween(durationMillis = 1000, delayMillis = 500))
+                notesAlpha.animateTo(0f, animationSpec = tween(durationMillis = 600, delayMillis = 300)) // Reduzido de 1000ms/500ms
             }
             launch {
-                notesScale.animateTo(1.0f, animationSpec = tween(1500, easing = FastOutSlowInEasing))
-                notesTranslateY.animateTo(-screenHeight * 0.5f, animationSpec = tween(1500, easing = LinearEasing))
+                notesScale.animateTo(1.0f, animationSpec = tween(900, easing = FastOutSlowInEasing)) // Reduzido de 1500ms
+                notesTranslateY.animateTo(-screenHeight * 0.5f, animationSpec = tween(900, easing = LinearEasing)) // Reduzido de 1500ms
             }
             launch {
-                delay(500) // Luz explode mais cedo.
-                lightEffectAlpha.animateTo(0.8f, animationSpec = tween(300))
-                lightEffectScale.animateTo(2.0f, animationSpec = tween(800, easing = FastOutSlowInEasing))
-                lightEffectAlpha.animateTo(0f, animationSpec = tween(400)) // Dissipa-se mais rápido.
+                delay(300) // Reduzido de 500ms para 300ms
+                lightEffectAlpha.animateTo(0.8f, animationSpec = tween(180)) // Reduzido de 300ms
+                lightEffectScale.animateTo(2.0f, animationSpec = tween(480, easing = FastOutSlowInEasing)) // Reduzido de 800ms
+                lightEffectAlpha.animateTo(0f, animationSpec = tween(240)) // Reduzido de 400ms
             }
 
             // ATO III: A TRANSIÇÃO SUAVE
-            // Duração total da cena visível é de aprox. 1.2s + 0.2s + 1.5s = 2.9s
+            // Duração total da cena visível é de aprox. 0.72s + 0.12s + 0.9s = 1.74s (reduzido 40%)
             // Damos um pequeno tempo para o olho descansar antes de mudar de tela.
-            delay(2900)
+            delay(1740) // Reduzido de 2900ms para 1740ms
             
             // ✅ CORREÇÃO: Chama o callback apenas se a animação foi executada com sucesso
             onAnimationFinished()
