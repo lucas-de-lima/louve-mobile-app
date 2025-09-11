@@ -13,8 +13,11 @@ import androidx.compose.ui.graphics.Color
 // --- Paleta Padrão Claro ---
 val LightThemeColors = lightColorScheme(
     primary = Purple40,
+    primaryContainer = Color(0xFFE1BEE7), onPrimaryContainer = Color(0xFF4A148C),
     secondary = PurpleGrey40,
-    tertiary = Pink40
+    secondaryContainer = Color(0xFFE8E0E5), onSecondaryContainer = Color(0xFF3E2723),
+    tertiary = Pink40,
+    tertiaryContainer = Color(0xFFFFE0E6), onTertiaryContainer = Color(0xFF4A148C)
 )
 
 // --- Paleta Escuro ---
@@ -41,8 +44,11 @@ private val DarkText = Color(0xFF211A1D)
 
 val SweetCandyColors = lightColorScheme(
     primary = CandyPink, onPrimary = DarkText,
+    primaryContainer = Color(0xFFFFB3D1), onPrimaryContainer = DarkText,
     secondary = CandyBlue, onSecondary = DarkText,
+    secondaryContainer = Color(0xFFB3E5FC), onSecondaryContainer = DarkText,
     tertiary = LemonadeYellow, onTertiary = DarkText,
+    tertiaryContainer = Color(0xFFFFF59D), onTertiaryContainer = DarkText,
     background = OffWhite, onBackground = DarkText,
     surface = Color.White, onSurface = DarkText,
     surfaceVariant = Color(0xFFF1EBF2), onSurfaceVariant = DarkText,
@@ -60,8 +66,11 @@ private val AuroraWarm = Color(0xFFFFCC02)
 
 val AuroraMorningColors = lightColorScheme(
     primary = AuroraGold, onPrimary = AuroraBrown,
+    primaryContainer = Color(0xFFFFE082), onPrimaryContainer = AuroraBrown,
     secondary = AuroraOrange, onSecondary = AuroraBrown,
+    secondaryContainer = Color(0xFFFFAB91), onSecondaryContainer = AuroraBrown,
     tertiary = AuroraWarm, onTertiary = AuroraBrown,
+    tertiaryContainer = Color(0xFFFFF176), onTertiaryContainer = AuroraBrown,
     background = AuroraCream, onBackground = AuroraBrown,
     surface = Color.White, onSurface = AuroraBrown,
     surfaceVariant = Color(0xFFFFF3E0), onSurfaceVariant = AuroraBrown,
@@ -79,8 +88,11 @@ private val SerenitySilver = Color(0xFF90A4AE)
 
 val SerenityNightColors = lightColorScheme(
     primary = SerenityNavy, onPrimary = Color.White,
+    primaryContainer = Color(0xFF3F51B5), onPrimaryContainer = Color.White,
     secondary = SerenityBlue, onSecondary = Color.White,
+    secondaryContainer = Color(0xFF5C6BC0), onSecondaryContainer = Color.White,
     tertiary = SerenitySilver, onTertiary = SerenityNavy,
+    tertiaryContainer = Color(0xFFB0BEC5), onTertiaryContainer = SerenityNavy,
     background = SerenityLight, onBackground = SerenityNavy,
     surface = Color.White, onSurface = SerenityNavy,
     surfaceVariant = Color(0xFFC5CAE9), onSurfaceVariant = SerenityNavy,
@@ -98,8 +110,11 @@ private val LifeSage = Color(0xFF81C784)
 
 val LifeGreenColors = lightColorScheme(
     primary = LifeGreen, onPrimary = Color.White,
+    primaryContainer = Color(0xFF81C784), onPrimaryContainer = LifeForest,
     secondary = LifeEmerald, onSecondary = Color.White,
+    secondaryContainer = Color(0xFFA5D6A7), onSecondaryContainer = LifeForest,
     tertiary = LifeSage, onTertiary = LifeForest,
+    tertiaryContainer = Color(0xFFC8E6C9), onTertiaryContainer = LifeForest,
     background = LifeMint, onBackground = LifeForest,
     surface = Color.White, onSurface = LifeForest,
     surfaceVariant = Color(0xFFC8E6C9), onSurfaceVariant = LifeForest,
@@ -117,8 +132,11 @@ private val SacredBrown = Color(0xFF5D4037)
 
 val SacredFlameColors = lightColorScheme(
     primary = SacredRed, onPrimary = Color.White,
+    primaryContainer = Color(0xFFFF5722), onPrimaryContainer = Color.White,
     secondary = SacredOrange, onSecondary = Color.White,
+    secondaryContainer = Color(0xFFFF8A65), onSecondaryContainer = Color.White,
     tertiary = SacredAmber, onTertiary = SacredBrown,
+    tertiaryContainer = Color(0xFFFFB74D), onTertiaryContainer = SacredBrown,
     background = SacredCream, onBackground = SacredBrown,
     surface = Color.White, onSurface = SacredBrown,
     surfaceVariant = Color(0xFFFFE0B2), onSurfaceVariant = SacredBrown,
@@ -136,8 +154,11 @@ private val CelestialSilver = Color(0xFF90CAF9)
 
 val CelestialSkyColors = lightColorScheme(
     primary = CelestialBlue, onPrimary = Color.White,
+    primaryContainer = Color(0xFF42A5F5), onPrimaryContainer = Color.White,
     secondary = CelestialLight, onSecondary = Color.White,
+    secondaryContainer = Color(0xFF64B5F6), onSecondaryContainer = Color.White,
     tertiary = CelestialSilver, onTertiary = CelestialDark,
+    tertiaryContainer = Color(0xFF90CAF9), onTertiaryContainer = CelestialDark,
     background = CelestialSky, onBackground = CelestialDark,
     surface = Color.White, onSurface = CelestialDark,
     surfaceVariant = Color(0xFFBBDEFB), onSurfaceVariant = CelestialDark,
