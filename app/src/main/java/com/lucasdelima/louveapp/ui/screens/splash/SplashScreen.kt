@@ -15,16 +15,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.size
 import com.lucasdelima.louveapp.R
 import com.lucasdelima.louveapp.ui.theme.LouveAppTheme
 import com.lucasdelima.louveapp.ui.theme.SweetCandyTheme
@@ -47,22 +50,23 @@ fun SplashScreen(
         LocalConfiguration.current.screenHeightDp.dp.toPx()
     }
 
-    // Silhuetas - agora aparecem de baixo para cima
+    // Silhuetas - surgem da base enquanto se cruzam
     val silhouettesAlpha = remember { Animatable(0f) }
-    val silhouettesTranslateY = remember { Animatable(screenHeight * 0.3f) } // Começam de baixo
-    val manTargetX = screenWidth / 4
-    val womanTargetX = -screenWidth / 4
-    val manOffsetX = remember { Animatable(manTargetX) } // Já posicionados
-    val womanOffsetX = remember { Animatable(womanTargetX) } // Já posicionados
+    val silhouettesTranslateY = remember { Animatable(screenHeight * 0.3f) } // Começam da base
+    val manStartX = -screenWidth / 3 // Começa da esquerda
+    val womanStartX = screenWidth / 3 // Começa da direita
+    val manTargetX = screenWidth / 4 // Vai para a direita
+    val womanTargetX = -screenWidth / 4 // Vai para a esquerda
+    val manOffsetX = remember { Animatable(manStartX) } // Começa da esquerda
+    val womanOffsetX = remember { Animatable(womanStartX) } // Começa da direita
 
     // Logo animado
     val logoAlpha = remember { Animatable(0f) }
     val logoScale = remember { Animatable(0.8f) }
     val logoTranslateY = remember { Animatable(0f) }
 
-    // Fundo - transição da splash padrão para personalizada
+    // Fundo - transição da splash padrão para transparente
     val backgroundAlpha = remember { Animatable(1f) } // Fundo estático primeiro
-    val gradientAlpha = remember { Animatable(0f) } // Gradiente depois
 
     // --- ROTEIRO DA ANIMAÇÃO INTEGRADA (SPLASH PADRÃO + PERSONALIZADA) ---
     LaunchedEffect(key1 = true) {
@@ -71,46 +75,47 @@ fun SplashScreen(
         animationStarted.value = true
         
         try {
-            // FASE 1: CLONAGEM DA SPLASH PADRÃO (0-800ms)
+            // FASE 1: CLONAGEM DA SPLASH PADRÃO (0-400ms)
             // Simula exatamente a splash padrão do Android
-            launch {
-                logoAlpha.animateTo(1f, animationSpec = tween(300, easing = FastOutSlowInEasing))
-            }
-            launch {
-                logoScale.animateTo(1.0f, animationSpec = tween(300, easing = FastOutSlowInEasing))
-            }
+            logoAlpha.animateTo(1f, animationSpec = tween(200, easing = FastOutSlowInEasing))
+            logoScale.animateTo(1.0f, animationSpec = tween(200, easing = FastOutSlowInEasing))
             
-            // Logo estabilizado (300-800ms)
-            delay(500)
+            // Logo estabilizado (200-400ms)
+            delay(200)
 
-            // FASE 2: TRANSIÇÃO PARA SPLASH PERSONALIZADA (800-1500ms)
-            // Fundo muda de estático para gradiente
-            launch {
-                backgroundAlpha.animateTo(0f, animationSpec = tween(700, easing = FastOutSlowInEasing))
-                gradientAlpha.animateTo(1f, animationSpec = tween(700, easing = FastOutSlowInEasing))
-            }
+            // FASE 2: TRANSIÇÃO PARA SPLASH PERSONALIZADA (400-800ms)
+            // Fundo muda de estático para transparente (sem gradiente)
+            backgroundAlpha.animateTo(0f, animationSpec = tween(400, easing = FastOutSlowInEasing))
             
-            // Logo levita suavemente
+            // Logo levita suavemente e pulsa
+            logoScale.animateTo(1.15f, animationSpec = tween(400, easing = FastOutSlowInEasing))
+            logoTranslateY.animateTo(-15f, animationSpec = tween(400, easing = FastOutSlowInEasing))
+
+            // FASE 3: SILHUETAS SURGEM DA BASE E SE CRUZAM + LOGO SOBE (800-2000ms)
+            // ✅ CORREÇÃO: Animações mais lentas e simultâneas
             launch {
-                logoScale.animateTo(1.1f, animationSpec = tween(700, easing = FastOutSlowInEasing))
-                logoTranslateY.animateTo(-20f, animationSpec = tween(700, easing = FastOutSlowInEasing))
+                silhouettesAlpha.animateTo(1f, animationSpec = tween(1200, easing = FastOutSlowInEasing))
+            }
+            launch {
+                silhouettesTranslateY.animateTo(0f, animationSpec = tween(1200, easing = FastOutSlowInEasing)) // Sobem da base
+            }
+            launch {
+                manOffsetX.animateTo(targetValue = manTargetX, animationSpec = tween(1200, easing = FastOutSlowInEasing)) // Cruzam
+            }
+            launch {
+                womanOffsetX.animateTo(targetValue = womanTargetX, animationSpec = tween(1200, easing = FastOutSlowInEasing)) // Cruzam
+            }
+            launch {
+                // Logo sobe bem acima das silhuetas do casal
+                logoTranslateY.animateTo(-640f, animationSpec = tween(1200, easing = FastOutSlowInEasing))
             }
 
-            // FASE 3: SILHUETAS APARECEM DE BAIXO (1500-2500ms)
-            // Silhuetas sobem de baixo para cima
-            launch {
-                silhouettesAlpha.animateTo(1f, animationSpec = tween(500, easing = FastOutSlowInEasing))
-                silhouettesTranslateY.animateTo(0f, animationSpec = tween(500, easing = FastOutSlowInEasing))
-            }
+            // FASE 4: FINALIZAÇÃO (2000-2200ms)
+            // Logo pulsa suavemente
+            logoScale.animateTo(1.1f, animationSpec = tween(200, easing = FastOutSlowInEasing))
 
-            // FASE 4: FINALIZAÇÃO (2500-3000ms)
-            // Logo se estabiliza no ar
-            launch {
-                logoScale.animateTo(1.05f, animationSpec = tween(500, easing = FastOutSlowInEasing))
-            }
-
-            // Transição para o app
-            delay(500)
+            // Transição para o app - tempo suficiente para animação completa
+            delay(1200)
             
             // ✅ CORREÇÃO: Chama o callback apenas se a animação foi executada com sucesso
             onAnimationFinished()
@@ -129,31 +134,23 @@ fun SplashScreen(
                 .alpha(backgroundAlpha.value),
             contentAlignment = Alignment.Center
         ) {
-            // Cor de fundo da splash padrão (#5D1F28)
+            // Cor de fundo da splash padrão (#FFFDFE - branco papel)
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                // Fundo sólido da splash padrão
+                // Fundo sólido da splash padrão com cor atualizada
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Aqui seria a cor de fundo estática
-                    // Por enquanto, usamos uma cor sólida
+                    // Cor de fundo atualizada para #FFFDFE (branco papel)
                 }
             }
         }
 
-        // FONDO GRADIENTE (SPLASH PERSONALIZADA) - aparece depois
-        Image(
-            painter = painterResource(id = R.drawable.splash_background),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(gradientAlpha.value),
-            contentScale = ContentScale.Crop
-        )
+        // FUNDO TRANSPARENTE (SPLASH PERSONALIZADA) - sem gradiente
+        // O fundo agora é transparente, mostrando apenas o logo e silhuetas
 
         // LOGO ANIMADO - presente em ambas as fases
         Image(
@@ -169,7 +166,7 @@ fun SplashScreen(
                 }
         )
 
-        // SILHUETAS - aparecem de baixo para cima
+        // SILHUETAS - surgem da base enquanto se cruzam
         Image(
             painter = painterResource(id = R.drawable.splash_woman_silhouette),
             contentDescription = "Silhueta de mulher em louvor",
