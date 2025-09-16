@@ -9,6 +9,7 @@ import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.FavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
+import com.lucasdelima.louveapp.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,7 +29,8 @@ import javax.inject.Inject
 class HymnDetailViewModel @Inject constructor(
     private val hymnRepository: HymnRepository,
     private val favoritesRepository: FavoritesRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private var _hymnId: Int? = null
@@ -51,6 +53,13 @@ class HymnDetailViewModel @Inject constructor(
 
     init {
         // O hymnId será definido explicitamente via setHymnId()
+        
+        // ✅ Observar mudanças no fontScaleFactor persistido
+        settingsRepository.fontScaleFactor
+            .onEach { factor ->
+                _uiState.update { it.copy(fontScaleFactor = factor) }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun observeHymnDetails() {
@@ -107,10 +116,30 @@ class HymnDetailViewModel @Inject constructor(
     }
 
     fun increaseFontSize() {
-        _uiState.update { it.copy(fontScaleFactor = minOf(2.0f, it.fontScaleFactor + 0.1f)) }
+        val newFactor = minOf(2.0f, _uiState.value.fontScaleFactor + 0.1f)
+        _uiState.update { it.copy(fontScaleFactor = newFactor) }
+        // ✅ Persistir mudança
+        viewModelScope.launch {
+            try {
+                settingsRepository.saveFontScaleFactor(newFactor)
+            } catch (e: Exception) {
+                // Log error, mas não quebra a UI
+                // Usuário ainda pode usar a fonte, só não persiste
+            }
+        }
     }
 
     fun decreaseFontSize() {
-        _uiState.update { it.copy(fontScaleFactor = maxOf(0.5f, it.fontScaleFactor - 0.1f)) }
+        val newFactor = maxOf(0.5f, _uiState.value.fontScaleFactor - 0.1f)
+        _uiState.update { it.copy(fontScaleFactor = newFactor) }
+        // ✅ Persistir mudança
+        viewModelScope.launch {
+            try {
+                settingsRepository.saveFontScaleFactor(newFactor)
+            } catch (e: Exception) {
+                // Log error, mas não quebra a UI
+                // Usuário ainda pode usar a fonte, só não persiste
+            }
+        }
     }
 }

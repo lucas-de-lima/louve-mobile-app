@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lucasdelima.louveapp.domain.repository.SettingsRepository
@@ -29,9 +30,10 @@ class LocalSettingsRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) : com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository {
 
-    // Chave para salvar o nome do tema
+    // Chaves para salvar configurações
     private object Keys {
         val APP_THEME = stringPreferencesKey("app_theme")
+        val FONT_SCALE_FACTOR = floatPreferencesKey("font_scale_factor")
     }
 
     override val theme: Flow<String>
@@ -45,6 +47,17 @@ class LocalSettingsRepository @Inject constructor(
             settings[Keys.APP_THEME] = themeName
         }
     }
-    
 
+    override val fontScaleFactor: Flow<Float>
+        get() = context.settingsDataStore.data.map { preferences ->
+            preferences[Keys.FONT_SCALE_FACTOR] ?: 1.0f // Default: tamanho normal
+        }
+
+    override suspend fun saveFontScaleFactor(factor: Float) {
+        // Validar o valor antes de salvar
+        val validatedFactor = factor.coerceIn(0.5f, 2.0f)
+        context.settingsDataStore.edit { settings ->
+            settings[Keys.FONT_SCALE_FACTOR] = validatedFactor
+        }
+    }
 }

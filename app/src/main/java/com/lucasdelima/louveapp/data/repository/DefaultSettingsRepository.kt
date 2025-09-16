@@ -51,6 +51,15 @@ class DefaultSettingsRepository @Inject constructor(
             localSettingsRepository.saveTheme(themeName)
         }
     }
+
+    override val fontScaleFactor: Flow<Float>
+        get() = localSettingsRepository.fontScaleFactor
+
+    override suspend fun saveFontScaleFactor(factor: Float) {
+        // ✅ Sempre salva localmente (não precisa de nuvem para fonte)
+        // A fonte é uma preferência local do dispositivo
+        localSettingsRepository.saveFontScaleFactor(factor)
+    }
     
     /**
      * Sincroniza configurações da nuvem para o local quando o usuário volta a ficar online.
