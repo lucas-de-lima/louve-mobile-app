@@ -20,20 +20,18 @@ import com.lucasdelima.louveapp.ui.screens.home.HomeScreen
 import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailScreen
 import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailViewModel
 import com.lucasdelima.louveapp.ui.screens.more.MoreScreen
-import com.lucasdelima.louveapp.ui.screens.settings.AuthViewModel
-import com.lucasdelima.louveapp.ui.screens.settings.SettingsViewModel
+import com.lucasdelima.louveapp.ui.screens.main.MainSharedViewModel
 
 @Composable
 fun MainScreen(rootNavController: NavHostController) {
     val bottomNavController = rememberNavController()
     
-    // ViewModels para gerenciar estado do usuário e temas
-    val authViewModel: AuthViewModel = hiltViewModel()
-    val settingsViewModel: SettingsViewModel = hiltViewModel()
+    // ✅ OTIMIZAÇÃO: Apenas um ViewModel compartilhado para dados comuns
+    val sharedViewModel: MainSharedViewModel = hiltViewModel()
     
-    // Estados observados
-    val userProfile by authViewModel.userProfile.collectAsState()
-    val settingsUiState by settingsViewModel.uiState.collectAsState()
+    // ✅ OTIMIZAÇÃO: Observar apenas dados compartilhados
+    val userProfile by sharedViewModel.userProfile.collectAsState()
+    val currentTheme by sharedViewModel.currentTheme.collectAsState()
 
     // O NavHost agora é o componente principal. Sem Scaffold ao redor dele.
     // Usando as animações padrão nativas do Android - suaves e familiares
@@ -53,9 +51,9 @@ fun MainScreen(rootNavController: NavHostController) {
                     rootNavController.navigate("profile")
                 },
                 onThemeSelected = { themeName ->
-                    settingsViewModel.selectTheme(themeName)
+                    sharedViewModel.selectTheme(themeName) // ✅ OTIMIZAÇÃO: Usar método do ViewModel compartilhado
                 },
-                currentTheme = settingsUiState.selectedThemeName,
+                currentTheme = currentTheme, // ✅ OTIMIZAÇÃO: Usar tema direto do ViewModel compartilhado
                 userProfile = userProfile
             )
         }

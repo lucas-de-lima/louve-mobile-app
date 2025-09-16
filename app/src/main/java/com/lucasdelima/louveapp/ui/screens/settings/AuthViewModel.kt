@@ -30,7 +30,7 @@ class AuthViewModel @Inject constructor(
     val userProfile: StateFlow<UserProfile?> = authRepository.getCurrentUser()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(1000), // ✅ OTIMIZAÇÃO: Reduzido de 5000 para 1000ms
             initialValue = null // Começa como nulo até o primeiro valor ser emitido
         )
 
@@ -41,7 +41,7 @@ class AuthViewModel @Inject constructor(
     val authState: StateFlow<AuthUiState> = authRepository.getAuthState()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(1000), // ✅ OTIMIZAÇÃO: Reduzido de 5000 para 1000ms
             initialValue = AuthUiState.Idle
         )
 

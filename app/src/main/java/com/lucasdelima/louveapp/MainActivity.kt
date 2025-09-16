@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -52,12 +53,14 @@ fun LouveApp(viewModel: MainViewModel) {
     // ✅ SOLUÇÃO SIMPLES: Observa diretamente o tema atual
     val currentTheme by viewModel.currentTheme.collectAsState()
     
-    // ✅ Encontra o tema ou usa o padrão
-    val selectedTheme = AllThemes.find { it.name == currentTheme } 
-        ?: run {
-            Log.w("MainActivity", "Tema '$currentTheme' não encontrado, usando padrão")
-            AllThemes.find { it.isDefault } ?: DefaultTheme
-        }
+    // ✅ OTIMIZAÇÃO: Cache do tema selecionado para evitar recálculo
+    val selectedTheme = remember(currentTheme) {
+        AllThemes.find { it.name == currentTheme } 
+            ?: run {
+                Log.w("MainActivity", "Tema '$currentTheme' não encontrado, usando padrão")
+                AllThemes.find { it.isDefault } ?: DefaultTheme
+            }
+    }
     
     // ✅ Aplica o tema e renderiza o app
     LouveAppTheme(themeData = selectedTheme) {

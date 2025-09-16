@@ -21,7 +21,7 @@ class MainViewModel @Inject constructor(
     val currentTheme: StateFlow<String> = settingsRepository.theme
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(1000), // ✅ OTIMIZAÇÃO: Reduzido de 5000 para 1000ms
             initialValue = "Padrão Claro"
         )
 }

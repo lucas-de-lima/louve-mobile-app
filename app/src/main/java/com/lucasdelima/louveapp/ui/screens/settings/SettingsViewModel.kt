@@ -33,7 +33,7 @@ class SettingsViewModel @Inject constructor(
             )
         }.stateIn( // Converte o Flow em um StateFlow
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(1000), // ✅ OTIMIZAÇÃO: Reduzido de 5000 para 1000ms
             initialValue = SettingsUiState()
         )
 
