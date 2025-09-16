@@ -295,7 +295,9 @@ private fun HymnContent(
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append("Coro\n")
                 }
-                append(it)
+                withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                    append(it)
+                }
             }
         }
 
