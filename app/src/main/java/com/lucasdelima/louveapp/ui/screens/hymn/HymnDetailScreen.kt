@@ -3,6 +3,7 @@ package com.lucasdelima.louveapp.ui.screens.hymn
 import android.content.Intent
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.gestures.TransformableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,6 +54,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.lucasdelima.louveapp.domain.model.Hymn
 import com.lucasdelima.louveapp.ui.components.HymnDetailTopAppBar
+import com.lucasdelima.louveapp.ui.components.HymnTextFormatter
+import com.lucasdelima.louveapp.ui.components.HymnTitleFormatter
 import kotlinx.coroutines.launch
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
@@ -254,14 +257,17 @@ private fun HymnContent(
     var accumulatedZoom by remember { mutableFloatStateOf(1f) }
     val zoomThreshold = 0.25f
 
-    val transformState = rememberTransformableState { zoomChange, _, _ ->
-        accumulatedZoom *= zoomChange
-        if (accumulatedZoom >= 1f + zoomThreshold) {
-            onIncreaseFont()
-            accumulatedZoom = 1f
-        } else if (accumulatedZoom <= 1f - zoomThreshold) {
-            onDecreaseFont()
-            accumulatedZoom = 1f
+    // ✅ MELHORIA 4: Memoizar o transformState para evitar recriação
+    val transformState = remember {
+        TransformableState { zoomChange, _, _ ->
+            accumulatedZoom *= zoomChange
+            if (accumulatedZoom >= 1f + zoomThreshold) {
+                onIncreaseFont()
+                accumulatedZoom = 1f
+            } else if (accumulatedZoom <= 1f - zoomThreshold) {
+                onDecreaseFont()
+                accumulatedZoom = 1f
+            }
         }
     }
 
@@ -272,41 +278,21 @@ private fun HymnContent(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        Text(
-            text = hymn.title,
-            style = MaterialTheme.typography.headlineMedium,
-            fontSize = MaterialTheme.typography.headlineMedium.fontSize * fontScaleFactor,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onSurface
+        // ✅ MELHORIA 5: Usar componente reutilizável para título
+        HymnTitleFormatter(
+            title = hymn.title,
+            fontScaleFactor = fontScaleFactor,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp)
         )
+        
         Spacer(modifier = Modifier.height(24.dp))
 
-        val formattedLyrics = buildAnnotatedString {
-            hymn.verses.forEachIndexed { index, verse ->
-                if (index > 0) append("\n")
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append("${index + 1}\n")
-                }
-                append("$verse\n")
-            }
-            hymn.chorus?.let {
-                append("\n")
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append("Coro\n")
-                }
-                withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                    append(it)
-                }
-            }
-        }
-
-        Text(
-            text = formattedLyrics,
-            style = MaterialTheme.typography.bodyLarge,
-            fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScaleFactor,
-            lineHeight = MaterialTheme.typography.bodyLarge.fontSize * 1.5 * fontScaleFactor,
-            color = MaterialTheme.colorScheme.onSurface
+        // ✅ MELHORIA 5: Usar componente reutilizável para texto do hino
+        HymnTextFormatter(
+            hymn = hymn,
+            fontScaleFactor = fontScaleFactor
         )
     }
 }
