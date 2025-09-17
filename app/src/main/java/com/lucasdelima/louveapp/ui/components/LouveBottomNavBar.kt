@@ -54,7 +54,7 @@ fun LouveBottomNavBar(navController: NavController) {
 			NavigationBarItem(
 				selected = false, // Sempre false para permitir efeito ripple temporário
 				onClick = {
-					// Navegação otimizada para melhor performance
+					// ✅ Navegação otimizada para melhor performance
 					if (currentRoute != item.route) {
 						navController.navigate(item.route) {
 							// Evita empilhar a mesma tela várias vezes
