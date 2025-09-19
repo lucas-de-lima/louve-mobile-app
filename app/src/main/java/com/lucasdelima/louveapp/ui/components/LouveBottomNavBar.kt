@@ -1,6 +1,8 @@
 package com.lucasdelima.louveapp.ui.components
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -43,7 +45,8 @@ fun LouveBottomNavBar(navController: NavController) {
 	// Altura reduzida para uma aparência mais compacta e profissional
 	NavigationBar(
 		containerColor = Color.Transparent,
-		modifier = Modifier.height(84.dp) // Altura reduzida para ser mais compacta
+		modifier = Modifier, // ✅ Remove altura fixa
+		windowInsets = WindowInsets.navigationBars // ✅ Consciente do sistema
 	) {
 		val navBackStackEntry = navController.currentBackStackEntryAsState()
 		val currentRoute = navBackStackEntry.value?.destination?.route
