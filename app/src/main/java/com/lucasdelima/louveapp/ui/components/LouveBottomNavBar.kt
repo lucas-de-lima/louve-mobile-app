@@ -1,9 +1,8 @@
 package com.lucasdelima.louveapp.ui.components
 
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -42,11 +41,11 @@ fun LouveBottomNavBar(navController: NavController) {
 	) }
 
 	// A barra de navegação é transparente para permitir que o fundo do tema seja visível
-	// Altura reduzida para uma aparência mais compacta e profissional
+	// Agora usa WindowInsets para se ajustar automaticamente à barra de botões do sistema
 	NavigationBar(
 		containerColor = Color.Transparent,
-		modifier = Modifier, // ✅ Remove altura fixa
-		windowInsets = WindowInsets.navigationBars // ✅ Consciente do sistema
+		modifier = Modifier, // Removida altura fixa para permitir ajuste automático
+		windowInsets = WindowInsets.systemBars // Consome os insets do sistema automaticamente
 	) {
 		val navBackStackEntry = navController.currentBackStackEntryAsState()
 		val currentRoute = navBackStackEntry.value?.destination?.route
