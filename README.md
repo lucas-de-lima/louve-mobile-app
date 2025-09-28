@@ -12,36 +12,46 @@ O Louve App não é apenas um leitor de hinos. Ele é um ambiente digital de ado
 
 ## 🚀 Principais Features (2025)
 
-- **Lista Completa de Hinos**: 640 hinos da Harpa Cristã, carregados instantaneamente via código Kotlin gerado.
-- **Busca Inteligente**: Pesquisa por título, número e conteúdo, tolerante a acentos e ordem das palavras.
-- **Detalhe do Hino**: Visualização rica, ajuste de fonte, compartilhamento customizado.
-- **Sistema de Temas Dinâmicos**: Escolha entre temas visuais imersivos, com fundos contextuais e experiência edge-to-edge.
-- **Autenticação Google**: Login seguro, perfil persistente na nuvem (Firebase Auth + Firestore).
-- **Persistência Local**: Preferências salvas com DataStore Preferences.
-- **Splash Screen Cinematográfica**: Animação de abertura profissional.
-- **Arquitetura Clean e Modular**: Pronta para KMP e expansão futura.
+### **✅ Funcionalidades Implementadas**
 
-### **Em desenvolvimento / Futuro próximo**
-- **Favoritos e Sincronização na Nuvem**
-- **Remote Config para feature flags**
-- **Rollout seguro e monitoramento avançado**
-- **Migração gradual para multiplataforma (KMP)**
-- **Ecossistema do Hino**: contexto histórico, player de áudio, referências bíblicas
+- **📚 Lista Completa de Hinos**: 640 hinos da Harpa Cristã, carregados instantaneamente via código Kotlin gerado
+- **🔍 Busca Inteligente**: Pesquisa por título, número e conteúdo, tolerante a acentos e ordem das palavras
+- **📖 Detalhe do Hino**: Visualização rica, ajuste de fonte, compartilhamento customizado
+- **⭐ Sistema de Favoritos Híbrido**: Marque hinos favoritos com sincronização automática entre dispositivos
+- **🎨 Sistema de Temas Dinâmicos**: Escolha entre temas visuais imersivos, com fundos contextuais e experiência edge-to-edge
+- **🔐 Autenticação Google**: Login seguro, perfil persistente na nuvem (Firebase Auth + Firestore)
+- **💾 Persistência Inteligente**: Dados locais para usuários não logados, sincronização na nuvem para usuários logados
+- **🎬 Splash Screen Cinematográfica**: Animação de abertura profissional
+- **🧭 Navegação Completa**: 8+ telas com barra de navegação inferior e navegação hierárquica
+- **📊 Analytics Integrado**: Firebase Analytics para insights de uso
+- **🔄 Sincronização Avançada**: Migração automática de dados, resolução de conflitos, monitoramento de conectividade
 
----
+### **🆕 Funcionalidades Adicionadas desde v1.0.0**
 
-## 🏗️ Arquitetura
+- **🎨 Sistema de Temas Completo**: Múltiplos temas com sincronização local e remota
+- **⭐ Sistema de Favoritos Avançado**: Sincronização híbrida (local + Google Cloud)
+- **🧭 Barra de Navegação Inferior**: Interface moderna com navegação intuitiva
+- **👆 Controle Gestual de Fonte**: Movimento de pinça para ajustar tamanho da fonte
+- **💾 Persistência de Preferências**: Tamanho da fonte salvo durante navegação
+- **🎨 TopAppBar Especializada**: Barras superiores contextuais por tela
+- **⚡ Splash Screen Otimizada**: 40% redução no tempo de carregamento
+- **🎯 Feedback Háptico**: Efeitos táteis nos ícones da navegação
+- **🔧 Performance Otimizada**: Melhorias gerais de velocidade e responsividade
+
+> **📋 Versionamento:** Seguimos [Semantic Versioning](https://semver.org/) (SemVer). A versão atual é **v1.1.0** - uma versão MINOR com múltiplas funcionalidades adicionadas de forma compatível.
+
+### **🏗️ Arquitetura Robusta**
 
 - **Clean Architecture** (Presentation, Domain, Data)
-- **MVVM + UDF** (StateFlow, ViewModels reativos)
+- **MVVM + UDF** (StateFlow, 9 ViewModels reativos)
 - **Jetpack Compose (Material 3)**
 - **Coroutines + Flow**
-- **Hilt para DI**
+- **Hilt para DI** (100% dos componentes)
 - **Firebase Auth + Firestore**
 - **DataStore Preferences**
 - **Navigation Compose**
 - **Splash Screen API**
-- **Pronto para KMP (Domain em Kotlin puro)**
+- **Pronto para KMP** (Domain em Kotlin puro)
 
 Veja [docs/3. Arquitetura de Software.MD](docs/3.%20Arquitetura%20de%20Software.MD) para detalhes técnicos e diagramas.
 
@@ -49,13 +59,15 @@ Veja [docs/3. Arquitetura de Software.MD](docs/3.%20Arquitetura%20de%20Software.
 
 ## 🔄 Fluxos Principais
 
-- **Splash e Inicialização**: Animação e transição automática para Home.
-- **Listagem e Busca de Hinos**: Busca avançada, UI reativa.
-- **Detalhe do Hino**: Ajuste de fonte, compartilhamento, favoritos (em breve).
-- **Temas Dinâmicos**: Escolha e persistência de tema.
-- **Autenticação Google**: Login/logout, perfil na nuvem.
-- **Navegação**: Entre Splash, Home, Detalhe, Configurações.
-- **Compartilhamento**: Bottom sheet customizada, intent nativa.
+- **🎬 Splash e Inicialização**: Animação cinematográfica e transição automática para Home
+- **📚 Listagem e Busca de Hinos**: Busca avançada com debounce, UI reativa
+- **📖 Detalhe do Hino**: Ajuste de fonte, compartilhamento, sistema de favoritos
+- **⭐ Favoritos**: Lista dedicada, sincronização automática, migração de dados
+- **🎨 Temas Dinâmicos**: Escolha e persistência de tema com preview visual
+- **🔐 Autenticação Google**: Login/logout, perfil na nuvem, migração automática
+- **🧭 Navegação Completa**: Entre 8+ telas com barra inferior e navegação hierárquica
+- **📱 Perfil e Configurações**: Gerenciamento de conta, preferências, suporte
+- **🔄 Sincronização**: Migração automática, resolução de conflitos, modo offline
 
 Veja [docs/Mapa_de_Fluxos_e_Testes.md](docs/Mapa_de_Fluxos_e_Testes.md) para o mapeamento completo de fluxos e sugestões de testes.
 
@@ -66,12 +78,30 @@ Veja [docs/Mapa_de_Fluxos_e_Testes.md](docs/Mapa_de_Fluxos_e_Testes.md) para o m
 ```
 app/
  └── src/main/java/com/lucasdelima/louveapp/
-      ├── data/        # Implementação de repositórios, fontes de dados
-      ├── domain/      # Modelos e interfaces de negócio (Kotlin puro)
-      ├── ui/          # Apresentação: screens, navigation, theme
+      ├── data/        # 9 implementações de repositórios, fontes de dados
+      ├── domain/      # 7 interfaces e modelos de negócio (Kotlin puro)
+      ├── ui/          # 8+ telas, navegação, temas, componentes
       ├── di/          # Injeção de dependências (Hilt)
       └── MainActivity.kt, MainViewModel.kt
 ```
+
+---
+
+## 🎯 Telas Implementadas
+
+### **Telas Principais**
+- **🎬 SplashScreen**: Animação cinematográfica com silhuetas e efeitos
+- **🏠 HomeScreen**: Lista de hinos com busca em tempo real
+- **⭐ FavoritesScreen**: Lista de hinos favoritos com estado vazio
+- **🔍 DiscoverScreen**: Preview de funcionalidades futuras
+- **⚙️ MoreScreen**: Ações rápidas e informações do usuário
+
+### **Telas de Detalhes**
+- **📖 HymnDetailScreen**: Visualização completa com controles de fonte
+- **👤 ProfileScreen**: Perfil do usuário com estatísticas
+- **⚙️ SettingsScreen**: Configurações e seleção de temas
+- **ℹ️ AboutScreen**: Informações do app e filosofia
+- **🆘 SupportScreen**: Formulário de suporte completo
 
 ---
 
@@ -102,17 +132,24 @@ app/
 - [Guia de Contribuição e Padrões](docs/6.%20Guia%20de%20Contribui%C3%A7%C3%A3o%20e%20Padr%C3%B5es.MD)
 - [Configuração do Ambiente](docs/7.%20Configura%C3%A7%C3%A3o%20do%20Ambiente%20de%20Desenvolvimento.MD)
 - [Segurança e Lançamento](docs/8.%20Seguran%C3%A7a%20e%20Lan%C3%A7amento.MD)
+- [Sistema de Navegação](docs/9.%20Sistema%20de%20Navegação%20e%20Barra%20Inferior.MD)
+- [Sistema de Autenticação](docs/10.%20Sistema%20de%20Autenticação%20e%20Persistência%20de%20Dados.MD)
+- [Sistema de Migração](docs/11.%20Sistema%20de%20Migração%20e%20Sincronização%20de%20Dados.md)
+- [Funcionalidades Implementadas](docs/13.%20Funcionalidades%20Implementadas%20-%20Estado%20Atual.md)
 - [Mapa de Fluxos e Testes](docs/Mapa_de_Fluxos_e_Testes.md)
-- [Prompt Técnico Refinado](docs/Prompt_Revisado.md)
+
+### **📋 Changelog**
+- [Changelog Completo](CHANGELOG_DETALHADO.md) - Histórico detalhado seguindo Semantic Versioning (SemVer)
 
 ---
 
 ## 💡 Expectativas Futuras
 
-- Evoluir para multiplataforma (KMP), mantendo domínio compartilhado
-- Sincronização de favoritos e preferências na nuvem
-- Ecossistema de hinos enriquecido (áudio, contexto, referências)
-- Observabilidade e rollout avançados
+- **🎵 Ecossistema do Hino**: contexto histórico, player de áudio, referências bíblicas
+- **🔄 Remote Config**: feature flags para rollout seguro
+- **📊 Observabilidade**: monitoramento avançado e métricas
+- **🌐 Multiplataforma**: evolução para KMP mantendo domínio compartilhado
+- **🤖 IA Integrada**: Harpa com linguagem moderna e atualizada
 
 ---
 
