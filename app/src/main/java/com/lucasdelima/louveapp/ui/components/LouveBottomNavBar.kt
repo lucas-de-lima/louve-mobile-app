@@ -70,20 +70,18 @@ fun LouveBottomNavBar(navController: NavController) {
         containerColor = Color.Transparent, // Transparência mantida
         contentPadding = PaddingValues(0.dp) // Zeramos o padding padrão para controle total
     ) {
-        // Solução com Box para centralização vertical perfeita
+        // Container de Centralização (Robusto)
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                // Ajuste visual fino: empurra conteúdo para cima em dispositivos com barra
-                .padding(bottom = navigationBarInsets.calculateBottomPadding() / 2),
-            contentAlignment = Alignment.Center // Centraliza o Row verticalmente
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center // Centraliza a "janela de conteúdo" (o Row)
         ) {
+            // A "Janela de Conteúdo" com Tamanho Fixo
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(contentHeight), // Altura definida para o conteúdo
+                    .height(contentHeight), // Garante tamanho estável para os itens
                 horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically // Centraliza itens dentro do Row
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 items.forEach { item ->
                     val isSelected = currentRoute == item.route
