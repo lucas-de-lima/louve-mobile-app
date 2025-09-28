@@ -2,11 +2,15 @@ package com.lucasdelima.louveapp.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
@@ -51,42 +55,62 @@ fun LouveBottomNavBar(navController: NavController) {
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route
 
-    // Nova implementação usando BottomAppBar com altura controlada
-    BottomAppBar(
-        modifier = Modifier.height(112.dp), // Controle total da altura
-        containerColor = Color.Transparent, // Transparência mantida
-        windowInsets = WindowInsets.navigationBars // Responsividade mantida
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items.forEach { item ->
-                val isSelected = currentRoute == item.route
+    // 1. Definimos a altura base que queremos para o nosso conteúdo (ícones e texto)
+    val contentHeight = 68.dp
 
-                BottomNavItem(
-                    label = item.title,
-                    icon = when (item.route) {
-                        BottomNavItem.Harpa.route -> if (isSelected) Icons.Filled.Home else Icons.Outlined.Home
-                        BottomNavItem.Favorites.route -> if (isSelected) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
-                        BottomNavItem.Discover.route -> if (isSelected) Icons.TwoTone.Search else Icons.Outlined.Search
-                        BottomNavItem.More.route -> if (isSelected) Icons.TwoTone.Menu else Icons.Outlined.Menu
-                        else -> Icons.Outlined.Home
-                    },
-                    isSelected = isSelected,
-                    onClick = {
-                        if (currentRoute != item.route) {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
+    // 2. Pegamos os espaçamentos (insets) da barra de navegação do sistema
+    val navigationBarInsets = WindowInsets.navigationBars.asPaddingValues()
+
+    // 3. Calculamos a altura total: nossa altura base + a altura da barra do sistema
+    val totalHeight = contentHeight + navigationBarInsets.calculateBottomPadding()
+
+    // Nova implementação usando BottomAppBar com altura dinâmica
+    BottomAppBar(
+        modifier = Modifier.height(totalHeight), // Altura calculada dinamicamente
+        containerColor = Color.Transparent, // Transparência mantida
+        contentPadding = PaddingValues(0.dp) // Zeramos o padding padrão para controle total
+    ) {
+        // Solução com Box para centralização vertical perfeita
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                // Ajuste visual fino: empurra conteúdo para cima em dispositivos com barra
+                .padding(bottom = navigationBarInsets.calculateBottomPadding() / 2),
+            contentAlignment = Alignment.Center // Centraliza o Row verticalmente
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(contentHeight), // Altura definida para o conteúdo
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically // Centraliza itens dentro do Row
+            ) {
+                items.forEach { item ->
+                    val isSelected = currentRoute == item.route
+
+                    BottomNavItem(
+                        label = item.title,
+                        icon = when (item.route) {
+                            BottomNavItem.Harpa.route -> if (isSelected) Icons.Filled.Home else Icons.Outlined.Home
+                            BottomNavItem.Favorites.route -> if (isSelected) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
+                            BottomNavItem.Discover.route -> if (isSelected) Icons.TwoTone.Search else Icons.Outlined.Search
+                            BottomNavItem.More.route -> if (isSelected) Icons.TwoTone.Menu else Icons.Outlined.Menu
+                            else -> Icons.Outlined.Home
+                        },
+                        isSelected = isSelected,
+                        onClick = {
+                            if (currentRoute != item.route) {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }
