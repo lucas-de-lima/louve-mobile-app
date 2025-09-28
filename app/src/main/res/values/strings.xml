@@ -1,3 +1,69 @@
 <resources>
     <string name="app_name">Louve App</string>
+    
+    <!-- Descrição do app para AndroidManifest -->
+    <string name="app_description">Acesse facilmente os 640 hinos da Harpa Cristã com busca inteligente, favoritos sincronizados e temas personalizados. Uma jornada de adoração moderna e reverente.</string>
+    
+    <!-- Descrições para Play Store -->
+    <string name="play_store_short_description">Harpa Cristã completa com busca inteligente e favoritos sincronizados</string>
+    
+    <string name="play_store_long_description">🎵 TRANSFORME SUA EXPERIÊNCIA COM A HARPA CRISTÃ
+
+O Louve App é muito mais que um simples leitor de hinos. É uma jornada de adoração que conecta você aos 640 hinos da Harpa Cristã de forma moderna e reverente.
+
+✨ PRINCIPAIS FUNCIONALIDADES:
+
+🔍 BUSCA INTELIGENTE
+• Encontre qualquer hino instantaneamente
+• Busca tolerante a acentos e pontuação
+• Pesquisa por número, título ou conteúdo completo
+• Performance otimizada para acesso rápido
+
+⭐ SISTEMA DE FAVORITOS
+• Marque seus hinos preferidos
+• Sincronização automática entre dispositivos
+• Funciona offline e online
+• Migração automática após login
+
+🎨 TEMAS PERSONALIZADOS
+• Tema claro, escuro e gradiente vibrante
+• Fundos contextuais para cada tela
+• Personalização visual profunda
+• Aplicação automática em todo o app
+
+🔐 LOGIN OPCIONAL COM GOOGLE
+• Acesso seguro com sua conta Google
+• Sincronização de favoritos na nuvem
+• Dados protegidos e privados
+• Funciona perfeitamente sem login
+
+📱 EXPERIÊNCIA OTIMIZADA
+• Interface moderna com Material Design 3
+• Navegação intuitiva com barra inferior
+• Controles de fonte para melhor leitura
+• Compartilhamento fácil de hinos
+
+🛡️ PRIVACIDADE E SEGURANÇA
+• Política de privacidade transparente
+• Dados criptografados e seguros
+• Controle total sobre suas informações
+• Suporte direto ao desenvolvedor
+
+
+🌟 FILOSOFIA DO PRODUTO
+O Louve App transforma a experiência com a Harpa Cristã numa jornada de descoberta e entendimento. Não entregamos apenas conteúdo; criamos um ambiente digital que é uma ferramenta robusta para o louvor congregacional e uma "salinha especial" para a devoção pessoal.
+
+💝 TOTALMENTE GRATUITO
+• Sem anúncios
+• Sem compras internas
+• Sem limitações
+• Desenvolvido com amor para a comunidade cristã
+
+Baixe agora e descubra uma nova forma de conectar-se com Deus através da música!</string>
+    
+    <!-- Categoria do app -->
+    <string name="app_category">MÚSICA</string>
+    
+    <!-- Palavras-chave para SEO -->
+    <string name="app_keywords">harpa cristã, hinos, louvor, adoração, música cristã, igreja, hinário, cantar, coro, versos</string>
 </resources>

@@ -2,10 +2,10 @@ package com.lucasdelima.louveapp.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lucasdelima.louveapp.data.repository.FakeHymnRepository // Use a interface se for injetar
 import com.lucasdelima.louveapp.data.repository.HymnRepositoryImpl
 import com.lucasdelima.louveapp.domain.model.Hymn // Importe o Hymn do domain
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job // Para gerenciar o job de busca
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +44,7 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun loadInitialHymns() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) { // ✅ Carregamento em background
             _uiState.update { it.copy(isLoading = true) }
             originalHymns = hymnRepository.getAllHymns()
             filterHymns()
@@ -55,7 +55,7 @@ class HomeViewModel : ViewModel() {
     fun onSearchQueryChanged(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
         searchJob?.cancel()
-        searchJob = viewModelScope.launch {
+        searchJob = viewModelScope.launch(Dispatchers.IO) { // ✅ Busca em background
             delay(300)
             filterHymns()
         }
@@ -87,6 +87,8 @@ class HomeViewModel : ViewModel() {
         val uiHymns = filteredDomainHymns.map { hymn ->
             HymnUi(id = hymn.id, title = hymn.title, number = hymn.number.toString().padStart(3, '0'))
         }
+        
+        // ✅ Atualização do StateFlow em background thread
         _uiState.update { it.copy(hymns = uiHymns, isLoading = false) }
     }
 }

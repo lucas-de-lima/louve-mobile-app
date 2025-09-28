@@ -11,13 +11,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository
 ): ViewModel() {
-    // Expomos o nome do tema salvo como um StateFlow
-    val themeName: StateFlow<String> = settingsRepository.theme
+    
+    /**
+     * ✅ SOLUÇÃO SIMPLES: Expõe diretamente o tema atual
+     * Observa mudanças em tempo real automaticamente
+     */
+    val currentTheme: StateFlow<String> = settingsRepository.theme
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = "Padrão Claro" // Valor inicial antes de ler do DataStore
+            started = SharingStarted.WhileSubscribed(1000), // ✅ OTIMIZAÇÃO: Reduzido de 5000 para 1000ms
+            initialValue = "Padrão Claro"
         )
 }

@@ -5,7 +5,8 @@ import com.lucasdelima.louveapp.domain.model.Hymn
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
 
 class HymnRepositoryImpl : HymnRepository {
-    private val hymns: List<Hymn> = HymnDataSource.allHymns
+    // ✅ Lazy loading para evitar carregamento síncrono na inicialização
+    private val hymns: List<Hymn> by lazy { HymnDataSource.allHymns }
 
     override fun getAllHymns(): List<Hymn> = hymns
 

@@ -1,6 +1,8 @@
 package com.lucasdelima.louveapp.domain.repository
 
 import com.lucasdelima.louveapp.domain.model.UserProfile
+import com.lucasdelima.louveapp.domain.model.Result
+import com.lucasdelima.louveapp.ui.screens.settings.AuthUiState
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -29,6 +31,12 @@ interface AuthRepository {
      * Emite um objeto [UserProfile] se o usuário estiver logado, ou `null` se não estiver.
      */
     fun getCurrentUser(): Flow<UserProfile?>
+
+    /**
+     * Um fluxo que emite o estado atual da autenticação.
+     * Permite que a UI reaja aos diferentes estados (loading, error, success).
+     */
+    fun getAuthState(): Flow<AuthUiState>
 
     /**
      * Tenta realizar o login no Firebase usando uma credencial específica.

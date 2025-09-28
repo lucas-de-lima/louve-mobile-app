@@ -91,6 +91,7 @@ dependencies {
     // Firebase/Firestore
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.analytics)
 
     implementation(libs.google.gms.auth)
     implementation(libs.google.identity.googleid)
@@ -124,6 +125,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

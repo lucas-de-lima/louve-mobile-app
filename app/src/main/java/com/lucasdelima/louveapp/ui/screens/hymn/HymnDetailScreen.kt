@@ -1,6 +1,9 @@
 package com.lucasdelima.louveapp.ui.screens.hymn
 
 import android.content.Intent
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.gestures.TransformableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,16 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,15 +31,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,26 +52,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.lucasdelima.louveapp.domain.model.Hymn
-import com.lucasdelima.louveapp.ui.theme.LouveTheme
+import com.lucasdelima.louveapp.ui.components.HymnDetailTopAppBar
+import com.lucasdelima.louveapp.ui.components.HymnTextFormatter
+import com.lucasdelima.louveapp.ui.components.HymnTitleFormatter
 import kotlinx.coroutines.launch
+import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HymnDetailScreen(
+    uiState: HymnDetailUiState,
     onBack: () -> Unit,
-    viewModel: HymnDetailViewModel = hiltViewModel()
+    onToggleFavorite: () -> Unit,
+    onIncreaseFontSize: () -> Unit,
+    onDecreaseFontSize: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    // --- LÓGICA PARA AS NOVAS FUNCIONALIDADES ---
-    val context = LocalContext.current
+    LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    var showShareSheet by remember { mutableStateOf(false) } // Estado para controlar a folha de compartilhamento
+    rememberCoroutineScope()
+    var showShareSheet by remember { mutableStateOf(false) }
 
-    // Exibe a folha de compartilhamento customizada se showShareSheet for true
     if (showShareSheet) {
         uiState.hymn?.let { hymnToShare ->
             ShareBottomSheet(
@@ -82,67 +82,54 @@ fun HymnDetailScreen(
         }
     }
 
-    // ------------------------------------------
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.detailScreenBackground()
-
-        Scaffold(
-            // Adiciona o host do Snackbar para exibir nossas mensagens
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text(uiState.hymn?.number?.toString()?.padStart(3, '0') ?: "...") },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
+    // Cada tela agora tem seu próprio Scaffold
+    Scaffold(
+        topBar = {
+            HymnDetailTopAppBar(
+                uiState = uiState,
+                onBackClick = onBack,
+                onIncreaseFont = onIncreaseFontSize,
+                onDecreaseFont = onDecreaseFontSize
+            )
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        bottomBar = {
+            BottomAppBar(
+                containerColor = Color.Transparent,
+                actions = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        IconButton(onClick = onToggleFavorite) {
+                            Icon(
+                                imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = if (uiState.isFavorite) "Desfavoritar" else "Favoritar",
+                                tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                            )
                         }
-                    },
-                    actions = {
-                        IconButton(onClick = viewModel::decreaseFontSize) {
-                            Icon(Icons.Default.KeyboardArrowDown, "Diminuir Fonte")
-                        }
-                        IconButton(onClick = viewModel::increaseFontSize) {
-                            Icon(Icons.Default.KeyboardArrowUp, "Aumentar Fonte")
-                        }
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Transparent
-                    )
-                )
-            },
-            bottomBar = {
-                BottomAppBar(
-                    containerColor = Color.Transparent,
-                    actions = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            // --- BOTÃO DE FAVORITOS (Placeholder) ---
-                            IconButton(onClick = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = "Função de Favoritos em breve! ❤️", // Mensagem gentil
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                            }) {
-                                Icon(Icons.Default.FavoriteBorder, "Curtir")
-                            }
 
-                            // --- BOTÃO DE COMPARTILHAR (Abre a nossa folha customizada) ---
-                            IconButton(onClick = {
-                                showShareSheet = true // Apenas mostra a folha
-                            }) {
-                                Icon(Icons.Default.Share, "Compartilhar")
-                            }
+                        IconButton(onClick = {
+                            showShareSheet = true
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Compartilhar",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
-                )
-            },
-            containerColor = Color.Transparent
-        ) { innerPadding ->
+                }
+            )
+        },
+        containerColor = Color.Transparent
+    ) { innerPadding ->
+        // DESENHAMOS O FUNDO ESPECIAL DO TEMA AQUI, DENTRO DA ÁREA DE CONTEÚDO
+        Box(modifier = Modifier.fillMaxSize()) {
+            // O fundo especial para tela de detalhes é desenhado aqui, ocupando a tela inteira
+            LouveTheme.backgrounds.detailScreenBackground()
+            
+            // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
             Box(
                 modifier = Modifier
                     .padding(innerPadding)
@@ -158,7 +145,9 @@ fun HymnDetailScreen(
 
                     uiState.hymn != null -> HymnContent(
                         hymn = uiState.hymn!!,
-                        fontScaleFactor = uiState.fontScaleFactor
+                        fontScaleFactor = uiState.fontScaleFactor,
+                        onIncreaseFont = onIncreaseFontSize,
+                        onDecreaseFont = onDecreaseFontSize
                     )
                 }
             }
@@ -166,10 +155,6 @@ fun HymnDetailScreen(
     }
 }
 
-/**
- * Uma folha de compartilhamento ("bottom sheet") que mostra uma pré-visualização
- * bonita do conteúdo antes de compartilhar.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ShareBottomSheet(
@@ -190,7 +175,11 @@ private fun ShareBottomSheet(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Compartilhar Hino", style = MaterialTheme.typography.titleLarge)
+            Text(
+                "Compartilhar Hino",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             // Card de pré-visualização
@@ -202,13 +191,15 @@ private fun ShareBottomSheet(
                     Text(
                         text = "${hymn.number} - ${hymn.title}",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = hymn.verses.firstOrNull() ?: "Confira este hino no Louve App!",
                         style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 3
+                        maxLines = 3,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -218,7 +209,6 @@ private fun ShareBottomSheet(
             // Botão final para compartilhar
             Button(
                 onClick = {
-                    // --- O TEXTO DE COMPARTILHAMENTO APRIMORADO ---
                     val firstVerse = hymn.verses.firstOrNull()?.replace("\n", " ") ?: ""
                     val shareText = """
                     📖 *${hymn.title} (Hino ${hymn.number})*
@@ -228,7 +218,6 @@ private fun ShareBottomSheet(
                     Enviado pelo Louve App! 🎵
                     (Link para a loja em breve)
                     """.trimIndent()
-                    // ---------------------------------------------
 
                     val sendIntent: Intent = Intent().apply {
                         action = Intent.ACTION_SEND
@@ -244,7 +233,11 @@ private fun ShareBottomSheet(
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 Text("COMPARTILHAR AGORA")
             }
@@ -254,44 +247,52 @@ private fun ShareBottomSheet(
 }
 
 @Composable
-private fun HymnContent(hymn: Hymn, fontScaleFactor: Float, modifier: Modifier = Modifier) {
+private fun HymnContent(
+    hymn: Hymn,
+    fontScaleFactor: Float,
+    onIncreaseFont: () -> Unit,
+    onDecreaseFont: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var accumulatedZoom by remember { mutableFloatStateOf(1f) }
+    val zoomThreshold = 0.25f
+
+    // ✅ MELHORIA 4: Memoizar o transformState para evitar recriação
+    val transformState = remember {
+        TransformableState { zoomChange, _, _ ->
+            accumulatedZoom *= zoomChange
+            if (accumulatedZoom >= 1f + zoomThreshold) {
+                onIncreaseFont()
+                accumulatedZoom = 1f
+            } else if (accumulatedZoom <= 1f - zoomThreshold) {
+                onDecreaseFont()
+                accumulatedZoom = 1f
+            }
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
+            .transformable(state = transformState)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        Text(
-            text = hymn.title,
-            style = MaterialTheme.typography.headlineMedium,
-            fontSize = MaterialTheme.typography.headlineMedium.fontSize * fontScaleFactor,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+        // ✅ MELHORIA 5: Usar componente reutilizável para título
+        HymnTitleFormatter(
+            title = hymn.title,
+            fontScaleFactor = fontScaleFactor,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp)
         )
+        
         Spacer(modifier = Modifier.height(24.dp))
 
-        val formattedLyrics = buildAnnotatedString {
-            hymn.verses.forEachIndexed { index, verse ->
-                if (index > 0) append("\n")
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append("${index + 1}\n")
-                }
-                append("$verse\n")
-            }
-            hymn.chorus?.let {
-                append("\n")
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append("Coro\n")
-                }
-                append(it)
-            }
-        }
-
-        Text(
-            text = formattedLyrics,
-            style = MaterialTheme.typography.bodyLarge,
-            fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScaleFactor,
-            lineHeight = MaterialTheme.typography.bodyLarge.fontSize * 1.5 * fontScaleFactor
+        // ✅ MELHORIA 5: Usar componente reutilizável para texto do hino
+        HymnTextFormatter(
+            hymn = hymn,
+            fontScaleFactor = fontScaleFactor
         )
     }
 }

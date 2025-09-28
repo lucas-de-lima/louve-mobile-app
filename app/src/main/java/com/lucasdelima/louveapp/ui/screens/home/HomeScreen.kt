@@ -28,16 +28,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.lucasdelima.louveapp.ui.components.HomeTopAppBar
+import com.lucasdelima.louveapp.ui.components.LouveBottomNavBar
 import com.lucasdelima.louveapp.ui.screens.home.components.HymnCardItem
 import com.lucasdelima.louveapp.ui.screens.home.components.SearchField
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 import kotlinx.coroutines.launch
+import androidx.compose.material3.MaterialTheme
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.lucasdelima.louveapp.domain.model.UserProfile
+import com.lucasdelima.louveapp.ui.screens.settings.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    bottomNavController: NavHostController,
     onHymnSelected: (Int) -> Unit,
-    onSettingsClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    onThemeSelected: (String) -> Unit,
+    currentTheme: String,
+    userProfile: UserProfile?,
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -55,66 +66,61 @@ fun HomeScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LouveTheme.backgrounds.screenBackground() // Usa o fundo padrão de tela
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text("Louve App") }, // Pode ser o nome do seu app
-                    // Deixa a TopAppBar transparente também para se mesclar ao gradiente
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Transparent
-                    ),
-                    actions = {
-                        IconButton(onClick = onSettingsClick) {
-                            Icon(
-                                imageVector = Icons.Default.Settings,
-                                contentDescription = "Configurações"
-                            )
-                        }
-                    }
-                )
-            },
-            containerColor = Color.Transparent
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                // Nosso novo campo de busca estilizado
-                SearchField(
-                    query = uiState.searchQuery,
-                    onQueryChanged = viewModel::onSearchQueryChanged // Referência direta da função
-                )
+    // Cada tela agora tem seu próprio Scaffold
+    Scaffold(
+        topBar = {
+            HomeTopAppBar(
+                currentTheme = currentTheme,
+                onThemeSelected = onThemeSelected,
+                userProfile = userProfile,
+                onProfileClick = onProfileClick
+            )
+        },
+        bottomBar = {
+            LouveBottomNavBar(navController = bottomNavController)
+        },
+        containerColor = Color.Transparent // Mantém o fundo personalizado
+    ) { innerPadding ->
+        // ✅ REMOVIDO: Fundo duplicado - agora é desenhado apenas na MainActivity
+        // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            // Nosso novo campo de busca estilizado
+            SearchField(
+                query = uiState.searchQuery,
+                onQueryChanged = viewModel::onSearchQueryChanged
+            )
 
-                // Lógica de exibição da lista ou loading/erro
-                if (uiState.isLoading && uiState.hymns.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Nenhum hino encontrado para \"${uiState.searchQuery}\"")
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        state = listState // 3. Passe o estado para o LazyColumn
-                    ) {
-                        items(uiState.hymns, key = { it.id }) { hymn ->
-                            HymnCardItem(hymn = hymn) {
-                                onHymnSelected(hymn.id)
-                            }
+            // Lógica de exibição da lista ou loading/erro
+            if (uiState.isLoading && uiState.hymns.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (!uiState.isLoading && uiState.hymns.isEmpty() && uiState.searchQuery.isNotEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Nenhum hino encontrado para \"${uiState.searchQuery}\"",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    state = listState
+                ) {
+                    items(uiState.hymns, key = { it.id }) { hymn ->
+                        HymnCardItem(hymn = hymn) {
+                            onHymnSelected(hymn.id)
                         }
                     }
                 }

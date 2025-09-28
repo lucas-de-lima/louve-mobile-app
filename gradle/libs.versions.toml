@@ -1,5 +1,5 @@
 [versions]
-agp = "8.11.1"
+agp = "8.13.0"
 kotlin = "2.0.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -21,9 +21,13 @@ firebaseBom = "33.16.0"
 googleServicesPlugin = "4.4.3"
 firebaseAuthKtx = "23.2.1"
 firebaseFirestoreKtx = "25.1.4"
+firebaseAnalytics = "22.0.0"
 coil = "2.6.0"
 googleid = "1.1.0"
 googleGmsAuth = "21.2.0"
+materialIconsExtended = "1.7.6"
+
+ 
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,6 +66,10 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
+
+
 
 
 [plugins]
