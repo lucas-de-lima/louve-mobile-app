@@ -21,4 +21,4 @@ git push origin "v$VERSION"
 
 echo "✅ Release v$VERSION criada!"
 echo "📋 GitHub Action criará a release automaticamente"
-echo "🔗 Verifique em: https://github.com/seu-usuario/louve-mobile-app/releases"
+echo "🔗 Verifique em: https://github.com/lucas-de-lima/louve-mobile-app/releases"
