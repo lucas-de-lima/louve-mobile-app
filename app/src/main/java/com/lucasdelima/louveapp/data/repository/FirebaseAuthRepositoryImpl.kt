@@ -11,8 +11,8 @@ import com.lucasdelima.louveapp.domain.repository.AuthCredentials
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
 import com.lucasdelima.louveapp.data.repository.DataMigrationService
-import com.lucasdelima.louveapp.ui.screens.settings.AuthUiState
-import com.lucasdelima.louveapp.ui.screens.settings.AuthError
+import com.lucasdelima.louveapp.domain.model.AuthUiState
+import com.lucasdelima.louveapp.domain.model.AuthError
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
