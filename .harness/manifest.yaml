@@ -1,0 +1,39 @@
+# Dedicated Harness Manifest
+harness_version: "1.0.0"
+base_harness_version: "0.32.0"
+project:
+  id: louve-mobile-app
+  display_name: "Louve App"
+  language: "Kotlin"
+  platform: "Android"
+  repository: "github.com/lucas-de-lima/louve-mobile-app"
+architecture: "Clean Architecture (ui/domain/data) + MVVM + UDF"
+selected_skills:
+  - discovery
+  - architecture-decision
+  - adr-authoring
+  - kotlin-android
+  - compose-ui
+  - code-review
+  - security-review
+selected_agents:
+  - Orchestrator
+  - Discovery
+  - Architect
+  - Planner
+  - Android Engineer
+  - Reviewer
+selected_tools:
+  - filesystem
+  - git
+  - github
+  - gradle
+  - android-sdk
+enabled_workflows:
+  - WF-001: project-discovery
+  - WF-002: architecture-deliberation
+  - WF-003: harness-generation
+  - WF-004: work-item-planning
+  - WF-005: implementation
+  - WF-006: verification
+  - WF-007: release-preparation
