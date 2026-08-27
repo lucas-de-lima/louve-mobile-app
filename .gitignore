@@ -22,3 +22,13 @@ local.properties
 
 # Firebase
 google-services.json
+firebase-debug.log
+
+# IDE metadata
+/.idea/
+
+# Kotlin build errors
+.kotlin/
+
+# Release artifacts
+app/release/output-metadata.json
