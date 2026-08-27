@@ -71,7 +71,7 @@ import coil.compose.AsyncImage
 import com.lucasdelima.louveapp.ui.common.auth.rememberGoogleSignInLauncher
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.repository.AuthCredentials
-import com.lucasdelima.louveapp.ui.screens.settings.AuthError
+import com.lucasdelima.louveapp.domain.model.AuthError
 import com.lucasdelima.louveapp.ui.screens.settings.AuthViewModel
 import com.lucasdelima.louveapp.ui.screens.profile.ProfileViewModel
 import com.lucasdelima.louveapp.R

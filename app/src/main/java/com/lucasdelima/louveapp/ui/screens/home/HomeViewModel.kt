@@ -2,9 +2,10 @@ package com.lucasdelima.louveapp.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lucasdelima.louveapp.data.repository.HymnRepositoryImpl
-import com.lucasdelima.louveapp.domain.model.Hymn // Importe o Hymn do domain
+import com.lucasdelima.louveapp.domain.model.Hymn
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job // Para gerenciar o job de busca
 import kotlinx.coroutines.delay
@@ -29,14 +30,15 @@ fun String.normalizeForSearch(): String {
     return unaccented.lowercase().replace(Regex("[.,!?;:]"), "")
 }
 
-class HomeViewModel : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val hymnRepository: HymnRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     private var originalHymns: List<Hymn> = emptyList()
-    private val hymnRepository: HymnRepository = HymnRepositoryImpl()
-
     private var searchJob: Job? = null
 
     init {
