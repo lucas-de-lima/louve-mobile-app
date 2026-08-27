@@ -91,9 +91,9 @@ Define evidence-based conditions that must be satisfied before work advances thr
 
 | Gate | Phase | Current | Target |
 |------|-------|---------|--------|
-| QG-001 Build | Phase 6 | ✅ CI (`pr-validation.yml`) | CI |
+| QG-001 Build | Phase 6 | ✅ Verificado (`./gradlew assembleDebug` BUILD SUCCESSFUL em fix/bugs-aggregate) | CI |
 | QG-002 Tests | Phase 5 | ✅ CI (`pr-validation.yml`) | CI + coverage gate |
-| QG-003 Architecture | Phase 5 | ✅ CI (`check-architecture.py`) | Script+CI |
+| QG-003 Architecture | Phase 5 | ✅ 0 violações (todas resolvidas, script passa) | Script+CI |
 | QG-004 Lint | Phase 5 | ✅ CI (`pr-validation.yml`) | CI |
 | QG-005 PR Size | Phase 3a | ✅ CI advisory | Script |
 | QG-006 Conventional Commit | Phase 3b | ✅ Manual | CI |
