@@ -166,7 +166,56 @@ Para facilitar o desenvolvimento, foram criados scripts para automatizar tarefas
 
 ---
 
-## 📢 Contato
+## 🧪 Testes E2E com Maestro
+
+Testes end-to-end são implementados com [**Maestro**](https://maestro.mobile.dev/), framework YAML declarativo que detecta crashes e ANRs automaticamente.
+
+### Pré-requisitos
+
+- Java 17+ (`JAVA_HOME` configurado)
+- Maestro CLI instalado em `C:\maestro\bin` ([download](https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip))
+- Emulador Android rodando
+
+### Estrutura dos flows
+
+```
+.maestro/
+├── config.yaml                        # Config global (recording, tags)
+├── 00_splash_and_home.yaml           # Splash → Home
+├── 01_bottom_nav_tabs.yaml           # Navegação entre abas
+├── 02_settings_flow.yaml             # Mais → Config → Voltar
+├── 03_profile_flow.yaml              # Mais → Perfil → Voltar
+├── 04_hymn_detail_flow.yaml          # Home → Hino → Voltar
+├── 05_about_and_support_flow.yaml    # Mais → Sobre → Ajuda → Voltar
+└── 06_search_flow.yaml               # Busca de hinos
+```
+
+### Como executar
+
+```powershell
+.\scripts\run_maestro_tests.ps1
+```
+
+O script:
+1. Verifica se Maestro e emulador estão disponíveis
+2. Executa todos os flows sequencialmente
+3. Coleta logs do Logcat
+4. Gera relatórios JUnit em `maestro_reports/`
+
+### Executar um flow individual
+
+```powershell
+maestro test .maestro/00_splash_and_home.yaml
+```
+
+### Detecção de crashes
+
+Maestro detecta crashes e ANRs automaticamente. Se um crash ocorrer:
+- O flow falha imediatamente
+- Logcat é capturado nos relatórios
+- Screenshots são salvas no diretório de teste
+
+---
 
 Para dúvidas, sugestões ou contribuições, abra uma issue ou entre em contato diretamente com o mantenedor principal:
 

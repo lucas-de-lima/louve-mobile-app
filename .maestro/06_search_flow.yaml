@@ -1,0 +1,23 @@
+appId: com.lucasdelima.louveapp
+---
+# Fluxo de busca de hinos na tela inicial
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+# Tocar no campo de busca
+- tapOn:
+    text: "Buscar hino por nome ou número..."
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+# Digitar termo de busca
+- inputText: "001"
+# Aguardar debounce do filtro (300ms na viewmodel)
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: "35_search_result"
+# Limpar busca - apagar o texto
+- eraseText: 3
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: "36_search_cleared"

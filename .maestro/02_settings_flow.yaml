@@ -1,0 +1,26 @@
+appId: com.lucasdelima.louveapp
+---
+# Navegação: Mais > Configurações > Voltar > Home
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+# Ir para Mais
+- tapOn: "Mais"
+- waitForAnimationToEnd:
+    timeout: 2000
+# Ir para Configurações
+- tapOn: "Configurações"
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible:
+    text: "Configurações"
+    optional: true
+- takeScreenshot: "10_settings_screen"
+# Voltar para o app principal
+- back
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Harpa"
+    optional: true
+- takeScreenshot: "11_back_to_home"
