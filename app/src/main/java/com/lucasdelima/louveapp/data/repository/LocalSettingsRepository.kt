@@ -10,7 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.lucasdelima.louveapp.domain.repository.SettingsRepository
 import com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository
 import com.lucasdelima.louveapp.domain.model.Result
-import com.lucasdelima.louveapp.ui.theme.DefaultTheme
+import com.lucasdelima.louveapp.domain.model.ThemeDefaults
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -39,7 +39,7 @@ class LocalSettingsRepository @Inject constructor(
     override val theme: Flow<String>
         get() = context.settingsDataStore.data.map { preferences ->
             // MODIFICAÇÃO SUTIL: Usando o nome do seu DefaultTheme para consistência.
-            preferences[Keys.APP_THEME] ?: DefaultTheme.name
+            preferences[Keys.APP_THEME] ?: ThemeDefaults.THEME_ID
         }
 
     override suspend fun saveTheme(themeName: String) {

@@ -5,7 +5,7 @@ import com.lucasdelima.louveapp.domain.model.UserSettings
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.SettingsRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
-import com.lucasdelima.louveapp.ui.theme.DefaultTheme
+import com.lucasdelima.louveapp.domain.model.ThemeDefaults
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -31,7 +31,7 @@ class DefaultSettingsRepository @Inject constructor(
         if (user != null) {
             // Usuário LOGADO: Observa as configurações do Firestore.
             userRepository.getUserSettings().map { result ->
-                (result as? Result.Success)?.data?.themeId ?: DefaultTheme.name
+                (result as? Result.Success)?.data?.themeId ?: ThemeDefaults.THEME_ID
             }
         } else {
             // Usuário DESLOGADO: Observa as configurações do DataStore local.

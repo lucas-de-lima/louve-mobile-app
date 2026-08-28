@@ -2,7 +2,7 @@ package com.lucasdelima.louveapp.domain.repository
 
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.model.Result
-import com.lucasdelima.louveapp.ui.screens.settings.AuthUiState
+import com.lucasdelima.louveapp.domain.model.AuthUiState
 import kotlinx.coroutines.flow.Flow
 
 /**

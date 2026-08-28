@@ -1,0 +1,29 @@
+{
+  "harness_version": "1.0.0",
+  "created_at": "2026-08-24T00:40:34-03:00",
+  "activation": "active",
+  "activation_rules": [
+    "All mandatory gates require approval before merge",
+    "Feature PRs (feat/* → develop) require HG-MERGE-FEATURE",
+    "Develop → main merges require HG-MERGE-DEVELOP",
+    "Release tags require HG-RELEASE",
+    "Deploy to Play Store requires HG-DEPLOY"
+  ],
+  "gates": {},
+  "policy": {
+    "mandatory_gates": [
+      "HG-PRODUCT",
+      "HG-ARCHITECTURE",
+      "HG-SCOPE",
+      "HG-MERGE-STORY",
+      "HG-MERGE-FEATURE",
+      "HG-MERGE-DEVELOP",
+      "HG-RELEASE",
+      "HG-SECURITY-EXCEPTION",
+      "HG-DESTRUCTIVE",
+      "HG-DEPLOY"
+    ],
+    "not_applicable": [],
+    "expected_authority": "Lucas de Lima"
+  }
+}

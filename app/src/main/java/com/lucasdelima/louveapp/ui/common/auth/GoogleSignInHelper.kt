@@ -10,7 +10,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes
 import com.lucasdelima.louveapp.R
-import com.lucasdelima.louveapp.ui.screens.settings.AuthError
+import com.lucasdelima.louveapp.domain.model.AuthError
 
 /**
  * Helper reutilizável para fluxo de login com Google usando GoogleSignInClient estável.
