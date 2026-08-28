@@ -11,6 +11,9 @@ Self-contained Android/Kotlin implementation role. Inherits generic Engineer cap
 - Write unit and instrumentation tests
 - Follow Kotlin/Compose conventions
 - Generate ADRs for architecture decisions
+- **Run Maestro E2E smoke tests after every implementation change** (7 flows in `.maestro/`)
+- **Diagnose and fix any crash** detected by Maestro flows before advancing
+- Rebuild and re-verify until all 7 flows pass
 
 ### Restricted Actions
 

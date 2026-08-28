@@ -88,6 +88,18 @@ Define evidence-based conditions that must be satisfied before work advances thr
 | **Failure** | BLOCK MERGE immediately |
 | **Current status** | ✅ Historically clean (no secrets found in PRs) |
 
+### QG-010: Maestro E2E Smoke Tests
+
+| Field | Value |
+|-------|-------|
+| **Trigger** | Every implementation (bug fix, feature, dependency update, refactor, build change) |
+| **Command** | `maestro test .maestro/flow.yaml` for each flow in `.maestro/` |
+| **Evidence** | All 7 flows pass OR explicit report with crash diagnostics |
+| **Failure** | Block merge — agent MUST fix crashes before advancing |
+| **Automation** | Agent-driven (Android Engineer runs flow after build + tests) |
+| **Scope** | All 7 flows: splash/home, bottom nav, settings, profile, hymn detail, about/support, search |
+| **Crash handling** | Maestro captures crash-report.txt + logcat automatically. Agent diagnoses logcat and fixes root cause. Retry until passed. |
+
 ## Implementation Status
 
 | Gate | Phase | Current | Target |
@@ -101,6 +113,7 @@ Define evidence-based conditions that must be satisfied before work advances thr
 | QG-007 Code Review | Phase 3b | ✅ **Removed** (solo dev — no reviewer available) | N/A |
 | QG-008 Changelog | Phase 3b | ✅ Manual | Script |
 | QG-009 Security | Phase 5 | ✅ Manual | CI+script |
+| QG-010 Maestro E2E | Phase 6 | ✅ 7 flows implemented, agent-enforced | Agent-driven |
 | **QC-009 SonarCloud** | Phase 6 | ✅ Automatic status checks from SonarCloud analysis | Automatic |
 
 ## Architecture Compliance Script

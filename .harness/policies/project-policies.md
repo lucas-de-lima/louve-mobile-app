@@ -38,6 +38,8 @@ All mandatory Base HITL gates apply. HITL está **ativo** desde a instalação d
 - All PRs must pass `./gradlew check` before merge
 - Use `ktlint` formatting before commits
 - Follow architecture rules: `domain` is Android-free
+- **Maestro E2E smoke tests (all 7 flows) MUST pass** after every implementation — crash = block merge
+- **Crash recovery is mandatory**: agent diagnoses logcat, fixes root cause, re-runs flows until all pass
 
 ## Security
 
