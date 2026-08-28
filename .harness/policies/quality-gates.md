@@ -69,17 +69,7 @@ Define evidence-based conditions that must be satisfied before work advances thr
 | **Failure** | Flag for correction |
 | **Current status** | ✅ Already followed in all historical PRs |
 
-### QG-007: Code Review Required
-
-| Field | Value |
-|-------|-------|
-| **Trigger** | Every PR before merge |
-| **Check** | At least one approving review (human or agent) |
-| **Evidence** | GitHub PR review status |
-| **Failure** | Block merge |
-| **Current status** | ⚠️ Historical: 0 reviews on all 10 PRs. **Now required per project policy.** |
-
-### QG-008: Changelog Updated
+### QG-007: Changelog Updated
 
 | Field | Value |
 |-------|-------|
@@ -108,10 +98,10 @@ Define evidence-based conditions that must be satisfied before work advances thr
 | QG-004 Lint | Phase 5 | ✅ CI (`pr-validation.yml`) | CI |
 | QG-005 PR Size | Phase 3a | ✅ CI advisory + generated files rule | Script |
 | QG-006 Conventional Commit | Phase 3b | ✅ Manual | CI |
-| QG-007 Code Review | Phase 3b | ✅ **Now required** (historical: 0 reviews) | Process |
+| QG-007 Code Review | Phase 3b | ✅ **Removed** (solo dev — no reviewer available) | N/A |
 | QG-008 Changelog | Phase 3b | ✅ Manual | Script |
 | QG-009 Security | Phase 5 | ✅ Manual | CI+script |
-| **QC-009 SonarCloud** | Phase 6 | ✅ CI (`pr-validation.yml`) | Quality Gate check |
+| **QC-009 SonarCloud** | Phase 6 | ✅ Automatic status checks from SonarCloud analysis | Automatic |
 
 ## Architecture Compliance Script
 

@@ -104,13 +104,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  sonar-quality-gate:
-    if: github.event_name == 'pull_request' && always()
-    needs: [validate]
-    runs-on: ubuntu-latest
-    steps:
-      - name: SonarQube Cloud Quality Gate check
-        uses: sonarsource/sonarqube-qualitygate-action@master
-        continue-on-error: true
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  # sonar-quality-gate removed: SonarCloud already posts automatic status checks
+  # (SonarCloud + SonarCloud Code Analysis) via the analysis step above.

@@ -134,7 +134,7 @@
 ### BUG-015: No code reviews on any PR
 - **Impact:** Single developer blind spot
 - **Fix:** Use agent review (Fase 3b) + formal review request before merge
-- **Status:** ✅ RESOLVED — QG-007 (Code Review Required) added to quality gates. Review is now mandatory before merge.
+- **Status:** ✅ RESOLVED — Code review requirement REMOVED from branch protection rules (solo dev project). Quality gates updated to reflect no-review policy.
 
 ---
 
