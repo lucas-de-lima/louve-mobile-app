@@ -1,7 +1,7 @@
 package com.lucasdelima.louveapp.ui.screens.home
 
 import org.junit.Test
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 
 class SearchAlgorithmTest {
 

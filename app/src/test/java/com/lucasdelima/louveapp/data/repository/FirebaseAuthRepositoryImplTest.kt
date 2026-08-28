@@ -12,13 +12,13 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
-import kotlin.test.assertTrue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 
 class FirebaseAuthRepositoryImplTest {
 
@@ -37,9 +37,8 @@ class FirebaseAuthRepositoryImplTest {
     }
 
     @Test
-    fun getAuthState_initialStateIsIdle() {
-        val state = authRepository.getAuthState()
-        assertEquals(AuthUiState.Idle, state.first())
+    fun getAuthState_initialStateIsIdle() = runTest {
+        assertEquals(AuthUiState.Idle, authRepository.getAuthState().first())
     }
 
     @Test

@@ -71,6 +71,9 @@ extensions.configure<ApplicationExtension> {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 kotlin {

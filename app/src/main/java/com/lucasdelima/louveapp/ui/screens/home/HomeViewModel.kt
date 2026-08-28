@@ -6,13 +6,12 @@ import com.lucasdelima.louveapp.domain.model.Hymn
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job // Para gerenciar o job de busca
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update // Helper para atualizar o StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
@@ -46,7 +45,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadInitialHymns() {
-        viewModelScope.launch(Dispatchers.IO) { // ✅ Carregamento em background
+        viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             originalHymns = hymnRepository.getAllHymns()
             filterHymns()
@@ -57,7 +56,7 @@ class HomeViewModel @Inject constructor(
     fun onSearchQueryChanged(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
         searchJob?.cancel()
-        searchJob = viewModelScope.launch(Dispatchers.IO) { // ✅ Busca em background
+        searchJob = viewModelScope.launch {
             delay(300)
             filterHymns()
         }

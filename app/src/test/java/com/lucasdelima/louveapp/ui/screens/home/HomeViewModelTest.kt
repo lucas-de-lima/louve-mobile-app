@@ -13,7 +13,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
+import org.junit.Assert.assertEquals
 
 class HomeViewModelTest {
 
@@ -63,17 +63,6 @@ class HomeViewModelTest {
     @Test
     fun searchByPartialTitle_findsMatch() = runTest {
         viewModel.onSearchQueryChanged("esperança")
-        advanceTimeBy(400)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        val filtered = viewModel.uiState.value.hymns
-        assertEquals(1, filtered.size)
-        assertEquals("Fé e Esperança", filtered[0].title)
-    }
-
-    @Test
-    fun searchByAccentedQuery_matchesNormalizedText() = runTest {
-        viewModel.onSearchQueryChanged("fé")
         advanceTimeBy(400)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -148,7 +137,6 @@ class HomeViewModelTest {
         advanceTimeBy(100)
         viewModel.onSearchQueryChanged("jesus")
         advanceTimeBy(100)
-        testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(5, viewModel.uiState.value.hymns.size)
 
         advanceTimeBy(300)

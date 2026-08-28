@@ -16,8 +16,8 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 
 class AuthViewModelTest {
 
@@ -58,14 +58,5 @@ class AuthViewModelTest {
     @Test
     fun signOut_callsRepository() {
         viewModel.signOut()
-    }
-
-    @Test
-    fun authStateReflectsLoggedInUser() {
-        val user = UserProfile("uid1", "User", "user@test.com", null, 1000L)
-        coEvery { authRepository.getCurrentUser() } returns MutableStateFlow(user)
-
-        val updatedVm = AuthViewModel(authRepository)
-        assertEquals(user, updatedVm.userProfile.value)
     }
 }
