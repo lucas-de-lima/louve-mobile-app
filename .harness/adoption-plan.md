@@ -74,15 +74,15 @@
 ### Safety Gate: Avaliação Humana
 **Ponto de decisão:** Humano avalia a qualidade das revisões do agente (Fase 3b). Se consistentemente úteis e precisas, prosseguir para Fase 4. Caso contrário, ajustar skills antes de permitir escrita de código.
 
-### Fase 4a — Bug Fixes (escrita controlada) ✅ 11/18 bugs resolvidos
+### Fase 4a — Bug Fixes (escrita controlada) ✅ 100% (18/18 bugs resolvidos)
 1. ✅ Architecture violations resolvidos (BUG-001 a BUG-005)
 2. ✅ Silent error handling resolvido (BUG-010, BUG-011)
 3. ✅ ConnectivityMonitorService cleanup (BUG-012)
 4. ✅ Repository housekeeping (BUG-016, BUG-017, BUG-018)
 5. ✅ Build atualizado (Gradle 9.5.0, AGP 9.3.2, Kotlin 2.3.21)
 6. ✅ Build verificado: `./gradlew assembleDebug` BUILD SUCCESSFUL
-7. ⬜ Test debt pendente (BUG-006 a BUG-009)
-8. ⬜ PR quality policies (BUG-013, BUG-014, BUG-015)
+7. ✅ Test debt resolvido (BUG-006 a BUG-009) — 37 testes criados
+8. ✅ PR quality policies implementadas (BUG-013, BUG-014, BUG-015)
 - **PR agregado:** [#39 fix/bugs-aggregate → develop](https://github.com/lucas-de-lima/louve-mobile-app/pull/39)
 
 ### Fase 4b — Feature Implementation

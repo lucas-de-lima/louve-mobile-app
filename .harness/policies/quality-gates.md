@@ -56,7 +56,8 @@ Define evidence-based conditions that must be satisfied before work advances thr
 | **Check** | Max 500 lines changed OR max 20 files |
 | **Evidence** | GitHub API diff stats |
 | **Failure** | Flag for review (non-blocking, advisory) |
-| **Current status** | ⚠️ Advisory (historical PRs exceeded both limits) |
+| **Historical exceptions** | PR #4 (7,491 lines from HymnDataSource), PR #10 (80 files, 11,207 lines) |
+| **Generated files rule** | Generated files (e.g. HymnDataSource) must be in a separate PR with clear `generated:` label |
 
 ### QG-006: Conventional Commit Check
 
@@ -68,7 +69,17 @@ Define evidence-based conditions that must be satisfied before work advances thr
 | **Failure** | Flag for correction |
 | **Current status** | ✅ Already followed in all historical PRs |
 
-### QG-007: Changelog Updated
+### QG-007: Code Review Required
+
+| Field | Value |
+|-------|-------|
+| **Trigger** | Every PR before merge |
+| **Check** | At least one approving review (human or agent) |
+| **Evidence** | GitHub PR review status |
+| **Failure** | Block merge |
+| **Current status** | ⚠️ Historical: 0 reviews on all 10 PRs. **Now required per project policy.** |
+
+### QG-008: Changelog Updated
 
 | Field | Value |
 |-------|-------|
@@ -77,7 +88,7 @@ Define evidence-based conditions that must be satisfied before work advances thr
 | **Failure** | Flag for author |
 | **Current status** | ✅ Already followed |
 
-### QG-008: Security Baseline
+### QG-009: Security Baseline
 
 | Field | Value |
 |-------|-------|
@@ -92,13 +103,14 @@ Define evidence-based conditions that must be satisfied before work advances thr
 | Gate | Phase | Current | Target |
 |------|-------|---------|--------|
 | QG-001 Build | Phase 6 | ✅ Verificado (`./gradlew assembleDebug` BUILD SUCCESSFUL em fix/bugs-aggregate) | CI |
-| QG-002 Tests | Phase 5 | ✅ CI (`pr-validation.yml`) | CI + coverage gate |
+| QG-002 Tests | Phase 5 | ✅ 37 tests (6 classes — auth, sync, search, ViewModel) | CI + coverage gate |
 | QG-003 Architecture | Phase 5 | ✅ 0 violações (todas resolvidas, script passa) | Script+CI |
 | QG-004 Lint | Phase 5 | ✅ CI (`pr-validation.yml`) | CI |
-| QG-005 PR Size | Phase 3a | ✅ CI advisory | Script |
+| QG-005 PR Size | Phase 3a | ✅ CI advisory + generated files rule | Script |
 | QG-006 Conventional Commit | Phase 3b | ✅ Manual | CI |
-| QG-007 Changelog | Phase 3b | ✅ Manual | Script |
-| QG-008 Security | Phase 5 | ✅ Manual | CI+script |
+| QG-007 Code Review | Phase 3b | ✅ **Now required** (historical: 0 reviews) | Process |
+| QG-008 Changelog | Phase 3b | ✅ Manual | Script |
+| QG-009 Security | Phase 5 | ✅ Manual | CI+script |
 | **QC-009 SonarCloud** | Phase 6 | ✅ CI (`pr-validation.yml`) | Quality Gate check |
 
 ## Architecture Compliance Script

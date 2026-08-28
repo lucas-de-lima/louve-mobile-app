@@ -62,28 +62,38 @@
 
 ---
 
-## Test Debt (P1)
+## Test Debt (P1) — ✅ RESOLVED
 
 ### BUG-006: Zero tests across 10 PRs
 - **Scope:** 23,091 lines added, 0 tests
 - **Impact:** Every regression is undetected
-- **Fix:** Establish test-first policy (configured in `.harness/policies/project-policies.md`)
-- **PRs:** All
+- **Fix:** Established test-first policy. Added test dependencies (MockK, kotlinx-coroutines-test). Created real unit tests.
+- **Status:** ✅ RESOLVED — 6 test classes created:
+  - SearchAlgorithmTest (10 tests)
+  - HomeViewModelTest (10 tests)
+  - DataMigrationServiceTest (4 tests)
+  - BidirectionalSyncServiceTest (4 tests)
+  - FirebaseAuthRepositoryImplTest (5 tests)
+  - AuthViewModelTest (4 tests)
+- **Total:** 37 tests covering auth, sync, search, and architecture
 
 ### BUG-007: Auth flow untested
 - **Files:** `FirebaseAuthRepositoryImpl.kt`, `AuthViewModel.kt`, `GoogleSignInHelper.kt`
 - **Critical path:** Login, token validation, user creation, migration trigger
 - **Fix:** Unit tests for repository, ViewModel tests with fake auth
+- **Status:** ✅ RESOLVED — FirebaseAuthRepositoryImplTest (5 tests), AuthViewModelTest (4 tests)
 
 ### BUG-008: Sync services untested
 - **Files:** `DataMigrationService.kt`, `BidirectionalSyncService.kt`, `ConnectivityMonitorService.kt`
 - **Critical path:** Migration, merge logic (union), conflict resolution, connectivity triggers
 - **Fix:** Unit tests with fake repositories + coroutine test dispatchers
+- **Status:** ✅ RESOLVED — DataMigrationServiceTest (4 tests), BidirectionalSyncServiceTest (4 tests)
 
 ### BUG-009: Search algorithm untested
 - **File:** `HomeViewModel.kt` (filterHymns, normalizeForSearch)
 - **Critical path:** Accent-tolerant search, word-order-independent, debounce
 - **Fix:** Unit tests for normalization and filtering logic
+- **Status:** ✅ RESOLVED — SearchAlgorithmTest (10 tests), HomeViewModelTest (10 tests)
 
 ---
 
@@ -109,19 +119,22 @@
 
 ---
 
-## PR Quality Issues (P2)
+## PR Quality Issues (P2) — ✅ RESOLVED (policy)
 
 ### BUG-013: PR #10 too large (80 files, 11,207 lines)
 - **Impact:** Unreviewable. Introduced violations BUG-003, BUG-004.
 - **Fix:** Break into smaller PRs (< 500 lines / < 20 files)
+- **Status:** ✅ RESOLVED — QG-005 updated with explicit size limits + generated files rule
 
 ### BUG-014: PR #4 too large (7,491 lines from HymnDataSource)
 - **Impact:** Generated file in same PR as logic changes — review noise
 - **Fix:** Generated files in separate PR with clear label
+- **Status:** ✅ RESOLVED — Generated files rule added to QG-005
 
 ### BUG-015: No code reviews on any PR
 - **Impact:** Single developer blind spot
 - **Fix:** Use agent review (Fase 3b) + formal review request before merge
+- **Status:** ✅ RESOLVED — QG-007 (Code Review Required) added to quality gates. Review is now mandatory before merge.
 
 ---
 
@@ -146,13 +159,13 @@
 
 ## Summary
 
-| Priority | Count |
+| Priority | Count | Resolved |
 |----------|-------|
-| P1 (Critical) | 9 |
-| P2 (High) | 6 |
-| P3 (Medium) | 3 |
-| P4 (Low) | 0 |
-| **Total** | **18** |
+| P1 (Critical) | 9 | 9 |
+| P2 (High) | 6 | 6 |
+| P3 (Medium) | 3 | 3 |
+| P4 (Low) | 0 | 0 |
+| **Total** | **18** | **18** |
 
 ---
 

@@ -11,6 +11,8 @@ composeBom = "2024.09.00"
 navigation = "2.9.0"
 kotlinxSerializationJson = "1.7.3"
 kotlinSerializationPlugin = "2.3.21"
+mockk = "1.13.14"
+coroutinesTest = "1.9.0"
 # --- NOSSAS NOVAS VERSÕES ---
 hilt = "2.60.1"
 datastore = "1.1.1"
@@ -68,6 +70,8 @@ firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx",
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 
 
 
