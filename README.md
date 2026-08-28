@@ -105,6 +105,19 @@ app/
 
 ---
 
+## 🛠️ Scripts de Automação
+
+Para facilitar o desenvolvimento, foram criados scripts para automatizar tarefas comuns:
+
+- **Build com Logs**: `./scripts/build_app.sh`
+  - Compila a aplicação e salva logs detalhados em `build.log`.
+- **Execução com Logcat**: `./scripts/run_app.sh`
+  - Instala, inicia o app e captura os logs do Logcat filtrados pelo PID da aplicação em tempo real, salvando também em `app.log`.
+
+*Nota: Certifique-se de ter o `adb` configurado no seu PATH e um dispositivo/emulador conectado.*
+
+---
+
 ## 🛠️ Como Contribuir
 
 1. Leia o [docs/6. Guia de Contribuição e Padrões.MD](docs/6.%20Guia%20de%20Contribui%C3%A7%C3%A3o%20e%20Padr%C3%B5es.MD) para entender o fluxo de trabalho, padrões de código e convenções de commit.
