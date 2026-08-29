@@ -14,12 +14,49 @@ Este projeto segue o padrão [Semantic Versioning](https://semver.org/) (SemVer)
 
 | Versão | Status | Principais Funcionalidades |
 |--------|--------|----------------------------|
-| **[1.1.0]** | **ATUAL** | Temas, Favoritos Híbridos, Navegação, Autenticação Google |
+| **[1.2.0]** | **ATUAL** | Bug Fixes, Build Update, Testes, Maestro E2E, CI Pipeline |
+| **[1.1.0]** | ANTERIOR | Temas, Favoritos Híbridos, Navegação, Autenticação Google |
 | **[1.0.0]** | BASE | Hinos, Busca, Interface Básica |
 
 ---
 
-## [1.1.0] - 2025-09-27 (development branch) - ATUAL
+## [1.2.0] - 2026-08-29 (main branch) - ATUAL
+
+### Adicionado
+- Correção de 18 bugs arquiteturais e de qualidade (BUG-001 a BUG-018)
+- 37 testes unitários para camadas domain e data
+- Testes E2E com Maestro (7 fluxos de navegação)
+- Pipeline de validação de PR (PR Validation) com build, lint, testes, SonarCloud
+- Script de inicialização do google-services.json para CI
+- Script de verificação de conformidade arquitetural (Clean Architecture)
+- Pipeline de release automática (Auto Release)
+- Suporte a crash recovery com logcat
+- Fluxo de revisão retrospectiva no Harness
+
+### Corrigido
+- Violações de Clean Architecture (domain e data importando UI) — BUG-001 a BUG-005
+- ViewModel bypassando injeção de dependência Hilt — BUG-005
+- Tratamento silencioso de erros em DataMigrationService e BidirectionalSyncService — BUG-010, BUG-011
+- Vazamento de recurso no ConnectivityMonitorService — BUG-012
+- PRs excessivamente grandes sem revisão — BUG-013 a BUG-015
+- Metadados IDE e documentação desatualizada no repositório — BUG-016 a BUG-018
+
+### Alterado
+- Atualização do Gradle para 9.5.0, AGP 9.3.2, Kotlin 2.3.21
+- Atualização das GitHub Actions (setup-java v5, sonarcloud v5)
+- Substituição do check-architecture.py de stub markdown para script funcional
+- CI agora usa placeholder de google-services.json quando secret é inválido
+- Guardrails de merge e HITL gates documentados na raiz do projeto (GUARDRAILS.md)
+
+### Melhorado
+- Cobertura de testes de 0% para cobertura baseline em domain e data
+- Processo de CI/CD com validação automatizada de PRs
+- Detecção precoce de crashes via Maestro E2E smoke tests
+- Documentação de processo com adoption plan e políticas de qualidade
+
+---
+
+## [1.1.0] - 2025-09-27 (development branch) - ANTERIOR
 
 ### Adicionado
 - Sistema completo de temas com múltiplas opções visuais
@@ -87,13 +124,11 @@ Este projeto segue o padrão [Semantic Versioning](https://semver.org/) (SemVer)
 
 ## Roadmap de Versões Futuras
 
-### [1.2.0] - Planejado
+### [1.3.0] - Planejado
 - Player de áudio para reprodução de hinos
 - Contexto histórico e informações sobre compositores
 - Sistema de busca avançada com filtros
 - Melhorias na experiência de usuário
-
-### [1.3.0] - Futuro
 - Integração com IA para linguagem moderna
 - Analytics avançado e métricas detalhadas
 - Remote Config para feature flags
