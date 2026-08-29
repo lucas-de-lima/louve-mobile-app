@@ -49,7 +49,7 @@ fun HomeScreen(
     onThemeSelected: (String) -> Unit,
     currentTheme: String,
     userProfile: UserProfile?,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     // 1. Crie e lembre o estado da lista e um escopo de corrotina

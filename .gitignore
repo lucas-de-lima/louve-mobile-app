@@ -32,3 +32,10 @@ firebase-debug.log
 
 # Release artifacts
 app/release/output-metadata.json
+
+# Maestro E2E test outputs
+/maestro_reports/
+/app.log
+/build.log
+/live_logcat.txt
+/maestro_run_*.log

@@ -1,0 +1,38 @@
+appId: com.lucasdelima.louveapp
+---
+# Navegação entre todas as abas da bottom nav
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+# Aba 1: Harpa (home)
+- assertVisible: "Harpa"
+- takeScreenshot: "03_tab_harpa"
+# Aba 2: Favoritos
+- tapOn: "Favoritos"
+- runFlow:
+    when:
+      visible: "Favoritos"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - takeScreenshot: "04_tab_favoritos"
+# Aba 3: Descubra
+- tapOn: "Descubra"
+- runFlow:
+    when:
+      visible: "Descubra"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - takeScreenshot: "05_tab_descubra"
+# Aba 4: Mais
+- tapOn: "Mais"
+- runFlow:
+    when:
+      visible: "Mais"
+    commands:
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - assertVisible: "Ações"
+      - assertVisible: "Informações e Suporte"
+      - takeScreenshot: "06_tab_mais"

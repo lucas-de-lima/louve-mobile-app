@@ -13,23 +13,39 @@
 2. Implement changes following Clean Architecture layers
 3. Write tests covering the change
 4. Run `./gradlew check` locally
-5. Create PR to feature branch
-6. Agent review → human HG-MERGE-STORY gate
-7. Repeat for each story
-8. Create PR from feature branch to develop
-9. Human HG-MERGE-FEATURE gate
+5. Run Maestro E2E smoke tests (all 7 flows must pass)
+6. If any Maestro flow fails: diagnose crash from logs, fix root cause, repeat step 5
+7. Create PR to feature branch
+8. Agent review → human HG-MERGE-STORY gate
+9. Repeat for each story
+10. Create PR from feature branch to develop
+11. Human HG-MERGE-FEATURE gate
 
 ### Validation
 
 - Build passes (`./gradlew assembleDebug`)
 - Tests pass (`./gradlew test`)
+- All 7 Maestro E2E flows pass (`maestro test .maestro/<flow>` each flow, or `scripts/run_maestro_tests.ps1`)
+- Maestro crash reports analyzed and resolved before advancing
 - No lint errors
 - Architecture rules respected (domain has no Android deps)
+
+### Maestro E2E — Crash Recovery Protocol
+
+When a Maestro flow fails:
+1. Collect `maestro_reports/` and `maestro_run_*.log`
+2. Read logcat output to identify the crash stack trace
+3. Fix the root cause in source code
+4. Rebuild APK (`./gradlew assembleDebug`)
+5. Reinstall on emulator (`./gradlew installDebug`)
+6. Re-run the failed flow
+7. Repeat until all 7 flows pass
 
 ### Output
 
 - Source changes on feature/story branches
 - Test evidence
+- Maestro execution report (screenshots, logs, JUnit XML)
 - Review report
 
 ## WF-007: Release Preparation (Android)

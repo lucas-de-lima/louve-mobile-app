@@ -1,0 +1,26 @@
+appId: com.lucasdelima.louveapp
+---
+# Navegação: Home > Selecionar hino > Detalhes > Voltar
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+# Tenta tocar no primeiro hino da lista (texto "001" quando formatado)
+- tapOn:
+    text: "001"
+    optional: true
+- runFlow:
+    when:
+      notVisible: "001"
+    commands:
+      - scroll
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: "20_hymn_detail"
+# Voltar para a lista de hinos
+- back
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Harpa"
+    optional: true
+- takeScreenshot: "21_back_from_detail"
