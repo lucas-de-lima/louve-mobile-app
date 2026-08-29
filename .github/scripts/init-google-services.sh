@@ -1,23 +1,9 @@
 #!/bin/bash
-# Initialize google-services.json for CI
-# Creates a valid placeholder if the secret is unavailable or invalid.
+# Always start with a valid placeholder, then upgrade if secret is valid
 
-set -e
-
-if [ -n "$GOOGLE_SERVICES_JSON" ]; then
-  echo "$GOOGLE_SERVICES_JSON" | base64 --decode > app/google-services.json
-  if python -c "import json; json.load(open('app/google-services.json'))" 2>/dev/null; then
-    echo "OK google-services.json decodificado"
-    exit 0
-  else
-    echo "AVISO google-services.json invalido"
-  fi
-fi
-
-# Create placeholder
 python -c "
 import json
-payload = {
+json.dump({
     'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
     'client': [{
         'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': 'com.lucasdelima.louveapp'}},
@@ -25,8 +11,17 @@ payload = {
         'services': {'appinvite_service': {'other_platform_oauth_client': []}}
     }],
     'configuration_version': '1'
-}
-with open('app/google-services.json', 'w') as f:
-    json.dump(payload, f, indent=2)
+}, open('app/google-services.json', 'w'), indent=2)
 "
 echo "OK google-services.json placeholder criado"
+
+# Upgrade with real secret if available and valid
+if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+  TEMP=$(echo "$GOOGLE_SERVICES_JSON" | base64 --decode 2>/dev/null)
+  if echo "$TEMP" | python -c "import sys,json; json.load(sys.stdin)" 2>/dev/null; then
+    echo "$TEMP" > app/google-services.json
+    echo "OK google-services.json decodificado com sucesso"
+  else
+    echo "AVISO google-services.json invalido, usando placeholder"
+  fi
+fi
