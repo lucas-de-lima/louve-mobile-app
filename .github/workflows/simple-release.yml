@@ -17,13 +17,13 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-          body: |
-            ## 🚀 Release ${{ github.ref_name }}
+body: |
+            ## Release ${{ github.ref_name }}
             
-            ### 📋 Changelog
-            Para detalhes completos das mudanças, consulte o [CHANGELOG_DETALHADO.md](CHANGELOG_DETALHADO.md).
+            ### Changelog
+            Para detalhes completos das mudancas, consulte o [CHANGELOG_DETALHADO.md](CHANGELOG_DETALHADO.md).
             
-            ### 📊 Informações
+            ### Informacoes
             - **Versão**: ${{ github.ref_name }}
             - **Data**: ${{ github.event.head_commit.timestamp }}
             - **Commit**: ${{ github.sha }}

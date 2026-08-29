@@ -34,8 +34,8 @@ jobs:
           if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
             echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > app/google-services.json \
               && python -c "import json; json.load(open('app/google-services.json'))" \
-              && echo "✅ google-services.json decodificado com sucesso" \
-              || { echo "⚠️ google-services.json inválido — criando placeholder mínimo"; }
+              && echo "OK google-services.json decodificado com sucesso" \
+              || { echo "AVISO google-services.json invalido - criando placeholder minimo"; }
           fi
           if [ ! -f app/google-services.json ] || [ ! -s app/google-services.json ]; then
             cat > app/google-services.json << 'EOF'
@@ -61,7 +61,7 @@ jobs:
   "configuration_version": "1"
 }
 EOF
-            echo "✅ google-services.json placeholder criado para CI"
+            echo "OK google-services.json placeholder criado para CI"
           fi
         continue-on-error: true
 
@@ -87,9 +87,9 @@ EOF
         run: |
           ADDITIONS=$(jq '.pull_request.additions // 0' "$GITHUB_EVENT_PATH")
           CHANGED_FILES=$(jq '.pull_request.changed_files // 0' "$GITHUB_EVENT_PATH")
-          echo "📊 PR Stats: $ADDITIONS additions, $CHANGED_FILES files"
+          echo "PR Stats: $ADDITIONS additions, $CHANGED_FILES files"
           if [ "$ADDITIONS" -gt 500 ] || [ "$CHANGED_FILES" -gt 20 ]; then
-            echo "⚠️  PR exceeds recommended size (500 lines / 20 files)"
+            echo "AVISO: PR exceeds recommended size (500 lines / 20 files)"
           fi
         if: github.event_name == 'pull_request'
 
@@ -120,12 +120,12 @@ EOF
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: |
-            ## 🚀 Release ${{ github.ref_name }}
+            ## Release ${{ github.ref_name }}
 
-            ### 📋 Changelog
+            ### Changelog
             Para detalhes completos, consulte [CHANGELOG_DETALHADO.md](CHANGELOG_DETALHADO.md).
 
-            ### 📊 Informações
+            ### Informacoes
             - **Versão**: ${{ github.ref_name }}
             - **Data**: ${{ github.event.head_commit.timestamp }}
             - **Commit**: ${{ github.sha }}
