@@ -34,7 +34,34 @@ jobs:
           if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
             echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > app/google-services.json \
               && python -c "import json; json.load(open('app/google-services.json'))" \
-              || { rm -f app/google-services.json; echo "⚠️ google-services.json inválido — build prossegue sem Firebase config"; }
+              && echo "✅ google-services.json decodificado com sucesso" \
+              || { echo "⚠️ google-services.json inválido — criando placeholder mínimo"; }
+          fi
+          if [ ! -f app/google-services.json ] || [ ! -s app/google-services.json ]; then
+            cat > app/google-services.json << 'EOF'
+{
+  "project_info": {
+    "project_number": "0",
+    "project_id": "ci-placeholder",
+    "storage_bucket": "ci-placeholder"
+  },
+  "client": [{
+    "client_info": {
+      "mobilesdk_app_id": "1:0:android:ci-placeholder",
+      "android_client_info": {
+        "package_name": "com.lucasdelima.louveapp"
+      }
+    },
+    "oauth_client": [],
+    "api_key": [{"current_key": "ci-placeholder"}],
+    "services": {
+      "appinvite_service": {"other_platform_oauth_client": []}
+    }
+  }],
+  "configuration_version": "1"
+}
+EOF
+            echo "✅ google-services.json placeholder criado para CI"
           fi
         continue-on-error: true
 
