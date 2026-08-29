@@ -30,30 +30,9 @@ jobs:
         shell: bash
 
       - name: Decode google-services.json
-        run: |
-          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
-            echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > app/google-services.json \
-              && python -c "import json; json.load(open('app/google-services.json'))" \
-              && echo "OK google-services.json decodificado" \
-              || echo "AVISO google-services.json invalido"
-          fi
-          if [ ! -f app/google-services.json ] || [ ! -s app/google-services.json ]; then
-            python -c "
-import json
-payload = {
-    'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
-    'client': [{
-        'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': 'com.lucasdelima.louveapp'}},
-        'oauth_client': [], 'api_key': [{'current_key': 'ci-placeholder'}],
-        'services': {'appinvite_service': {'other_platform_oauth_client': []}}
-    }],
-    'configuration_version': '1'
-}
-with open('app/google-services.json', 'w') as f:
-    json.dump(payload, f, indent=2)
-"
-            echo "OK google-services.json placeholder criado"
-          fi
+        run: bash .github/scripts/init-google-services.sh
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         continue-on-error: true
 
       - name: Build (debug)
