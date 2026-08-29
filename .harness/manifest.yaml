@@ -16,6 +16,7 @@ selected_skills:
   - compose-ui
   - code-review
   - security-review
+  - maestro-e2e
 selected_agents:
   - Orchestrator
   - Discovery

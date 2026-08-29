@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -32,7 +32,9 @@ jobs:
       - name: Decode google-services.json
         run: |
           if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
-            echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > app/google-services.json
+            echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > app/google-services.json \
+              && python -c "import json; json.load(open('app/google-services.json'))" \
+              || { rm -f app/google-services.json; echo "⚠️ google-services.json inválido — build prossegue sem Firebase config"; }
           fi
         continue-on-error: true
 
@@ -65,7 +67,7 @@ jobs:
         if: github.event_name == 'pull_request'
 
       - name: SonarQube Cloud analysis
-        uses: SonarSource/sonarcloud-github-action@v4
+        uses: SonarSource/sonarcloud-github-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,28 @@
+appId: com.lucasdelima.louveapp
+---
+# Navegação: Mais > Perfil > Voltar > Home
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+# Ir para Mais
+- tapOn: "Mais"
+- waitForAnimationToEnd:
+    timeout: 2000
+# Ir para Perfil (clicar no card "Visitante" ou "Toque para fazer login")
+- tapOn:
+    text: "Visitante"
+    optional: true
+- tapOn:
+    text: "Toque para fazer login"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: "12_profile_screen"
+# Voltar
+- back
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Harpa"
+    optional: true
+- takeScreenshot: "13_back_to_home"

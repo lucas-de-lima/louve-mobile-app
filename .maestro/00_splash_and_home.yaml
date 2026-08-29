@@ -1,0 +1,22 @@
+appId: com.lucasdelima.louveapp
+---
+# Splash → Home: verifica boot completo do app
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible:
+    text: "Silhueta de mulher em louvor"
+    optional: true
+- assertVisible:
+    text: "Logo do Louve App"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 10000
+- takeScreenshot: "01_splash_complete"
+# Após o splash, o app navega automaticamente para MainScreen
+# Bottom nav deve estar visível
+- assertVisible: "Harpa"
+- assertVisible: "Favoritos"
+- assertVisible: "Descubra"
+- assertVisible: "Mais"
+- takeScreenshot: "02_home_loaded"
