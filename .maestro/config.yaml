@@ -1,0 +1,8 @@
+appId: com.lucasdelima.louveapp
+tag: louve-app-crash-tests
+onFlowStart:
+  - startRecording: true
+onFlowComplete:
+  - stopRecording
+onFlowError:
+  - stopRecording

@@ -13,6 +13,8 @@ import com.lucasdelima.louveapp.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,13 +30,12 @@ class ConnectivityMonitorService @Inject constructor(
     private val favoritesRepository: FavoritesRepository,
     private val settingsRepository: SettingsRepository
 ) {
-    
     companion object {
         private const val TAG = "ConnectivityMonitor"
     }
     
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     
     private var isMonitoring = false
     private var lastNetworkState = false
@@ -186,6 +187,16 @@ class ConnectivityMonitorService @Inject constructor(
         
         return networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    }
+    
+    /**
+     * Cleanup quando o serviço não for mais necessário.
+     * Para monitoramento e cancela o escopo de coroutines.
+     */
+    fun cleanup() {
+        stopMonitoring()
+        coroutineScope.cancel()
+        Log.d(TAG, "ConnectivityMonitorService finalizado")
     }
     
     /**

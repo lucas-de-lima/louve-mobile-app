@@ -1,10 +1,11 @@
 package com.lucasdelima.louveapp.data.repository
 
+import android.util.Log
 import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
-import com.lucasdelima.louveapp.ui.theme.DefaultTheme
+import com.lucasdelima.louveapp.domain.model.ThemeDefaults
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,6 +22,9 @@ class DataMigrationService @Inject constructor(
     private val localSettingsRepository: LocalSettingsRepository,
     private val userRepository: UserRepository
 ) {
+    companion object {
+        private const val TAG = "DataMigrationService"
+    }
     
 
     
@@ -86,7 +90,7 @@ class DataMigrationService @Inject constructor(
             
             val theme = when (cloudSettings) {
                 is Result.Success -> cloudSettings.data.themeId
-                is Result.Error -> DefaultTheme.name
+                is Result.Error -> ThemeDefaults.THEME_ID
             }
             
             CloudDataStatus(
@@ -96,7 +100,7 @@ class DataMigrationService @Inject constructor(
         } catch (e: Exception) {
             CloudDataStatus(
                 favorites = emptySet(),
-                theme = DefaultTheme.name
+                theme = ThemeDefaults.THEME_ID
             )
         }
     }
@@ -108,13 +112,13 @@ class DataMigrationService @Inject constructor(
      */
     private suspend fun syncThemeIntelligently(localTheme: String, cloudData: CloudDataStatus) {
         when {
-            localTheme == DefaultTheme.name -> {
-                if (cloudData.theme != DefaultTheme.name) {
+            localTheme == ThemeDefaults.THEME_ID -> {
+                if (cloudData.theme != ThemeDefaults.THEME_ID) {
                     localSettingsRepository.saveTheme(cloudData.theme)
                 }
             }
             else -> {
-                if (cloudData.theme == DefaultTheme.name) {
+                if (cloudData.theme == ThemeDefaults.THEME_ID) {
                     userRepository.updateUserSettings(
                         com.lucasdelima.louveapp.domain.model.UserSettings(themeId = localTheme)
                     )
@@ -155,8 +159,8 @@ class DataMigrationService @Inject constructor(
      * Faz merge inteligente de favoritos (local + nuvem).
      * IMPORTANTE: NUNCA substitui favoritos existentes, apenas adiciona novos.
      */
-    private suspend fun mergeFavoritesIntelligently(localFavorites: Set<String>, cloudFavorites: Set<String>) {
-        try {
+    private suspend fun mergeFavoritesIntelligently(localFavorites: Set<String>, cloudFavorites: Set<String>): Result<Unit> {
+        return try {
             val newFavoritesToAdd = cloudFavorites - localFavorites
             
             if (newFavoritesToAdd.isNotEmpty()) {
@@ -172,34 +176,41 @@ class DataMigrationService @Inject constructor(
                     userRepository.addFavorite(hymnId)
                 }
             }
+            
+            Result.Success(Unit)
         } catch (e: Exception) {
-            //  TODO: Tratamento de erro silencioso
+            Log.e(TAG, "Erro ao fazer merge de favoritos", e)
+            Result.Error("Falha ao fazer merge de favoritos: ${e.message}", e)
         }
     }
     
     /**
      * Migra favoritos locais para a nuvem.
      */
-    private suspend fun migrateLocalFavoritesToCloud(localFavorites: Set<String>) {
-        try {
+    private suspend fun migrateLocalFavoritesToCloud(localFavorites: Set<String>): Result<Unit> {
+        return try {
             localFavorites.forEach { hymnId ->
                 userRepository.addFavorite(hymnId)
             }
+            Result.Success(Unit)
         } catch (e: Exception) {
-            // TODO:Tratamento de erro silencioso
+            Log.e(TAG, "Erro ao migrar favoritos locais para nuvem", e)
+            Result.Error("Falha ao migrar favoritos: ${e.message}", e)
         }
     }
     
     /**
      * Garante que existe documento vazio de favoritos na nuvem.
      */
-    private suspend fun ensureEmptyFavoritesDocument() {
-        try {
+    private suspend fun ensureEmptyFavoritesDocument(): Result<Unit> {
+        return try {
             userRepository.updateUserSettings(
-                com.lucasdelima.louveapp.domain.model.UserSettings(themeId = DefaultTheme.name)
+                com.lucasdelima.louveapp.domain.model.UserSettings(themeId = ThemeDefaults.THEME_ID)
             )
+            Result.Success(Unit)
         } catch (e: Exception) {
-            //  TODO: Tratamento de erro silencioso
+            Log.e(TAG, "Erro ao garantir documento de favoritos vazio", e)
+            Result.Error("Falha ao criar documento de favoritos: ${e.message}", e)
         }
     }
     

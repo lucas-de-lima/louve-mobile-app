@@ -1,0 +1,108 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        run: chmod +x gradlew
+        shell: bash
+
+      - name: Decode google-services.json
+        run: bash .github/scripts/init-google-services.sh
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        continue-on-error: true
+
+      - name: Build (debug)
+        run: ./gradlew assembleDebug
+        env:
+          CI: true
+
+      - name: Unit tests
+        run: ./gradlew test
+        env:
+          CI: true
+
+      - name: Lint check
+        run: ./gradlew lint
+        env:
+          CI: true
+
+      - name: Architecture compliance
+        run: python .harness/scripts/check-architecture.py
+
+      - name: PR size check (advisory)
+        run: |
+          ADDITIONS=$(jq '.pull_request.additions // 0' "$GITHUB_EVENT_PATH")
+          CHANGED_FILES=$(jq '.pull_request.changed_files // 0' "$GITHUB_EVENT_PATH")
+          echo "PR Stats: $ADDITIONS additions, $CHANGED_FILES files"
+          if [ "$ADDITIONS" -gt 500 ] || [ "$CHANGED_FILES" -gt 20 ]; then
+            echo "AVISO: PR exceeds recommended size (500 lines / 20 files)"
+          fi
+        if: github.event_name == 'pull_request'
+
+      - name: SonarQube Cloud analysis
+        uses: SonarSource/sonarcloud-github-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=lucas-de-lima_louve-mobile-app
+            -Dsonar.organization=lucas-de-lima
+            -Dsonar.java.binaries=app/build
+            -Dsonar.coverage.jacoco.xmlReportPaths=app/build/reports/jacoco/test/jacocoTestReport.xml
+            -Dsonar.gradle.skipCompile=true
+        continue-on-error: true
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Release ${{ github.ref_name }}
+
+            ### Changelog
+            Para detalhes completos, consulte [CHANGELOG_DETALHADO.md](CHANGELOG_DETALHADO.md).
+
+            ### Informacoes
+            - **Versão**: ${{ github.ref_name }}
+            - **Data**: ${{ github.event.head_commit.timestamp }}
+            - **Commit**: ${{ github.sha }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # sonar-quality-gate removed: SonarCloud already posts automatic status checks
+  # (SonarCloud + SonarCloud Code Analysis) via the analysis step above.

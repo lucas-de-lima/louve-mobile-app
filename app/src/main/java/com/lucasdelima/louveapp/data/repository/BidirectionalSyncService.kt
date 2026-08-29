@@ -5,7 +5,7 @@ import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
-import com.lucasdelima.louveapp.ui.theme.DefaultTheme
+import com.lucasdelima.louveapp.domain.model.ThemeDefaults
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -173,7 +173,7 @@ class BidirectionalSyncService @Inject constructor(
                 remoteFavorites is Result.Success && remoteSettings is Result.Success -> {
                     // Merge inteligente: união de favoritos, preferir tema local se for personalizado
                     val mergedFavorites = localBackup.favorites.union(remoteFavorites.data)
-                    val mergedTheme = if (localBackup.theme != DefaultTheme.name) localBackup.theme else remoteSettings.data.themeId
+                    val mergedTheme = if (localBackup.theme != ThemeDefaults.THEME_ID) localBackup.theme else remoteSettings.data.themeId
                     
                     // 4. Salvar dados mesclados na nuvem
                     mergedFavorites.forEach { hymnId ->
