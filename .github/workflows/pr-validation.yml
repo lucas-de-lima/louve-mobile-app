@@ -104,5 +104,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # sonar-quality-gate removed: SonarCloud already posts automatic status checks
-  # (SonarCloud + SonarCloud Code Analysis) via the analysis step above.
+  # Automatic Analysis desabilitada no SonarCloud UI
+  # (Project Settings → Administration → Analysis Method).
+  # Apenas CI-based analysis ativa via step acima.
+  # Coverage (JaCoCo) e analise completa funcionam por aqui.
