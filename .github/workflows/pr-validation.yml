@@ -63,19 +63,9 @@ jobs:
           fi
         if: github.event_name == 'pull_request'
 
-      - name: SonarQube Cloud analysis
-        uses: SonarSource/sonarcloud-github-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=lucas-de-lima_louve-mobile-app
-            -Dsonar.organization=lucas-de-lima
-            -Dsonar.java.binaries=app/build
-            -Dsonar.coverage.jacoco.xmlReportPaths=app/build/reports/jacoco/test/jacocoTestReport.xml
-            -Dsonar.gradle.skipCompile=true
-        continue-on-error: true
+      # SonarQube Cloud analysis removido — apenas Automatic Analysis ativa
+      # O agente SonarCloud continua postando resultados no PR via
+      # análise automática da plataforma SonarCloud.
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -104,5 +94,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # sonar-quality-gate removed: SonarCloud already posts automatic status checks
-  # (SonarCloud + SonarCloud Code Analysis) via the analysis step above.
+  # sonar-quality-gate removed: SonarCloud posts automatic status checks via
+  # Automatic Analysis (SonarCloud + SonarCloud Code Analysis).
