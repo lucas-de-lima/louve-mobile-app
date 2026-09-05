@@ -18,6 +18,8 @@ jobs:
     permissions:
       contents: write
 
+    timeout-minutes: 20
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,17 +32,19 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Gradle
-        run: chmod +x gradlew
+      - name: Setup Gradle & cache
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Initialize google-services.json
         run: bash .github/scripts/init-google-services.sh
+        shell: bash
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         continue-on-error: true
 
       - name: Build APK (debug)
         run: ./gradlew assembleDebug
+        shell: bash
         env:
           CI: true
 
@@ -50,6 +54,7 @@ jobs:
           VERSION=$(grep 'versionName' app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Extracted version: $VERSION"
+        shell: bash
 
       - name: Check if tag already exists
         id: tag_check
@@ -62,6 +67,7 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
             echo "Tag $TAG will be created"
           fi
+        shell: bash
 
       - name: Create and push tag
         if: steps.tag_check.outputs.exists == 'false'
@@ -71,11 +77,13 @@ jobs:
           git config user.email "github-actions@github.com"
           git tag -a "$TAG" -m "Release $TAG"
           git push origin "$TAG"
+        shell: bash
 
       - name: Package APK
         run: |
           mkdir -p release-artifacts
           cp app/build/outputs/apk/debug/app-debug.apk release-artifacts/louve-app-v${{ steps.version.outputs.version }}.apk 2>/dev/null || true
+        shell: bash
 
       - name: Create Release
         uses: softprops/action-gh-release@v3
