@@ -1,0 +1,75 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [develop, main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: google-services.json
+        run: bash .github/scripts/init-google-services.sh
+        shell: bash
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        continue-on-error: true
+
+      - name: Build (debug)
+        run: ./gradlew assembleDebug
+        shell: bash
+        env:
+          CI: true
+
+      - name: Unit tests
+        run: ./gradlew test
+        shell: bash
+        env:
+          CI: true
+
+      - name: Lint
+        run: ./gradlew lint
+        shell: bash
+        continue-on-error: true
+        env:
+          CI: true
+
+      - name: Coverage report
+        run: ./gradlew jacocoTestReport
+        shell: bash
+        continue-on-error: true
+        env:
+          CI: true
+
+      - name: SonarCloud analysis
+        uses: SonarSource/sonarcloud-github-action@v5
+        continue-on-error: true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=lucas-de-lima_louve-mobile-app
+            -Dsonar.organization=lucas-de-lima
+            -Dsonar.java.binaries=app/build/tmp/kotlin-classes/debug
+            -Dsonar.tests=app/src/test
+            -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.coverage.jacoco.xmlReportPaths=app/build/reports/jacoco/test/jacocoTestReport.xml
+            -Dsonar.exclusions=**/*.png,**/*.webp,**/*.jpg,**/*.jks,**/*.jar
