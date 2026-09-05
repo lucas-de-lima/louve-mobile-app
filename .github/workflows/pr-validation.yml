@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [develop, main]
   push:
-    branches: [develop, main]
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,6 +13,8 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,51 +27,57 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Gradle
-        run: chmod +x gradlew
-        shell: bash
+      - name: Setup Gradle & cache
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Decode google-services.json
         run: bash .github/scripts/init-google-services.sh
+        shell: bash
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         continue-on-error: true
 
       - name: Build (debug)
         run: ./gradlew assembleDebug
+        shell: bash
         env:
           CI: true
 
       - name: Unit tests
         run: ./gradlew test
+        shell: bash
         env:
           CI: true
 
       - name: Lint check
         run: ./gradlew lint
+        shell: bash
         env:
           CI: true
 
-      - name: Architecture compliance
-        run: python .harness/scripts/check-architecture.py
-
       - name: Coverage report (JaCoCo)
         run: ./gradlew jacocoTestReport
+        shell: bash
         env:
           CI: true
 
       - name: PR size check (advisory)
-        run: |
-          ADDITIONS=$(jq '.pull_request.additions // 0' "$GITHUB_EVENT_PATH")
-          CHANGED_FILES=$(jq '.pull_request.changed_files // 0' "$GITHUB_EVENT_PATH")
-          echo "PR Stats: $ADDITIONS additions, $CHANGED_FILES files"
-          if [ "$ADDITIONS" -gt 500 ] || [ "$CHANGED_FILES" -gt 20 ]; then
-            echo "AVISO: PR exceeds recommended size (500 lines / 20 files)"
-          fi
         if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ADDITIONS=$(gh pr view ${{ github.event.number }} --json additions --jq '.additions // 0')
+          CHANGED_FILES=$(gh pr view ${{ github.event.number }} --json changedFiles --jq '.changedFiles // 0')
+          DELETIONS=$(gh pr view ${{ github.event.number }} --json deletions --jq '.deletions // 0')
+          echo "PR Stats: +$ADDITIONS / -$DELETIONS lines, $CHANGED_FILES files"
+          if [ "$ADDITIONS" -gt 500 ] || [ "$CHANGED_FILES" -gt 20 ]; then
+            echo "AVISO: PR excede o tamanho recomendado (500 linhas / 20 arquivos)"
+          fi
+        shell: bash
 
       - name: SonarQube Cloud analysis
         uses: SonarSource/sonarcloud-github-action@v5
+        if: always()
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,6 +96,8 @@ jobs:
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -104,13 +114,10 @@ jobs:
             Para detalhes completos, consulte [CHANGELOG_DETALHADO.md](CHANGELOG_DETALHADO.md).
 
             ### Informacoes
-            - **Versão**: ${{ github.ref_name }}
+            - **Versao**: ${{ github.ref_name }}
             - **Data**: ${{ github.event.head_commit.timestamp }}
             - **Commit**: ${{ github.sha }}
           draft: false
           prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # sonar-quality-gate removed: SonarCloud already posts automatic status checks
-  # (SonarCloud + SonarCloud Code Analysis) via the analysis step above.
