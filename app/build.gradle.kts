@@ -12,11 +12,11 @@ if (keystorePropertiesFile.exists()) {
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    // Kotlin serialization plugin for type safe routes and navigation arguments
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
+    id("jacoco")
 }
 
 extensions.configure<ApplicationExtension> {
@@ -27,8 +27,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "com.lucasdelima.louveapp"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Cria um recurso de string chamado 'web_client_id' com o valor
@@ -54,6 +54,9 @@ extensions.configure<ApplicationExtension> {
     }
 
     buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(
@@ -80,6 +83,43 @@ kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml"))
+        html.required.set(false)
+    }
+    val fileFilter = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/Hilt_*.class",
+        "**/*_HiltComponents*",
+        "**/*_HiltModules*",
+        "**/*Hilt_*",
+        "**/hilt_aggregate_deps/**",
+        "**/*_Factory*.class",
+        "**/*_MembersInjector*.class",
+        "**/*_GeneratedInjector*.class",
+        "**/di/**",
+        "**/Dagger*.class",
+        "**/*Module*.class",
+    )
+    val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+        exclude(fileFilter)
+    }
+    val mainSrc = layout.projectDirectory.dir("src/main/java")
+    sourceDirectories.setFrom(mainSrc)
+    classDirectories.setFrom(debugTree)
+    executionData.setFrom(layout.buildDirectory.files("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"))
 }
 
 

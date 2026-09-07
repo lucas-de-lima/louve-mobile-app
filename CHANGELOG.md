@@ -2,26 +2,34 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
-## [Unreleased] - 2025
+## [1.2.0] - 2026-08-29
 
 ### Adicionado
-- Sistema de barra de navegação inferior com 4 rotas principais
-- Feature de ícones dinâmicos (preenchidos/vazios) para indicar rotas ativas
-- Navegação entre telas Home, Favorites, Discover e More
-
-### Alterado
-- **Correção do bug visual do tema Sweet Candy**: Gradientes agora preenchem toda a tela corretamente
-- **Eliminação da suavização de cores**: Cores dos temas agora são exibidas com intensidade natural
-- **Implementação de edge-to-edge display**: Fundos dos temas agora se estendem até as bordas da tela
+- Correção de 18 bugs arquiteturais e de qualidade (BUG-001 a BUG-018)
+- 37 testes unitários para camadas domain e data
+- Testes E2E com Maestro (7 fluxos de navegação) com detecção de crashes
+- Pipeline de validação de PR (build, lint, testes, SonarCloud, arquitetura)
+- Pipeline de release automática com tag e GitHub Release
+- Guardrails de merge e HITL gates (leia GUARDRAILS.md)
 
 ### Corrigido
-- **Bug visual crítico**: Gradientes não preenchiam toda a tela após implementação da barra de navegação
-- **Suavização de cores**: Problema onde cores apareciam "embranquecidas" nas telas Home e Favorites
-- **Elemento visual estranho**: Fundo do tema aparecendo por trás da barra de navegação
+- Violações de Clean Architecture (domain/data importando UI)
+- ViewModel sem injeção de dependência Hilt
+- Erros silenciosos em serviços de migração e sincronização
+- Vazamento de recursos no ConnectivityMonitorService
+- Build desatualizado (Gradle 9.5.0, AGP 9.3.2, Kotlin 2.3.21)
+
+### Melhorado
+- Cobertura de testes de 0% para baseline
+- CI/CD com validação automatizada de PRs
+- Documentação de processo e arquitetura
 
 ---
 
-## [2025-08-17] - Correção do Bug Visual e Implementação da Barra de Navegação
+## [1.1.0] - 2025-09-27
+
+### Adicionado
+- Sistema completo de temas com múltiplas opções visuais
 
 ### 🔧 Correções Implementadas
 - **Bug Visual do Tema Sweet Candy**: Corrigido problema de gradientes não preenchendo toda a tela
