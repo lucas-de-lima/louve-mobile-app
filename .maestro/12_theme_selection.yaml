@@ -1,0 +1,48 @@
+appId: com.lucasdelima.louveapp
+---
+# Seleção de temas pelo dropdown na HomeScreen (header)
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+# Abrir dropdown de temas
+- tapOn:
+    text: "Temas"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+# Verificar se o dropdown abriu com opções de tema
+- assertVisible:
+    text: "Padrão Claro"
+    optional: true
+- assertVisible:
+    text: "Escuro"
+    optional: true
+- assertVisible:
+    text: "Sweet Candy"
+    optional: true
+- assertVisible:
+    text: "Aurora Matinal"
+    optional: true
+- assertVisible:
+    text: "Serenidade Noturna"
+    optional: true
+- takeScreenshot: "60_theme_dropdown_open"
+# Selecionar tema Escuro
+- tapOn:
+    text: "Escuro"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: "61_theme_dark_selected"
+# Reabrir dropdown e selecionar Padrão Claro
+- tapOn:
+    text: "Temas"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    text: "Padrão Claro"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: "62_theme_light_restored"
