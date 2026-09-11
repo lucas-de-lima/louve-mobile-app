@@ -1,0 +1,74 @@
+appId: com.lucasdelima.louveapp
+---
+# Rolagem pela lista de hinos e navegação para diferentes hinos
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+# Scroll para baixo na lista de hinos
+- scroll
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Harpa"
+    optional: true
+- takeScreenshot: "65_hymn_list_scrolled_down"
+# Scroll para cima (voltar ao topo via limpeza de busca)
+- tapOn:
+    text: "Buscar hino por nome ou número..."
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 500
+- inputText: "a"
+- waitForAnimationToEnd:
+    timeout: 3000
+- eraseText: 1
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: "66_hymn_list_scrolled_up"
+# Selecionar um hino pelo número
+- tapOn:
+    text: "005"
+    optional: true
+- runFlow:
+    when:
+      notVisible: "005"
+    commands:
+      - scroll
+      - tapOn:
+          text: "005"
+          optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: "67_hymn_005_detail"
+# Verificar título e controles
+- assertVisible:
+    text: "Voltar"
+    optional: true
+- assertVisible:
+    text: "Aumentar fonte"
+    optional: true
+# Voltar e selecionar outro hino
+- back
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    text: "010"
+    optional: true
+- runFlow:
+    when:
+      notVisible: "010"
+    commands:
+      - scroll
+      - tapOn:
+          text: "010"
+          optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: "68_hymn_010_detail"
+- back
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Harpa"
+    optional: true
+- takeScreenshot: "69_hymn_list_final"

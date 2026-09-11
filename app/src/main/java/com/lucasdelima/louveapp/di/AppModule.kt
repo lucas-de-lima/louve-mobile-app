@@ -17,6 +17,7 @@ import com.lucasdelima.louveapp.data.repository.HymnRepositoryImpl
 import com.lucasdelima.louveapp.data.repository.LocalSettingsRepository
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.FavoritesRepository
+import com.lucasdelima.louveapp.domain.repository.HymnListRepository
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
 import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.AnalyticsService
@@ -67,6 +68,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindLocalSettingsRepository(impl: com.lucasdelima.louveapp.data.repository.LocalSettingsRepository): com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindHymnListRepository(impl: DataStoreHymnListRepository): HymnListRepository
 }
 
 // Módulo para provisão de classes que não podemos injetar via construtor
