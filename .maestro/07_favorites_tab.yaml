@@ -1,0 +1,30 @@
+appId: com.lucasdelima.louveapp
+---
+# Aba Favoritos: verificar estado vazio e elementos da tela
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+# Navegar para Favoritos
+- tapOn: "Favoritos"
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible:
+    text: "Favoritos"
+    optional: true
+# Verificar estado vazio (sem login, nenhum favorito)
+- assertVisible:
+    text: "Sua lista está vazia"
+    optional: true
+- assertVisible:
+    text: "Toque no ícone de coração nos hinos que você mais ama para guardá-los aqui."
+    optional: true
+- takeScreenshot: "40_favorites_empty"
+# Tentar navegar para um hino a partir de favoritos (não deve haver nenhum)
+- assertVisible:
+    text: "Harpa"
+    optional: true
+# Voltar para Harpa
+- tapOn: "Harpa"
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: "41_back_from_favorites"

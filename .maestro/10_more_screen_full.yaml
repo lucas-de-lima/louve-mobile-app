@@ -1,0 +1,68 @@
+appId: com.lucasdelima.louveapp
+---
+# Explorar todos os itens da aba Mais: Compartilhar App, todos os cards
+# Excluído: login flow (perfil não será testado aqui)
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+# Ir para Mais
+- tapOn: "Mais"
+- waitForAnimationToEnd:
+    timeout: 2000
+# Verificar todos os itens da seção Ações
+- assertVisible: "Ações"
+- assertVisible: "Configurações"
+- assertVisible: "Compartilhar App"
+- assertVisible: "Informações e Suporte"
+- assertVisible: "Sobre o App"
+- assertVisible:
+    text: "Ajuda e Suporte"
+    optional: true
+- takeScreenshot: "50_more_screen_all_items"
+# Entrar em Compartilhar App
+- tapOn: "Compartilhar App"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Compartilhar App"
+    optional: true
+- assertVisible:
+    text: "COMPARTILHAR AGORA"
+    optional: true
+- takeScreenshot: "51_share_app_bottomsheet"
+# Fechar bottom sheet
+- back
+- waitForAnimationToEnd:
+    timeout: 1000
+# Entrar em Configurações para verificar
+- tapOn: "Configurações"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Configurações"
+    optional: true
+- back
+- waitForAnimationToEnd:
+    timeout: 1000
+# Entrar em Sobre o App
+- tapOn: "Sobre o App"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Sobre o Louve App"
+    optional: true
+- back
+- waitForAnimationToEnd:
+    timeout: 1000
+# Entrar em Ajuda e Suporte
+- tapOn: "Ajuda e Suporte"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Ajuda e Suporte"
+    optional: true
+- back
+- waitForAnimationToEnd:
+    timeout: 1000
+- assertVisible: "Mais"
+- takeScreenshot: "52_more_all_visited"

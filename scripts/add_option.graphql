@@ -1,0 +1,15 @@
+mutation AddOption($field: ID!, $name: String!) {
+    addProjectV2SingleSelectFieldOption(input: {
+        fieldId: $field
+        name: $name
+    }) {
+        field {
+            id
+            name
+            options {
+                id
+                name
+            }
+        }
+    }
+}
