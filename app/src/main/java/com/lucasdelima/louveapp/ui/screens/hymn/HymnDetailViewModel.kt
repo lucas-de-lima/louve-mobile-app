@@ -29,6 +29,7 @@ import javax.inject.Inject
 class HymnDetailViewModel @Inject constructor(
     private val hymnRepository: HymnRepository,
     private val favoritesRepository: FavoritesRepository,
+    private val hymnListRepository: HymnListRepository,
     private val authRepository: AuthRepository,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
@@ -93,6 +94,18 @@ class HymnDetailViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+
+    fun addHymnToList(listId: String) {
+        viewModelScope.launch {
+            hymnListRepository.addHymnToList(listId, hymnId.toString())
+        }
+    }
+
+    fun createList(name: String) {
+        viewModelScope.launch {
+            hymnListRepository.createList(name, null)
+        }
+    }
 
     fun onToggleFavorite() {
         val isCurrentlyFavorite = _uiState.value.isFavorite
