@@ -205,9 +205,14 @@ data class LouveBackgrounds(
 ```kotlin
 // Arquivo: AppThemes.kt
 val AllThemes = listOf(
-    DefaultTheme,        // Tema padrão claro
-    DarkTheme,           // Tema escuro
-    SweetCandyTheme      // Tema gradiente personalizado
+    DefaultTheme,           // Tema padrão claro
+    DarkTheme,              // Tema escuro
+    SweetCandyTheme,        // Tema gradiente personalizado
+    AuroraMorningTheme,     // Tema Aurora Matinal
+    SerenityNightTheme,     // Tema Serenidade Noturna
+    LifeGreenTheme,         // Tema Vida Verde
+    SacredFlameTheme,       // Tema Chama Sagrada
+    CelestialSkyTheme       // Tema Céu Celestial
 )
 ```
 
@@ -432,7 +437,7 @@ loadInitialHymns()
     ↓ 
 hymnRepository.getAllHymns() (HymnRepositoryImpl)
     ↓
-HymnDataSource.allHymns (640 hinos em memória)
+HymnDataSource.allHymns (54 hinos em memória)
     ↓
 filterHymns() (converte Hymn → HymnUi)
     ↓
@@ -701,10 +706,12 @@ searchJob = viewModelScope.launch {
 1. ConnectivityMonitorService detecta rede
 2. handleConnectivityChange(true)
 3. syncDataWhenOnline() para usuários logados
-4. BidirectionalSyncService.syncRemoteToLocal()
-5. Favoritos e configurações sincronizados
-6. UI atualizada automaticamente
+4. BidirectionalSyncService.syncRemoteToLocal()  ← código órfão, nunca chamado
+5. syncWhenOnline() em repos são stubs
+6. Favoritos e configurações sincronizados apenas via chamadas individuais
 ```
+
+> ⚠️ **Nota:** O fluxo de sincronização automática descrito acima é o comportamento planejado. Na implementação atual, `syncWhenOnline()`, `checkForConflicts()` e `resolveConflicts()` são stubs. `BidirectionalSyncService` é código órfão. A sincronização real ocorre apenas no `DataMigrationService` (após login) e nas operações individuais de add/remove de favoritos via `DataStoreLocalFavoritesRepository`.
 
 ---
 
@@ -756,8 +763,8 @@ android {
     defaultConfig {
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.2.0"
     }
     
     // Configuração de assinatura para release
@@ -821,4 +828,4 @@ ksp(libs.hilt.compiler)
 
 ---
 
-*Este documento reflete a implementação real do código do Louve App em dezembro de 2024.* 
+*Este documento reflete a implementação real do código do Louve App em setembro de 2026.* 

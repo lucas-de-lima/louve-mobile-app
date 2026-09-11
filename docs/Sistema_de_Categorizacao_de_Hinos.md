@@ -2,8 +2,11 @@
 
 **Versão:** 2.0  
 **Data:** 2025  
+**Status:** 🚧 **Planejamento — Não implementado**  
 **Público-Alvo:** IA Generativa, Desenvolvedores, Curadores de Conteúdo  
-**Propósito:** Documentação técnica completa para categorização automática e manual dos 640 hinos da Harpa Cristã
+**Propósito:** Documentação técnica completa para categorização automática e manual dos 640 hinos da Harpa Cristã (planejamento futuro)
+
+> ⚠️ Este documento descreve uma funcionalidade **planejada**, não implementada. Nenhum código referente a este sistema existe no repositório atualmente.
 
 ---
 

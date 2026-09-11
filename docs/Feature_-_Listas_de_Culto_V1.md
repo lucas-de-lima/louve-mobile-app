@@ -1,5 +1,7 @@
 # Feature: Listas de Culto (V1)
 
+> ⚠️ **Status: Planejamento — Não implementado.** Esta é a especificação (spec) da feature. Nenhum código desta feature existe no repositório atualmente (`EventList`, `TemporaryFavoritesRepository`, `TempFavoritesCleanupWorker` não existem no código).
+
 ## Visão Geral
 - Objetivo: permitir que usuários organizem hinos para eventos/cultos específicos em **listas efêmeras** com expiração automática.
 - Princípios: offline-first, UX simples, isolamento do favorito permanente, DX segura e incremental.

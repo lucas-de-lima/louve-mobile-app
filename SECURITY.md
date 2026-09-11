@@ -6,4 +6,4 @@ Em vez disso, reporte de forma responsável enviando um e-mail para o mantenedor
 
 Todos os relatórios serão tratados com prioridade e confidencialidade. Após a análise, uma correção será implementada e comunicada à comunidade.
 
-Veja também [docs/8. Segurança e Lançamento.MD](docs/8.%20Seguran%C3%A7a%20e%20Lan%C3%A7amento.MD) para detalhes sobre práticas de segurança do projeto. 
+Práticas de segurança do projeto: segredos nunca são versionados (usa-se `keystore.properties` local) e as regras do Firestore são versionadas e auditáveis ([firestore.rules](firestore.rules)). 

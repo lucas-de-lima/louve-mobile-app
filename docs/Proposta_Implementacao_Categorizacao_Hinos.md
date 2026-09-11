@@ -1,5 +1,7 @@
 # 📋 **Proposta de Implementação: Sistema de Categorização de Hinos**
 
+> ⚠️ **Status: Planejamento — Não implementado.** Esta é a proposta da feature. Nenhum código deste sistema existe no repositório atualmente.
+
 ## 🎯 **Objetivo**
 
 Este documento apresenta a proposta técnica para implementar o sistema de categorização de hinos na aplicação Louve, integrando metadados diretamente ao modelo de dados existente para garantir consistência e facilitar a manutenção.
