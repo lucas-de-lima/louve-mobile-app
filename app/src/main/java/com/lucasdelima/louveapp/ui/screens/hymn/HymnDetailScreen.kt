@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -56,6 +57,8 @@ import com.lucasdelima.louveapp.domain.model.Hymn
 import com.lucasdelima.louveapp.ui.components.HymnDetailTopAppBar
 import com.lucasdelima.louveapp.ui.components.HymnTextFormatter
 import com.lucasdelima.louveapp.ui.components.HymnTitleFormatter
+import com.lucasdelima.louveapp.ui.screens.favorites.HymnListsViewModel
+import com.lucasdelima.louveapp.ui.screens.hymn.components.AddToListBottomSheet
 import kotlinx.coroutines.launch
 import com.lucasdelima.louveapp.ui.theme.LouveTheme
 
@@ -66,12 +69,30 @@ fun HymnDetailScreen(
     onBack: () -> Unit,
     onToggleFavorite: () -> Unit,
     onIncreaseFontSize: () -> Unit,
-    onDecreaseFontSize: () -> Unit
+    onDecreaseFontSize: () -> Unit,
+    onAddHymnToList: (String) -> Unit = {},
+    onCreateList: (String) -> Unit = {},
+    hymnListsViewModel: HymnListsViewModel = hiltViewModel()
 ) {
     LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     rememberCoroutineScope()
     var showShareSheet by remember { mutableStateOf(false) }
+    var showAddToListSheet by remember { mutableStateOf(false) }
+
+    if (showAddToListSheet) {
+        AddToListBottomSheet(
+            hymnListViewModel = hymnListsViewModel,
+            isFavorite = uiState.isFavorite,
+            onToggleFavorite = onToggleFavorite,
+            onSelectList = { listId ->
+                onAddHymnToList(listId)
+                showAddToListSheet = false
+            },
+            onCreateNewList = { showAddToListSheet = false },
+            onDismiss = { showAddToListSheet = false }
+        )
+    }
 
     if (showShareSheet) {
         uiState.hymn?.let { hymnToShare ->
@@ -106,6 +127,14 @@ fun HymnDetailScreen(
                                 imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = if (uiState.isFavorite) "Desfavoritar" else "Favoritar",
                                 tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        IconButton(onClick = { showAddToListSheet = true }) {
+                            Icon(
+                                imageVector = Icons.Default.PlaylistAdd,
+                                contentDescription = "Adicionar a lista",
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
 
