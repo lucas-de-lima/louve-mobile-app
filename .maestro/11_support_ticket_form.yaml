@@ -1,0 +1,58 @@
+appId: com.lucasdelima.louveapp
+---
+# Preenchimento do formulário de suporte: nome, email, descrição
+# Excluído: submissão real do ticket (não envia)
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+# Ir para Mais > Ajuda e Suporte
+- tapOn: "Mais"
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn: "Ajuda e Suporte"
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible:
+    text: "Ajuda e Suporte"
+    optional: true
+- assertVisible:
+    text: "Como podemos ajudar?"
+    optional: true
+# Preencher campo Nome
+- tapOn:
+    text: "Nome"
+    optional: true
+- inputText: "Usuário Teste"
+- waitForAnimationToEnd:
+    timeout: 500
+# Preencher campo E-mail
+- tapOn:
+    text: "E-mail"
+    optional: true
+- inputText: "teste@exemplo.com"
+- waitForAnimationToEnd:
+    timeout: 500
+# Preencher campo Descrição
+- tapOn:
+    text: "Descrição do problema"
+    optional: true
+- inputText: "Teste de preenchimento do formulário de suporte no Louve App."
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: "55_support_form_filled"
+# Verificar botão Enviar Ticket visível
+- assertVisible:
+    text: "Enviar Ticket"
+    optional: true
+# Limpar campos (back + voltar sem enviar)
+- back
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible:
+    text: "Ajuda e Suporte"
+    optional: true
+- back
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible: "Mais"
+- takeScreenshot: "56_back_from_support"

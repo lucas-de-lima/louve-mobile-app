@@ -1,0 +1,77 @@
+appId: com.lucasdelima.louveapp
+---
+# Fluxo do card de sugestão após favoritar um hino
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+# Navegar para um hino
+- tapOn:
+    text: "001"
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 5000
+# Garantir hino não-favoritado primeiro (DataStore persiste entre runs)
+- tapOn:
+    text: "Desfavoritar"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+# Favoritar o hino — dispara o card de sugestão
+- tapOn:
+    text: "Favoritar"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+# Verificar card de sugestão e opções
+- assertVisible:
+    text: "Salvo nos favoritos!"
+    optional: true
+- assertVisible:
+    text: "Deseja salvar numa lista separada?"
+    optional: true
+- assertVisible:
+    text: "Adicionar à lista"
+    optional: true
+- assertVisible:
+    text: "Criar nova lista"
+    optional: true
+- takeScreenshot: "60_suggestion_card_visible"
+# Testar sub-view de seleção de lista
+- tapOn:
+    text: "Adicionar à lista"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Escolher lista"
+    optional: true
+- takeScreenshot: "61_suggestion_list_selection"
+- tapOn:
+    text: "Voltar"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+# Testar sub-view de criação de lista
+- tapOn:
+    text: "Criar nova lista"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Nova lista"
+    optional: true
+- takeScreenshot: "62_suggestion_create_form"
+# Desfavoritar para limpar estado e fechar card
+- tapOn:
+    text: "Desfavoritar"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: "63_suggestion_dismissed"
+# Voltar para Home
+- back
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Harpa"
+    optional: true

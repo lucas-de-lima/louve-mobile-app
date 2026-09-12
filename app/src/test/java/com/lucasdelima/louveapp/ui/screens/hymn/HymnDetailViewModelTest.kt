@@ -4,6 +4,7 @@ import com.lucasdelima.louveapp.domain.model.Hymn
 import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.FavoritesRepository
+import com.lucasdelima.louveapp.domain.repository.HymnListRepository
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
 import com.lucasdelima.louveapp.domain.repository.SettingsRepository
 import io.mockk.coEvery
@@ -28,6 +29,7 @@ class HymnDetailViewModelTest {
 
     private val hymnRepository: HymnRepository = mockk()
     private val favoritesRepository: FavoritesRepository = mockk()
+    private val hymnListRepository: HymnListRepository = mockk()
     private val authRepository: AuthRepository = mockk()
     private val settingsRepository: SettingsRepository = mockk()
     private val testDispatcher = StandardTestDispatcher()
@@ -43,7 +45,7 @@ class HymnDetailViewModelTest {
         coEvery { settingsRepository.saveFontScaleFactor(any()) } returns Unit
         every { hymnRepository.getHymnById(1) } returns sampleHymn
         every { favoritesRepository.getFavoriteHymnIds() } returns MutableStateFlow(Result.Success(emptySet()))
-        viewModel = HymnDetailViewModel(hymnRepository, favoritesRepository, authRepository, settingsRepository)
+        viewModel = HymnDetailViewModel(hymnRepository, favoritesRepository, hymnListRepository, authRepository, settingsRepository)
         testDispatcher.scheduler.advanceUntilIdle()
     }
 
@@ -89,7 +91,7 @@ class HymnDetailViewModelTest {
     @Test
     fun setHymnId_whenFavorite_showsFavoriteState() {
         every { favoritesRepository.getFavoriteHymnIds() } returns MutableStateFlow(Result.Success(setOf("1")))
-        viewModel = HymnDetailViewModel(hymnRepository, favoritesRepository, authRepository, settingsRepository)
+        viewModel = HymnDetailViewModel(hymnRepository, favoritesRepository, hymnListRepository, authRepository, settingsRepository)
         testDispatcher.scheduler.advanceUntilIdle()
         viewModel.setHymnId(1)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -113,7 +115,7 @@ class HymnDetailViewModelTest {
     @Test
     fun onToggleFavorite_removesFavorite() = runTest {
         every { favoritesRepository.getFavoriteHymnIds() } returns MutableStateFlow(Result.Success(setOf("1")))
-        viewModel = HymnDetailViewModel(hymnRepository, favoritesRepository, authRepository, settingsRepository)
+        viewModel = HymnDetailViewModel(hymnRepository, favoritesRepository, hymnListRepository, authRepository, settingsRepository)
         testDispatcher.scheduler.advanceUntilIdle()
         viewModel.setHymnId(1)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -187,7 +189,7 @@ class HymnDetailViewModelTest {
     fun setHymnId_showsUserLoggedInState() {
         val user = com.lucasdelima.louveapp.domain.model.UserProfile("uid", "User", "user@test.com", null)
         every { authRepository.getCurrentUser() } returns MutableStateFlow(user)
-        viewModel = HymnDetailViewModel(hymnRepository, favoritesRepository, authRepository, settingsRepository)
+        viewModel = HymnDetailViewModel(hymnRepository, favoritesRepository, hymnListRepository, authRepository, settingsRepository)
         testDispatcher.scheduler.advanceUntilIdle()
         viewModel.setHymnId(1)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -198,7 +200,7 @@ class HymnDetailViewModelTest {
     @Test
     fun fontScaleFactor_observesSettings() {
         every { settingsRepository.fontScaleFactor } returns MutableStateFlow(1.5f)
-        viewModel = HymnDetailViewModel(hymnRepository, favoritesRepository, authRepository, settingsRepository)
+        viewModel = HymnDetailViewModel(hymnRepository, favoritesRepository, hymnListRepository, authRepository, settingsRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(1.5f, viewModel.uiState.value.fontScaleFactor, 0.001f)
