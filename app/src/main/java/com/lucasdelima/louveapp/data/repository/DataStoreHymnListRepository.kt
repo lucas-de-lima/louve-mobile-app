@@ -12,8 +12,8 @@ import com.lucasdelima.louveapp.domain.repository.HymnListRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import org.json.JSONArray
+import org.json.JSONObject
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,8 +25,6 @@ class DataStoreHymnListRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) : HymnListRepository {
 
-    private val json = Json { ignoreUnknownKeys = true }
-
     private object Keys {
         val HYMN_LISTS = stringPreferencesKey("hymn_lists_json")
     }
@@ -34,7 +32,7 @@ class DataStoreHymnListRepository @Inject constructor(
     override fun getAllLists(): Flow<List<HymnList>> {
         return context.dataStore.data.map { prefs ->
             val raw = prefs[Keys.HYMN_LISTS] ?: "[]"
-            deserialize(raw)
+            parseLists(raw)
         }
     }
 
@@ -51,13 +49,13 @@ class DataStoreHymnListRepository @Inject constructor(
             val newList = HymnList(
                 id = id,
                 name = name,
+                createdAt = System.currentTimeMillis(),
                 expiresAt = expiresAt,
                 hymnIds = emptyList()
             )
             context.dataStore.edit { prefs ->
-                val existing = deserialize(prefs[Keys.HYMN_LISTS] ?: "[]")
-                val updated = existing + newList
-                prefs[Keys.HYMN_LISTS] = serialize(updated)
+                val existing = parseLists(prefs[Keys.HYMN_LISTS] ?: "[]")
+                prefs[Keys.HYMN_LISTS] = serializeLists(existing + newList)
             }
             Result.Success(id)
         } catch (e: Exception) {
@@ -107,9 +105,9 @@ class DataStoreHymnListRepository @Inject constructor(
         return try {
             val now = System.currentTimeMillis()
             context.dataStore.edit { prefs ->
-                val existing = deserialize(prefs[Keys.HYMN_LISTS] ?: "[]")
+                val existing = parseLists(prefs[Keys.HYMN_LISTS] ?: "[]")
                 val active = existing.filter { it.expiresAt == null || it.expiresAt > now }
-                prefs[Keys.HYMN_LISTS] = serialize(active)
+                prefs[Keys.HYMN_LISTS] = serializeLists(active)
             }
             Result.Success(Unit)
         } catch (e: Exception) {
@@ -120,8 +118,8 @@ class DataStoreHymnListRepository @Inject constructor(
     private suspend fun updateLists(transform: (List<HymnList>) -> List<HymnList>): Result<Unit> {
         return try {
             context.dataStore.edit { prefs ->
-                val existing = deserialize(prefs[Keys.HYMN_LISTS] ?: "[]")
-                prefs[Keys.HYMN_LISTS] = serialize(transform(existing))
+                val existing = parseLists(prefs[Keys.HYMN_LISTS] ?: "[]")
+                prefs[Keys.HYMN_LISTS] = serializeLists(transform(existing))
             }
             Result.Success(Unit)
         } catch (e: Exception) {
@@ -129,15 +127,39 @@ class DataStoreHymnListRepository @Inject constructor(
         }
     }
 
-    private fun deserialize(raw: String): List<HymnList> {
+    private fun parseLists(raw: String): List<HymnList> {
         return try {
-            json.decodeFromString<List<HymnList>>(raw)
+            val arr = JSONArray(raw)
+            (0 until arr.length()).map { i ->
+                val obj = arr.getJSONObject(i)
+                HymnList(
+                    id = obj.getString("id"),
+                    name = obj.getString("name"),
+                    createdAt = obj.optLong("createdAt", System.currentTimeMillis()),
+                    expiresAt = if (obj.has("expiresAt") && !obj.isNull("expiresAt"))
+                        obj.getLong("expiresAt") else null,
+                    hymnIds = obj.optJSONArray("hymnIds")?.let { ja ->
+                        (0 until ja.length()).map { ja.getString(it) }
+                    } ?: emptyList()
+                )
+            }
         } catch (e: Exception) {
             emptyList()
         }
     }
 
-    private fun serialize(lists: List<HymnList>): String {
-        return json.encodeToString(lists)
+    private fun serializeLists(lists: List<HymnList>): String {
+        val arr = JSONArray()
+        lists.forEach { list ->
+            val obj = JSONObject().apply {
+                put("id", list.id)
+                put("name", list.name)
+                put("createdAt", list.createdAt)
+                put("expiresAt", list.expiresAt ?: JSONObject.NULL)
+                put("hymnIds", JSONArray(list.hymnIds))
+            }
+            arr.put(obj)
+        }
+        return arr.toString()
     }
 }

@@ -8,6 +8,7 @@ import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.FavoritesRepository
+import com.lucasdelima.louveapp.domain.repository.HymnListRepository
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
 import com.lucasdelima.louveapp.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -8,16 +8,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -29,32 +32,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.lucasdelima.louveapp.domain.model.HymnList
 import com.lucasdelima.louveapp.ui.screens.favorites.HymnListsViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddToListBottomSheet(
     hymnListViewModel: HymnListsViewModel,
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
     onSelectList: (String) -> Unit,
-    onCreateNewList: () -> Unit,
+    onConfirmCreateList: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
     val listsState by hymnListViewModel.uiState.collectAsState()
-    var showCreateSheet by remember { mutableStateOf(false) }
-
-    if (showCreateSheet) {
-        CreateListBottomSheet(
-            onDismiss = { showCreateSheet = false },
-            onCreated = { listId ->
-                showCreateSheet = false
-                onDismiss()
-            }
-        )
-        return
-    }
+    var showCreateForm by remember { mutableStateOf(false) }
+    var newListName by remember { mutableStateOf("") }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -65,71 +58,107 @@ fun AddToListBottomSheet(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
-            Text(
-                text = "Adicionar a...",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            FilledTonalButton(
-                onClick = onToggleFavorite,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = null
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(if (isFavorite) "Remover de Favoritos" else "Meus Favoritos")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (listsState.lists.isNotEmpty()) {
-                Text(
-                    text = "Listas de Culto",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                listsState.lists.forEach { list ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onSelectList(list.id) }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = list.name,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Text(
-                                text = "${list.hymnIds.size} hinos",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                    HorizontalDivider()
+            if (showCreateForm) {
+                IconButton(onClick = { showCreateForm = false }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Voltar"
+                    )
                 }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            FilledTonalButton(
-                onClick = onCreateNewList,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null
+                Text(
+                    text = "Nova Lista de Culto",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Criar nova lista de culto...")
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = newListName,
+                    onValueChange = { newListName = it },
+                    label = { Text("Nome da lista") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        if (newListName.isNotBlank()) {
+                            onConfirmCreateList(newListName.trim())
+                            showCreateForm = false
+                            newListName = ""
+                        }
+                    },
+                    enabled = newListName.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Criar Lista")
+                }
+            } else {
+                Text(
+                    text = "Adicionar a...",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                FilledTonalButton(
+                    onClick = onToggleFavorite,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = null
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(if (isFavorite) "Remover de Favoritos" else "Meus Favoritos")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (listsState.lists.isNotEmpty()) {
+                    Text(
+                        text = "Listas de Culto",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    listsState.lists.forEach { list ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onSelectList(list.id) }
+                                .padding(vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = list.name,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    text = "${list.hymnIds.size} hinos",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        HorizontalDivider()
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                FilledTonalButton(
+                    onClick = { showCreateForm = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Criar nova lista de culto...")
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

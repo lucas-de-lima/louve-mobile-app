@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.lucasdelima.louveapp.data.repository.DataStoreHymnListRepository
 import com.lucasdelima.louveapp.data.repository.DataStoreLocalFavoritesRepository
 import com.lucasdelima.louveapp.data.repository.DataMigrationService
 import com.lucasdelima.louveapp.data.repository.BidirectionalSyncService
@@ -68,10 +69,6 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindLocalSettingsRepository(impl: com.lucasdelima.louveapp.data.repository.LocalSettingsRepository): com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindHymnListRepository(impl: DataStoreHymnListRepository): HymnListRepository
 }
 
 // Módulo para provisão de classes que não podemos injetar via construtor
@@ -98,6 +95,12 @@ object AppModule {
     @Singleton
     fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics {
         return FirebaseAnalytics.getInstance(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHymnListRepository(@ApplicationContext context: Context): HymnListRepository {
+        return DataStoreHymnListRepository(context)
     }
 
 

@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.lucasdelima.louveapp.domain.model.Hymn
 import com.lucasdelima.louveapp.ui.components.HymnDetailTopAppBar
 import com.lucasdelima.louveapp.ui.components.HymnTextFormatter
@@ -89,7 +90,9 @@ fun HymnDetailScreen(
                 onAddHymnToList(listId)
                 showAddToListSheet = false
             },
-            onCreateNewList = { showAddToListSheet = false },
+            onConfirmCreateList = { name ->
+                onCreateList(name)
+            },
             onDismiss = { showAddToListSheet = false }
         )
     }
