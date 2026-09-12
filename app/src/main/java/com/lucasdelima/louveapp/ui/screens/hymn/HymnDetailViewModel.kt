@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 @HiltViewModel
@@ -98,24 +99,57 @@ class HymnDetailViewModel @Inject constructor(
 
     fun addHymnToList(listId: String) {
         viewModelScope.launch {
-            hymnListRepository.addHymnToList(listId, hymnId.toString())
+            val result = hymnListRepository.addHymnToList(listId, hymnId.toString())
+            when (result) {
+                is Result.Success -> {
+                    val hymnName = _uiState.value.hymn?.title ?: "Hino"
+                    _uiState.update {
+                        it.copy(showAddToListSuggestion = false, suggestionInteraction = null)
+                    }
+                }
+                is Result.Error -> {
+                    _eventFlow.emit(HymnDetailEvent.ShowSnackbar("Falha ao adicionar à lista"))
+                }
+            }
         }
     }
 
     fun createList(name: String) {
         viewModelScope.launch {
-            hymnListRepository.createList(name, null)
+            val listName = name.trim()
+            when (val createResult = hymnListRepository.createList(listName, null)) {
+                is Result.Success -> {
+                    val listId = createResult.data
+                    hymnListRepository.addHymnToList(listId, hymnId.toString())
+                    val hymnName = _uiState.value.hymn?.let { "${it.number} - ${it.title}" } ?: "Hino"
+                    _uiState.update {
+                        it.copy(
+                            showAddToListSuggestion = false,
+                            suggestionInteraction = null,
+                            successMessage = "$hymnName adicionado à lista \"$listName\" com sucesso"
+                        )
+                    }
+                    delay(2500)
+                    _uiState.update { it.copy(successMessage = null) }
+                }
+                is Result.Error -> {
+                    _eventFlow.emit(HymnDetailEvent.ShowSnackbar("Falha ao criar lista"))
+                }
+            }
         }
+    }
+
+    fun dismissSuccessMessage() {
+        _uiState.update { it.copy(successMessage = null) }
     }
 
     fun onToggleFavorite() {
         val isCurrentlyFavorite = _uiState.value.isFavorite
         val newFavoriteState = !isCurrentlyFavorite
 
-        _uiState.value = _uiState.value.copy(isFavorite = newFavoriteState)
+        _uiState.update { it.copy(isFavorite = newFavoriteState) }
 
         viewModelScope.launch {
-            // MODIFICAÇÃO: A chamada é a mesma, a lógica de roteamento está no repositório.
             val result = if (newFavoriteState) {
                 favoritesRepository.addFavorite(hymnId.toString())
             } else {
@@ -123,10 +157,41 @@ class HymnDetailViewModel @Inject constructor(
             }
             if (result is Result.Error) {
                 _uiState.update { it.copy(isFavorite = isCurrentlyFavorite) }
-                // Envia um evento para a UI
                 _eventFlow.emit(HymnDetailEvent.ShowSnackbar("Falha ao salvar favorito. Tente novamente."))
+            } else if (newFavoriteState) {
+                _uiState.update { it.copy(showAddToListSuggestion = true) }
             }
         }
+    }
+
+    fun dismissAddToListSuggestion() {
+        _uiState.update { it.copy(showAddToListSuggestion = false, suggestionInteraction = null) }
+    }
+
+    fun onAddToListSuggestionChooseList() {
+        _uiState.update { it.copy(suggestionInteraction = SuggestionInteraction.ChooseList) }
+    }
+
+    fun onAddToListSuggestionCreateList() {
+        _uiState.update { it.copy(suggestionInteraction = SuggestionInteraction.CreateNewList()) }
+    }
+
+    fun onConfirmAddToList(listId: String) {
+        viewModelScope.launch {
+            hymnListRepository.addHymnToList(listId, hymnId.toString())
+        }
+        _uiState.update { it.copy(showAddToListSuggestion = false, suggestionInteraction = null) }
+    }
+
+    fun onConfirmCreateList(name: String) {
+        viewModelScope.launch {
+            hymnListRepository.createList(name, null)
+        }
+        _uiState.update { it.copy(showAddToListSuggestion = false, suggestionInteraction = null) }
+    }
+
+    fun onBackFromSuggestionInteraction() {
+        _uiState.update { it.copy(suggestionInteraction = null) }
     }
 
     fun increaseFontSize() {

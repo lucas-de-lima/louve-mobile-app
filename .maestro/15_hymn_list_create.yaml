@@ -11,6 +11,13 @@ appId: com.lucasdelima.louveapp
 - tapOn: "Adicionar a lista"
 - waitForAnimationToEnd:
     timeout: 3000
+- scrollUntilVisible:
+    element:
+      text: "Criar nova lista de culto..."
+    direction: DOWN
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 2000
 - tapOn: "Criar nova lista de culto..."
 - waitForAnimationToEnd:
     timeout: 3000

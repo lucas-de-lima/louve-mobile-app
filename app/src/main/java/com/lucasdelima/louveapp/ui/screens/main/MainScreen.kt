@@ -118,7 +118,11 @@ fun MainScreen(rootNavController: NavHostController) {
                 onIncreaseFontSize = viewModel::increaseFontSize,
                 onDecreaseFontSize = viewModel::decreaseFontSize,
                 onAddHymnToList = viewModel::addHymnToList,
-                onCreateList = viewModel::createList
+                onCreateList = viewModel::createList,
+                onDismissSuggestion = viewModel::dismissAddToListSuggestion,
+                onSuggestionChooseList = viewModel::onAddToListSuggestionChooseList,
+                onSuggestionCreateList = viewModel::onAddToListSuggestionCreateList,
+                onSuggestionBack = viewModel::onBackFromSuggestionInteraction
             )
         }
 
