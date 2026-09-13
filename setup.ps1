@@ -4,7 +4,7 @@ param(
 )
 
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
-if (-not $HarnessDir) { $HarnessDir = Join-Path $Root "..\harness-agentic-louve" }
+if (-not $HarnessDir) { $HarnessDir = Join-Path $Root "..\..\harness-agentic-louve" }
 $HarnessDir = Resolve-Path $HarnessDir -ErrorAction SilentlyContinue
 
 if (-not $HarnessDir) {
