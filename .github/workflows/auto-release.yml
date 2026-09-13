@@ -55,7 +55,8 @@ jobs:
         env:
           CI: true
       - run: |
-          VERSION=$(grep 'versionName' app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
+          TAG=${{ github.event.release.tag_name }}
+          VERSION=${TAG#v}
           mkdir -p release-artifacts
           cp app/build/outputs/apk/debug/app-debug.apk release-artifacts/louve-app-v$VERSION.apk 2>/dev/null || true
         shell: bash
