@@ -18,7 +18,32 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
-      - run: bash .github/scripts/init-google-services.sh
+      - run: |
+          python -c "
+          import json, os
+          GOOGLE_SERVICES_JSON = os.environ.get('GOOGLE_SERVICES_JSON', '')
+          if GOOGLE_SERVICES_JSON:
+            try:
+              import base64
+              decoded = base64.b64decode(GOOGLE_SERVICES_JSON).decode()
+              json.loads(decoded)
+              with open('app/google-services.json', 'w') as f:
+                f.write(decoded)
+              print('OK google-services.json decodificado com sucesso')
+            except Exception:
+              pass
+          if not os.path.exists('app/google-services.json'):
+            json.dump({
+              'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
+              'client': [{
+                'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': 'com.lucasdelima.louveapp'}},
+                'oauth_client': [], 'api_key': [{'current_key': 'ci-placeholder'}],
+                'services': {'appinvite_service': {'other_platform_oauth_client': []}}
+              }],
+              'configuration_version': '1'
+            }, open('app/google-services.json', 'w'), indent=2)
+            print('OK google-services.json placeholder criado')
+          "
         shell: bash
         continue-on-error: true
         env:

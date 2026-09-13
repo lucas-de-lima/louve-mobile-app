@@ -40,6 +40,15 @@ app/release/output-metadata.json
 /live_logcat.txt
 /maestro_run_*.log
 
+# Python cache e scripts de automação (não fazem parte do produto Android)
+__pycache__/
+*.pyc
+*.py
+
+# Scripts auxiliares de projeto (PowerShell, Shell — não produto)
+/scripts/
+.github/scripts/
+
 # Harness system (separate repo) — skills, squads, config, ADRs, HITL, policies, vault
 /.kilo/
 /.harness/
