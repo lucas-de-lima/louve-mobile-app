@@ -2,6 +2,14 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [1.3.1](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.0...v1.3.1) (2026-09-13)
+
+
+### Corrigido
+
+* revert release-type from android to simple with extra-files ([#297](https://github.com/lucas-de-lima/louve-mobile-app/issues/297)) ([791b265](https://github.com/lucas-de-lima/louve-mobile-app/commit/791b265b60ccb0e4ce75580ed02d9186e5860ceb))
+* stop tracking non-Kotlin tooling artifacts (.kilo, .harness, scripts) ([#293](https://github.com/lucas-de-lima/louve-mobile-app/issues/293)) ([2754505](https://github.com/lucas-de-lima/louve-mobile-app/commit/2754505e3369c67af72bc5038ad2f1645bede005))
+
 ## [1.3.0](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.2.0...v1.3.0) (2026-09-13)
 
 
