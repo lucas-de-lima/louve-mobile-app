@@ -9,6 +9,13 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+// Lê versionName e versionCode de version.properties (mantido por release-please)
+val versionPropertiesFile = rootProject.file("version.properties")
+val versionProperties = Properties()
+if (versionPropertiesFile.exists()) {
+    versionProperties.load(FileInputStream(versionPropertiesFile))
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -27,8 +34,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "com.lucasdelima.louveapp"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.2.0"
+        versionCode = versionProperties.getProperty("versionCode", "2").toInt()
+        versionName = versionProperties.getProperty("versionName", "1.3.1")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Cria um recurso de string chamado 'web_client_id' com o valor
