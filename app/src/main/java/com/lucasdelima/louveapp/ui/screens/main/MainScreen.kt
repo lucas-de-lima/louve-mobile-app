@@ -19,6 +19,8 @@ import com.lucasdelima.louveapp.ui.screens.favorites.FavoritesScreen
 import com.lucasdelima.louveapp.ui.screens.home.HomeScreen
 import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailScreen
 import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailViewModel
+import com.lucasdelima.louveapp.ui.screens.hymnlistdetail.HymnListDetailScreen
+import com.lucasdelima.louveapp.ui.screens.hymnlistdetail.HymnListDetailViewModel
 import com.lucasdelima.louveapp.ui.screens.more.MoreScreen
 import com.lucasdelima.louveapp.ui.screens.main.MainSharedViewModel
 
@@ -64,6 +66,9 @@ fun MainScreen(rootNavController: NavHostController) {
                 bottomNavController = bottomNavController,
                 onHymnClick = { hymnId ->
                     bottomNavController.navigate("hymnDetail/$hymnId")
+                },
+                onListClick = { listId ->
+                    bottomNavController.navigate("hymnListDetail/$listId")
                 }
             )
         }
@@ -111,7 +116,32 @@ fun MainScreen(rootNavController: NavHostController) {
                 onBack = { bottomNavController.popBackStack() },
                 onToggleFavorite = viewModel::onToggleFavorite,
                 onIncreaseFontSize = viewModel::increaseFontSize,
-                onDecreaseFontSize = viewModel::decreaseFontSize
+                onDecreaseFontSize = viewModel::decreaseFontSize,
+                onAddHymnToList = viewModel::addHymnToList,
+                onCreateList = viewModel::createList,
+                onDismissSuggestion = viewModel::dismissAddToListSuggestion,
+                onSuggestionChooseList = viewModel::onAddToListSuggestionChooseList,
+                onSuggestionCreateList = viewModel::onAddToListSuggestionCreateList,
+                onSuggestionBack = viewModel::onBackFromSuggestionInteraction
+            )
+        }
+
+        // Tela de detalhe da lista de culto
+        composable(
+            route = "hymnListDetail/{listId}",
+            arguments = listOf(
+                navArgument("listId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val listId = backStackEntry.arguments?.getString("listId") ?: return@composable
+            HymnListDetailScreen(
+                listId = listId,
+                onBack = { bottomNavController.popBackStack() },
+                onHymnClick = { hymnId ->
+                    bottomNavController.navigate("hymnDetail/$hymnId")
+                }
             )
         }
     }

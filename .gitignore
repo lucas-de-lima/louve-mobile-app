@@ -39,3 +39,7 @@ app/release/output-metadata.json
 /build.log
 /live_logcat.txt
 /maestro_run_*.log
+
+# Harness system (separate repo) — skills, squads, config, ADRs, HITL, policies, vault
+/.kilo/
+/.harness/

@@ -1,0 +1,13 @@
+query ProjectViews {
+  node(id: "PVT_kwHOBn6SPs4BhJgi") {
+    ... on ProjectV2 {
+      views(first: 10) {
+        nodes {
+          id
+          name
+          filter
+        }
+      }
+    }
+  }
+}

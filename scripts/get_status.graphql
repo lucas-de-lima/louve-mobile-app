@@ -1,0 +1,12 @@
+query {
+  node(id: "PVTSSF_lAHOBn6SPs4BhJgizhgGXN8") {
+    ... on ProjectV2SingleSelectField {
+      id
+      name
+      options {
+        id
+        name
+      }
+    }
+  }
+}

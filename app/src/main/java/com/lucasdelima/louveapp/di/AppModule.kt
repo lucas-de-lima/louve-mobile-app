@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.lucasdelima.louveapp.data.repository.DataStoreHymnListRepository
 import com.lucasdelima.louveapp.data.repository.DataStoreLocalFavoritesRepository
 import com.lucasdelima.louveapp.data.repository.DataMigrationService
 import com.lucasdelima.louveapp.data.repository.BidirectionalSyncService
@@ -17,6 +18,7 @@ import com.lucasdelima.louveapp.data.repository.HymnRepositoryImpl
 import com.lucasdelima.louveapp.data.repository.LocalSettingsRepository
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.FavoritesRepository
+import com.lucasdelima.louveapp.domain.repository.HymnListRepository
 import com.lucasdelima.louveapp.domain.repository.HymnRepository
 import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.AnalyticsService
@@ -93,6 +95,12 @@ object AppModule {
     @Singleton
     fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics {
         return FirebaseAnalytics.getInstance(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHymnListRepository(@ApplicationContext context: Context): HymnListRepository {
+        return DataStoreHymnListRepository(context)
     }
 
 

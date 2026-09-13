@@ -1,0 +1,21 @@
+query Cards {
+  node(id: "PVT_kwHOBn6SPs4BhJgi") {
+    ... on ProjectV2 {
+      items(first: 100) {
+        nodes {
+          id
+          ... on ProjectV2Item {
+            content {
+              __typename
+              ... on DraftIssue {
+                id
+                title
+                body
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

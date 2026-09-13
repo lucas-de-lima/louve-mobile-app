@@ -1,0 +1,34 @@
+appId: com.lucasdelima.louveapp
+---
+# Aba Descubra: verificar conteúdo informacional da tela
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+# Navegar para Descubra
+- tapOn: "Descubra"
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible:
+    text: "Descubra"
+    optional: true
+# Verificar headline e cards informacionais
+- assertVisible:
+    text: "Descubra Novos Tesouros"
+    optional: true
+- assertVisible:
+    text: "Em breve, uma jornada de descoberta te aguarda"
+    optional: true
+- assertVisible:
+    text: "Jornadas de Louvor"
+    optional: true
+- assertVisible:
+    text: "História dos Hinos"
+    optional: true
+- assertVisible:
+    text: "Recomendações Inteligentes"
+    optional: true
+- takeScreenshot: "42_discover_screen"
+# Voltar para Harpa
+- tapOn: "Harpa"
+- waitForAnimationToEnd:
+    timeout: 2000

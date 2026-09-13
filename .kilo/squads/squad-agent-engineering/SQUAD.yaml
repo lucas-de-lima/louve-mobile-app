@@ -1,0 +1,47 @@
+id: "squad-agent-engineering"
+name: "AI Agent Engineering (meta)"
+mission: "Especialização em orquestração de agentes, descoberta de conhecimento, contexto e authoring de skills."
+domains:
+  - "ai"
+  - "agents"
+  - "engineering"
+  - "context"
+  - "orchestration"
+capabilities:
+  - "orchestration"
+  - "discovery"
+  - "context"
+  - "authoring"
+  - "research"
+routing_signals:
+  - "agent"
+  - "orchestrat"
+  - "workflow"
+  - "context"
+  - "prompt engineering"
+  - "skill"
+  - "knowledge"
+  - "mcp"
+  - "multi-agent"
+  - "handoff"
+  - "discovery"
+selection_guidance:
+  select_when: "The current work is designing or improving agent workflows, context, skill discovery, orchestration, or agent engineering practices."
+  do_not_select_when: "The request is product discovery, a concrete Cloud AI model workload, or a platform-specific implementation."
+lanes:
+  - "orchestration"
+  - "discovery"
+  - "context"
+  - "skill-authoring"
+skill_count: 6
+preferred_skills:
+  - "agent-orchestration-advisor"
+  - "finding-google-skills"
+  - "context-engineering-advisor"
+delegates_to:
+  - "squad-cloud-ai"
+  - "squad-product"
+  - "squad-engineering-practices"
+out_of_scope:
+  - "infra de modelos (squad-cloud-ai)"
+  - "disciplina de produto (squad-product)"

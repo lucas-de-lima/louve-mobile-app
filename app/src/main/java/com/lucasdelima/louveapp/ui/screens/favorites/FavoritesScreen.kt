@@ -7,6 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,11 +29,15 @@ import com.lucasdelima.louveapp.ui.theme.LouveTheme
 fun FavoritesScreen(
     bottomNavController: NavHostController,
     onHymnClick: (Int) -> Unit,
-    viewModel: FavoritesViewModel = hiltViewModel()
+    onListClick: (String) -> Unit = {},
+    viewModel: FavoritesViewModel = hiltViewModel(),
+    hymnListsViewModel: HymnListsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val favoritesState by viewModel.uiState.collectAsState()
+    val listsState by hymnListsViewModel.uiState.collectAsState()
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+    val tabTitles = listOf("Favoritos", "Listas")
 
-    // Cada tela agora tem seu próprio Scaffold
     Scaffold(
         topBar = {
             FavoritesTopAppBar()
@@ -38,35 +45,71 @@ fun FavoritesScreen(
         bottomBar = {
             LouveBottomNavBar(navController = bottomNavController)
         },
-        containerColor = Color.Transparent // Mantém o fundo personalizado
+        containerColor = Color.Transparent
     ) { innerPadding ->
-        // ✅ REMOVIDO: Fundo duplicado - agora é desenhado apenas na MainActivity
-        // O conteúdo da tela vai aqui, usando o innerPadding do Scaffold
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (uiState.error != null) {
-                Text(
-                    text = "Erro: ${uiState.error}",
-                    modifier = Modifier.align(Alignment.Center),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            } else if (uiState.favoriteHymns.isEmpty()) {
-                EmptyFavoritesState()
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.favoriteHymns, key = { it.id }) { hymn: HymnUi ->
-                        HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
-                    }
+            TabRow(selectedTabIndex = selectedTabIndex) {
+                tabTitles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = { Text(title) }
+                    )
                 }
+            }
+
+            when (selectedTabIndex) {
+                0 -> FavoritesTabContent(
+                    isLoading = favoritesState.isLoading,
+                    error = favoritesState.error,
+                    hymns = favoritesState.favoriteHymns,
+                    onHymnClick = onHymnClick
+                )
+                1 -> HymnListsTabContent(
+                    listsState = listsState,
+                    onListClick = onListClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FavoritesTabContent(
+    isLoading: Boolean,
+    error: String?,
+    hymns: List<HymnUi>,
+    onHymnClick: (Int) -> Unit
+) {
+    when {
+        isLoading -> Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) { CircularProgressIndicator() }
+
+        error != null -> Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Erro: $error",
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        hymns.isEmpty() -> EmptyFavoritesState()
+
+        else -> LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(hymns, key = { it.id }) { hymn ->
+                HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
             }
         }
     }

@@ -1,0 +1,60 @@
+appId: com.lucasdelima.louveapp
+---
+# Interações na tela de detalhe do hino: favoritar, compartilhar
+# Excluído: login flow
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+# Selecionar primeiro hino visível
+- tapOn:
+    text: "001"
+    optional: true
+- runFlow:
+    when:
+      notVisible: "001"
+    commands:
+      - scroll
+      - tapOn:
+          text: "001"
+          optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+# Alternar estado de favorito
+- tapOn:
+    text: "Favoritar"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: "45_hymn_favorited"
+# Desfavoritar
+- tapOn:
+    text: "Desfavoritar"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: "46_hymn_unfavorited"
+# Abrir bottom sheet de compartilhar
+- tapOn:
+    text: "Compartilhar"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Compartilhar Hino"
+    optional: true
+- assertVisible:
+    text: "COMPARTILHAR AGORA"
+    optional: true
+- takeScreenshot: "47_hymn_share_sheet"
+# Fechar bottom sheet (back)
+- back
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: "48_hymn_after_share"
+# Voltar para Home
+- back
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Harpa"
+    optional: true

@@ -1,0 +1,53 @@
+appId: com.lucasdelima.louveapp
+---
+# Casos de borda na busca: letras isoladas, acentos, hinos específicos
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+# Busca por letra isolada
+- tapOn:
+    text: "Buscar hino por nome ou número..."
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+- inputText: "a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: "70_search_single_letter"
+# Busca com acento
+- eraseText: 1
+- waitForAnimationToEnd:
+    timeout: 2000
+- inputText: "amor"
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: "71_search_accent_word"
+# Busca por termo parcial que existe
+- eraseText: 4
+- waitForAnimationToEnd:
+    timeout: 2000
+- inputText: "crist"
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: "72_search_partial_term"
+# Busca por número grande (deve existir)
+- eraseText: 5
+- waitForAnimationToEnd:
+    timeout: 2000
+- inputText: "100"
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: "73_search_large_number"
+# Busca por termo com caracteres especiais
+- eraseText: 3
+- waitForAnimationToEnd:
+    timeout: 2000
+- inputText: "jesus"
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: "74_search_common_term"
+# Restaurar lista completa
+- eraseText: 5
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: "75_search_final_restored"
