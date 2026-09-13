@@ -11,7 +11,8 @@ Workflow file: `.github/workflows/pr-validation.yml`
 | Job | Trigger | Description |
 |-----|---------|-------------|
 | `validate` | PR to develop/main + push to develop/main | Build (debug), tests, lint, architecture compliance, PR size check, SonarCloud analysis |
-| `release` | Tag push `v*` | GitHub Release creation (existing workflow) |
+| `release-please` | Push to main (feat/fix commits) | Cria/atualiza Release PR com version bump + CHANGELOG via `release-please.yml` |
+| `build-and-attach` | Release published | Build APK + attach ao release existente via `auto-release.yml` |
 | `sonar-quality-gate` | PR only (after validate) | Checks SonarCloud Quality Gate result |
 
 ## Gates Embutidos

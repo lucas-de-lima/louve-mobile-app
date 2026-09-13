@@ -18,6 +18,7 @@ Este é o checkpoint obrigatório. Violar estas regras quebra a confiança do pr
 
 | Gate | Dispara Quando | Autoridade |
 |------|---------------|------------|
+| **HG-RELEASE-PR** | Release PR criado por `release-please.yml` | Lucas de Lima — merge apenas humano |
 | **HG-MERGE-FEATURE** | `feat/*` → `develop` ou `fix/*` → `develop` | Lucas de Lima |
 | **HG-MERGE-DEVELOP** | `develop` → `main` | Lucas de Lima |
 | **HG-RELEASE** | Tag `v*` (release) | Lucas de Lima |
