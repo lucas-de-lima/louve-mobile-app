@@ -2,6 +2,32 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [1.3.0](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.2.0...v1.3.0) (2026-09-13)
+
+
+### Adicionado
+
+* release-please migration + guardrail Release PR rule ([#290](https://github.com/lucas-de-lima/louve-mobile-app/issues/290)) ([66eee22](https://github.com/lucas-de-lima/louve-mobile-app/commit/66eee22a3963071dac94144329ce8f1b4b086b15))
+
+
+### Corrigido
+
+* add chmod +x gradlew to auto-release (Permission denied on ./gradlew) ([3a1e627](https://github.com/lucas-de-lima/louve-mobile-app/commit/3a1e627f313f99c7d9a716d2daf79d407b575c2a))
+* add chmod +x gradlew to auto-release pipeline ([285c7f1](https://github.com/lucas-de-lima/louve-mobile-app/commit/285c7f138f063f9df3b5cc0eb023ddfeda52cfe6))
+* add chmod +x gradlew to auto-release pipeline ([285c7f1](https://github.com/lucas-de-lima/louve-mobile-app/commit/285c7f138f063f9df3b5cc0eb023ddfeda52cfe6))
+* use RELEASE_PLEASE_TOKEN instead of GITHUB_TOKEN for PR creation ([#291](https://github.com/lucas-de-lima/louve-mobile-app/issues/291)) ([ad0649c](https://github.com/lucas-de-lima/louve-mobile-app/commit/ad0649cd8d8aafe1a21a4b430929d94b2f7cf6f4))
+
+
+### Documentação
+
+* atualiza documentação do projeto — alinhamento com Epic 2 ([#270](https://github.com/lucas-de-lima/louve-mobile-app/issues/270)) ([255a604](https://github.com/lucas-de-lima/louve-mobile-app/commit/255a60483611d04bee04f93ad9e90fe91fcaef3d))
+
+
+### CI/CD
+
+* add gradle caching and timeout to auto-release ([#263](https://github.com/lucas-de-lima/louve-mobile-app/issues/263)) ([14c7ecc](https://github.com/lucas-de-lima/louve-mobile-app/commit/14c7ecc2830eb722a77629efceeaa84bde411ea7))
+* remove PR validation gate (keep auto-release) ([0dfafb2](https://github.com/lucas-de-lima/louve-mobile-app/commit/0dfafb26e2628632a747d9a7140fec9f8464dfde))
+
 ## [1.2.0] - 2026-08-29
 
 ### Adicionado
