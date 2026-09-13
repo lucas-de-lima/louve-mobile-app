@@ -16,7 +16,7 @@
   "packages": {
     ".": {
       "release-type": "simple",
-      "extra-files": ["app/build.gradle.kts"]
+      "extra-files": ["version.properties"]
     }
   }
 }
