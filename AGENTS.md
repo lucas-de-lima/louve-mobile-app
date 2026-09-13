@@ -12,7 +12,14 @@ Checkpoints obrigatórios:
 2. A tarefa altera CI/CD, secrets, ou proteção de branch? → **PARE, pergunte ao humano**
 3. A tarefa modifica guardrails ou AGENTS.md? → **PARE, pergunte ao humano**
 
-*Instituído em 2026-08-29. Inviolável sem HG-DESTRUCTIVE.*
+## 🚫 REGRA ABSOLUTA — Release PR do release-please
+
+> O workflow `release-please.yml` CRIA um Pull Request de release (bump de versão + CHANGELOG).
+> Este PR **NUNCA** pode ser mergeado por um agente. **Somente humanos fazem merge do Release PR.**
+> Agente que mergear Release PR viola HG-RELEASE e HG-MERGE-DEVELOP — é violação gravíssima.
+> Se encontrar um Release PR aberto, o agente DEVE ignorá-lo completamente e reportar ao humano.
+
+*Instituído em 2026-09-13. Inviolável sem HG-DESTRUCTIVE.*
 
 ---
 
