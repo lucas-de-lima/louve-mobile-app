@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "release-type": "simple",
+  "release-type": "android",
   "include-component-in-tag": false,
   "changelog-sections": [
     { "type": "feat", "section": "Adicionado", "hidden": false },
@@ -15,8 +15,7 @@
   ],
   "packages": {
     ".": {
-      "release-type": "simple",
-      "extra-files": ["app/build.gradle.kts"]
+      "release-type": "android"
     }
   }
 }
