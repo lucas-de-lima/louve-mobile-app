@@ -2,6 +2,13 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [1.3.2](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.1...v1.3.2) (2026-09-13)
+
+
+### Corrigido
+
+* version.properties as single source of truth for version sync ([#300](https://github.com/lucas-de-lima/louve-mobile-app/issues/300)) ([80d8035](https://github.com/lucas-de-lima/louve-mobile-app/commit/80d8035275c29636ff2147a91243aeb283ab9779))
+
 ## [1.3.1](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.0...v1.3.1) (2026-09-13)
 
 
