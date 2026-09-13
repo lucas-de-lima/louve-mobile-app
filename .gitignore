@@ -49,17 +49,10 @@ __pycache__/
 /scripts/
 .github/scripts/
 
-# Harness system (separate repo) — skills, squads, config, ADRs, HITL, policies, vault
+# Harness system (separate repo: harness-agentic-louve)
 /.kilo/
 /.harness/
 
-# Python cache e scripts de automação (não fazem parte do produto Android)
-__pycache__/
-*.pyc
-
-# Scripts auxiliares de projeto (PowerShell, Shell, Python — não produto)
-/scripts/
-
-# CI helper scripts — apenas o necessário para o pipeline
-.github/scripts/*
-!.github/scripts/init-google-services.sh
+# AGENTS.md + GUARDRAILS.md — single source of truth no repo harness-agentic-louve
+/AGENTS.md
+/GUARDRAILS.md
