@@ -55,7 +55,7 @@ fun LouveApp(viewModel: MainViewModel) {
     
     // ✅ OTIMIZAÇÃO: Cache do tema selecionado para evitar recálculo
     val selectedTheme = remember(currentTheme) {
-        AllThemes.find { it.id == currentTheme } 
+        AllThemes.find { it.id == currentTheme || it.name == currentTheme } 
             ?: run {
                 Log.w("MainActivity", "Tema '$currentTheme' não encontrado, usando padrão")
                 AllThemes.find { it.isDefault } ?: DefaultTheme

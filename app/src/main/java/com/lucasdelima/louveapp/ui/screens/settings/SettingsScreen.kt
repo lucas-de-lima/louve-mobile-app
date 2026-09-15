@@ -144,7 +144,7 @@ fun SettingsScreen(
                     settingsUiState.availableThemes.forEach { themeData ->
                         ThemePreviewCard(
                             themeData = themeData,
-                            isSelected = themeData.id == settingsUiState.selectedThemeName,
+                            isSelected = themeData.id == settingsUiState.selectedThemeName || themeData.name == settingsUiState.selectedThemeName,
                             onSelected = { settingsViewModel.selectTheme(themeData.id) }
                         )
                     }
