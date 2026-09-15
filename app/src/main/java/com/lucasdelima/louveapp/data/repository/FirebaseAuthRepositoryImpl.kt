@@ -10,7 +10,6 @@ import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.AuthCredentials
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
-import com.lucasdelima.louveapp.data.repository.DataMigrationService
 import com.lucasdelima.louveapp.domain.model.AuthUiState
 import com.lucasdelima.louveapp.domain.model.AuthError
 import kotlinx.coroutines.NonCancellable
@@ -29,7 +28,7 @@ private const val TAG = "FirebaseAuthRepository"
 class FirebaseAuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val userRepository: UserRepository,
-    private val dataMigrationService: DataMigrationService
+    private val syncScheduler: SyncScheduler
 ) : AuthRepository {
 
     /**
@@ -101,15 +100,8 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                             if (structureResult is Result.Error) {
                                 Log.w(TAG, "⚠️ Falha ao criar estrutura do usuário: ${structureResult.message}")
                             } else {
-                                Log.d(TAG, "✅ Estrutura do usuário criada/verificada com sucesso")
-
-                                Log.d(TAG, "🔄 Iniciando migração de dados locais para a nuvem")
-                                val migrationResult = dataMigrationService.migrateLocalDataToCloud()
-                                if (migrationResult is Result.Error) {
-                                    Log.w(TAG, "⚠️ Falha na migração de dados: ${migrationResult.message}")
-                                } else {
-                                    Log.d(TAG, "✅ Migração de dados concluída com sucesso")
-                                }
+                                Log.d(TAG, "✅ Estrutura do usuário verificada. Diferindo sync para WorkManager.")
+                                syncScheduler.scheduleSync()
                             }
                         }
                     }

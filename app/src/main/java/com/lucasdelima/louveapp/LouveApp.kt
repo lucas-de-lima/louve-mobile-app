@@ -3,6 +3,7 @@ package com.lucasdelima.louveapp
 import android.app.Application
 import android.util.Log
 import androidx.work.Configuration
+import androidx.work.WorkManager
 import com.lucasdelima.louveapp.data.repository.ConnectivityMonitorService
 import com.lucasdelima.louveapp.data.repository.SyncWorkerFactory
 import com.lucasdelima.louveapp.domain.repository.HymnListRepository
@@ -32,6 +33,7 @@ class LouveApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        WorkManager.initialize(this, workManagerConfiguration)
         connectivityMonitor.startMonitoring()
         CoroutineScope(Dispatchers.IO).launch {
             hymnListRepository.cleanupExpiredLists()
