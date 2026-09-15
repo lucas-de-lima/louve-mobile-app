@@ -154,6 +154,9 @@ dependencies {
     // DataStore
     implementation(libs.datastore.preferences)
 
+    // WorkManager
+    implementation(libs.androidx.workmanager)
+
     // Jetpack Compose integration
     implementation(libs.androidx.navigation.compose)
 
