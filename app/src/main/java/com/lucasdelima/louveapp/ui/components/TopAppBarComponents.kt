@@ -43,12 +43,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.ui.screens.hymn.HymnDetailUiState
 import com.lucasdelima.louveapp.ui.theme.AllThemes
@@ -210,8 +212,16 @@ fun ProfileButton(
             .clickable { onProfileClick() },
         contentAlignment = Alignment.Center
     ) {
-        if (userProfile != null) {
-            // Usuário logado - mostrar inicial do nome ou foto se disponível
+        if (userProfile?.photoUrl != null) {
+            AsyncImage(
+                model = userProfile.photoUrl,
+                contentDescription = "Foto de perfil",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        } else if (userProfile != null) {
             Text(
                 text = (userProfile.name ?: "U").take(1).uppercase(),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
