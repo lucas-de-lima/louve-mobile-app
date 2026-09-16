@@ -2,6 +2,7 @@ package com.lucasdelima.louveapp
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lucasdelima.louveapp.domain.model.ThemeDefaults
 import com.lucasdelima.louveapp.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,6 +23,6 @@ class MainViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(1000), // ✅ OTIMIZAÇÃO: Reduzido de 5000 para 1000ms
-            initialValue = "Padrão Claro"
+            initialValue = ThemeDefaults.THEME_ID
         )
 }

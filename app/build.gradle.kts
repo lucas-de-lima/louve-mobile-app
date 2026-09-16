@@ -143,8 +143,9 @@ dependencies {
     implementation(libs.coil.compose)
 
     // Firebase/Firestore
-    implementation(libs.firebase.auth.ktx)
-    implementation(libs.firebase.firestore.ktx)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
     implementation(libs.firebase.analytics)
 
     implementation(libs.google.gms.auth)
@@ -152,6 +153,9 @@ dependencies {
 
     // DataStore
     implementation(libs.datastore.preferences)
+
+    // WorkManager
+    implementation(libs.androidx.workmanager)
 
     // Jetpack Compose integration
     implementation(libs.androidx.navigation.compose)

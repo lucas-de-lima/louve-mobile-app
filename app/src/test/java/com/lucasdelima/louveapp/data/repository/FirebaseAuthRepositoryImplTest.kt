@@ -24,7 +24,7 @@ class FirebaseAuthRepositoryImplTest {
 
     private val firebaseAuth: FirebaseAuth = mockk()
     private val userRepository: UserRepository = mockk()
-    private val dataMigrationService: DataMigrationService = mockk()
+    private val syncScheduler: SyncScheduler = mockk(relaxed = true)
     private lateinit var authRepository: AuthRepository
 
     @Before
@@ -32,7 +32,7 @@ class FirebaseAuthRepositoryImplTest {
         authRepository = FirebaseAuthRepositoryImpl(
             firebaseAuth,
             userRepository,
-            dataMigrationService
+            syncScheduler
         )
     }
 
