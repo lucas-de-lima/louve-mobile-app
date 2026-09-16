@@ -10,15 +10,16 @@ import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.AuthCredentials
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
-import com.lucasdelima.louveapp.data.repository.DataMigrationService
 import com.lucasdelima.louveapp.domain.model.AuthUiState
 import com.lucasdelima.louveapp.domain.model.AuthError
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
@@ -27,7 +28,7 @@ private const val TAG = "FirebaseAuthRepository"
 class FirebaseAuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val userRepository: UserRepository,
-    private val dataMigrationService: DataMigrationService
+    private val syncScheduler: SyncScheduler
 ) : AuthRepository {
 
     /**
@@ -83,31 +84,24 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                     val firebaseCredential = GoogleAuthProvider.getCredential(credentials.idToken, null)
                     val authResult = auth.signInWithCredential(firebaseCredential).await()
 
-                    // Após login bem-sucedido, garantir que a estrutura do usuário existe
-                    val firebaseUser = authResult.user
-                    if (firebaseUser != null) {
-                        val userProfile = UserProfile(
-                            uid = firebaseUser.uid,
-                            name = firebaseUser.displayName,
-                            email = firebaseUser.email,
-                            photoUrl = firebaseUser.photoUrl?.toString(),
-                            createdAt = System.currentTimeMillis()
-                        )
-                        
-                        Log.d(TAG, "🔧 Garantindo estrutura do usuário após login")
-                        val structureResult = userRepository.ensureUserStructure(userProfile)
-                        if (structureResult is Result.Error) {
-                            Log.w(TAG, "⚠️ Falha ao criar estrutura do usuário: ${structureResult.message}")
-                        } else {
-                            Log.d(TAG, "✅ Estrutura do usuário criada/verificada com sucesso")
-                            
-                            // Após criar a estrutura, migrar dados locais para a nuvem
-                            Log.d(TAG, "🔄 Iniciando migração de dados locais para a nuvem")
-                            val migrationResult = dataMigrationService.migrateLocalDataToCloud()
-                            if (migrationResult is Result.Error) {
-                                Log.w(TAG, "⚠️ Falha na migração de dados: ${migrationResult.message}")
+                    withContext(NonCancellable + kotlinx.coroutines.Dispatchers.IO) {
+                        val firebaseUser = authResult.user
+                        if (firebaseUser != null) {
+                            val userProfile = UserProfile(
+                                uid = firebaseUser.uid,
+                                name = firebaseUser.displayName,
+                                email = firebaseUser.email,
+                                photoUrl = firebaseUser.photoUrl?.toString(),
+                                createdAt = System.currentTimeMillis()
+                            )
+
+                            Log.d(TAG, "🔧 Garantindo estrutura do usuário após login")
+                            val structureResult = userRepository.ensureUserStructure(userProfile)
+                            if (structureResult is Result.Error) {
+                                Log.w(TAG, "⚠️ Falha ao criar estrutura do usuário: ${structureResult.message}")
                             } else {
-                                Log.d(TAG, "✅ Migração de dados concluída com sucesso")
+                                Log.d(TAG, "✅ Estrutura do usuário verificada. Diferindo sync para WorkManager.")
+                                syncScheduler.scheduleSync()
                             }
                         }
                     }
