@@ -1,24 +1,40 @@
 name: Build and Attach APK
+
 on:
   release:
     types: [published]
   workflow_dispatch:
+
+env:
+  # Package name extraído do google-services.json (registrado no Firebase)
+  ANDROID_PACKAGE_NAME: com.lucasdelima.louveapp
+  # Projeto Firebase
+  FIREBASE_PROJECT_ID: louve-app-mobile
+
 jobs:
   build-and-attach:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     timeout-minutes: 30
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
+
       - uses: gradle/actions/setup-gradle@v4
-      - run: |
+
+      # ── google-services.json ──────────────────────────────────────
+      # Decodifica o google-services.json real se fornecido como secret.
+      # Se não, cria placeholder (funciona para build mas sem Firebase).
+      - name: google-services.json
+        run: |
           python -c "
           import json, os
           GOOGLE_SERVICES_JSON = os.environ.get('GOOGLE_SERVICES_JSON', '')
@@ -36,7 +52,7 @@ jobs:
             json.dump({
               'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
               'client': [{
-                'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': 'com.lucasdelima.louveapp'}},
+                'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': '${{ env.ANDROID_PACKAGE_NAME }}'}},
                 'oauth_client': [], 'api_key': [{'current_key': 'ci-placeholder'}],
                 'services': {'appinvite_service': {'other_platform_oauth_client': []}}
               }],
@@ -48,18 +64,139 @@ jobs:
         continue-on-error: true
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+
+      # ── Decodifica keystore ───────────────────────────────────────
+      # O keystore JKS é armazenado como base64 no secret.
+      # Processo inverso do comando: base64 -w0 louve-app-keystore.jks
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.LOUVE_KEYSTORE_BASE64 }}" | base64 -d > app/louve-app-keystore.jks
+          # Verifica integridade (não expõe hash no log)
+          file app/louve-app-keystore.jks | grep -q "Java KeyStore" && echo "OK keystore válido"
+        shell: bash
+
+      # ── Extrai SHA-1 e registra no Firebase ──────────────────────
+      # Usa gcloud com service account para autenticar na Firebase
+      # Management API. O SHA-1 é extraído do keystore decodificado
+      # e registrado automaticamente no projeto Firebase.
+      # Necessita do secret FIREBASE_SA_KEY (service account JSON).
+      - name: Register SHA-1 in Firebase
+        env:
+          FIREBASE_SA_KEY: ${{ secrets.FIREBASE_SA_KEY }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+        run: |
+          # Decodifica service account
+          echo "$FIREBASE_SA_KEY" | base64 -d > /tmp/firebase-sa.json
+
+          # Extrai SHA-1 do keystore (sem expor o valor no log)
+          SHA1=$(keytool -list -v -keystore app/louve-app-keystore.jks \
+            -alias louve-app-key \
+            -storepass "$STORE_PASSWORD" 2>/dev/null \
+            | grep "SHA1" | cut -d: -f2- | tr -d ' ')
+          echo "::add-mask::$SHA1"
+          echo "SHA1 extraído com sucesso"
+
+          # Autentica gcloud
+          gcloud auth activate-service-account \
+            --key-file=/tmp/firebase-sa.json \
+            --project=${{ env.FIREBASE_PROJECT_ID }} 2>/dev/null
+          ACCESS_TOKEN=$(gcloud auth print-access-token)
+
+          # Lista apps Android no Firebase e encontra pelo package name
+          APPS_JSON=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
+            "https://firebase.googleapis.com/v1beta1/projects/${{ env.FIREBASE_PROJECT_ID }}/androidApps")
+          APP_ID=$(echo "$APPS_JSON" | python3 -c "
+          import sys, json
+          apps = json.load(sys.stdin).get('androidApps', [])
+          for app in apps:
+            if app.get('packageName') == '${{ env.ANDROID_PACKAGE_NAME }}':
+              print(app['name'].split('/')[-1])
+              sys.exit(0)
+          print('NOT_FOUND')
+          ")
+
+          if [ "$APP_ID" = "NOT_FOUND" ]; then
+            echo "ERRO: app Android não encontrado no Firebase. Verifique google-services.json"
+            exit 1
+          fi
+
+          # Verifica se SHA já está registrado para evitar duplicatas
+          EXISTING_SHAS=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
+            "https://firebase.googleapis.com/v1beta1/projects/${{ env.FIREBASE_PROJECT_ID }}/androidApps/$APP_ID/sha")
+          SHA_ALREADY_EXISTS=$(echo "$EXISTING_SHAS" | python3 -c "
+          import sys, json
+          certs = json.load(sys.stdin).get('certificates', [])
+          for cert in certs:
+            if cert.get('sha1') == '$SHA1':
+              print('yes')
+              sys.exit(0)
+          print('no')
+          ")
+
+          if [ "$SHA_ALREADY_EXISTS" = "no" ]; then
+            curl -s -X POST \
+              -H "Authorization: Bearer $ACCESS_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"sha1\": \"$SHA1\"}" \
+              "https://firebase.googleapis.com/v1beta1/projects/${{ env.FIREBASE_PROJECT_ID }}/androidApps/$APP_ID/sha"
+            echo "OK SHA-1 registrado no Firebase"
+          else
+            echo "OK SHA-1 já registrado, pulando"
+          fi
+
+          # Limpa secrets do disco
+          rm -f /tmp/firebase-sa.json
+        shell: bash
+
       - run: chmod +x gradlew
         shell: bash
-      - run: ./gradlew assembleDebug
+
+      # ── Build APK de release assinado ────────────────────────────
+      # Usa CI=true para ativar assinatura via env vars.
+      # O signing config no build.gradle.kts lê KEY_ALIAS, KEY_PASSWORD,
+      # STORE_PASSWORD do ambiente quando CI=true.
+      - name: Build release APK
+        run: ./gradlew assembleRelease
         shell: bash
         env:
           CI: true
-      - run: |
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
+
+      # ── Prepara artefato ─────────────────────────────────────────
+      - name: Prepare artifact
+        run: |
           TAG=${{ github.event.release.tag_name }}
           VERSION=${TAG#v}
           mkdir -p release-artifacts
-          cp app/build/outputs/apk/debug/app-debug.apk release-artifacts/louve-app-v$VERSION.apk 2>/dev/null || true
+          cp app/build/outputs/apk/release/app-release.apk \
+            release-artifacts/louve-app-v$VERSION.apk 2>/dev/null || true
         shell: bash
+
       - uses: softprops/action-gh-release@v3
         with:
           files: release-artifacts/*.apk
+
+  # ────────────────────────────────────────────────────────────────────
+  # TODO: Quando o app for publicado no Google Play:
+  #
+  # 1. Ative Play App Signing no Play Console
+  # 2. No Firebase Console, registre o SHA-1 da App Signing Key
+  #    (encontrada em Play Console > Setup > App Integrity)
+  # 3. NÃO registre o SHA-1 da Upload Key — só a App Signing Key importa
+  # 4. Mude este workflow para:
+  #    a) build com `./gradlew bundleRelease` (AAB, não APK)
+  #    b) Publique via `google-play-gradle-plugin` ou Play Console
+  #    c) Remova o step "Register SHA-1 in Firebase" — é permanente
+  #    d) Mantenha o decode do keystore (usado como upload key)
+  #
+  # Workflow simplificado pós-Play:
+  #   steps:
+  #     - decode keystore (upload key)
+  #     - decode google-services.json
+  #     - ./gradlew bundleRelease
+  #     - upload AAB ao Play Console
+  #     - (SHA-1 já registrado: o da App Signing Key, não muda)
+  # ────────────────────────────────────────────────────────────────────

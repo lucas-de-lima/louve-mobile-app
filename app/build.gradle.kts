@@ -9,6 +9,9 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+// Em CI, lê de env vars injetadas pelo workflow
+val isCI = System.getenv("CI") == "true"
+
 // Lê versionName e versionCode de version.properties (mantido por release-please)
 val versionPropertiesFile = rootProject.file("version.properties")
 val versionProperties = Properties()
@@ -39,19 +42,26 @@ extensions.configure<ApplicationExtension> {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Cria um recurso de string chamado 'web_client_id' com o valor
-        // que lemos do nosso arquivo keystore.properties.
-        resValue(
-            "string",
-            "web_client_id",
+        // que lemos do nosso arquivo keystore.properties (ou env var em CI).
+        val webClientId = if (isCI) {
+            System.getenv("GOOGLE_WEB_CLIENT_ID") ?: ""
+        } else {
             keystoreProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "")
-        )
+        }
+        resValue("string", "web_client_id", webClientId)
     }
 
     // Configuração da assinatura de lançamento
     signingConfigs {
         create("release") {
-            // Apenas configure se o arquivo de propriedades existir
-            if (keystorePropertiesFile.exists()) {
+            if (isCI) {
+                // CI: env vars injetadas pelo workflow GitHub Actions
+                keyAlias = System.getenv("KEY_ALIAS") ?: ""
+                keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+                storeFile = file("louve-app-keystore.jks")
+                storePassword = System.getenv("STORE_PASSWORD") ?: ""
+            } else if (keystorePropertiesFile.exists()) {
+                // Local: arquivo keystore.properties (devs autorizados)
                 keyAlias = keystoreProperties["keyAlias"] as String
                 keyPassword = keystoreProperties["keyPassword"] as String
                 storeFile = file("louve-app-keystore.jks")
