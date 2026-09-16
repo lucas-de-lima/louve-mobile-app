@@ -32,38 +32,41 @@ jobs:
 
       # ── google-services.json ──────────────────────────────────────
       # Decodifica o google-services.json real se fornecido como secret.
-      # Se não, cria placeholder (funciona para build mas sem Firebase).
+      # Se secret não existe, cria placeholder (funciona para build mas
+      # Firebase Auth/ Firestore quebram no runtime).
       - name: google-services.json
-        run: |
-          python -c "
-          import json, os
-          GOOGLE_SERVICES_JSON = os.environ.get('GOOGLE_SERVICES_JSON', '')
-          if GOOGLE_SERVICES_JSON:
-            try:
-              import base64
-              decoded = base64.b64decode(GOOGLE_SERVICES_JSON).decode()
-              json.loads(decoded)
-              with open('app/google-services.json', 'w') as f:
-                f.write(decoded)
-              print('OK google-services.json decodificado com sucesso')
-            except Exception:
-              pass
-          if not os.path.exists('app/google-services.json'):
-            json.dump({
-              'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
-              'client': [{
-                'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': '${{ env.ANDROID_PACKAGE_NAME }}'}},
-                'oauth_client': [], 'api_key': [{'current_key': 'ci-placeholder'}],
-                'services': {'appinvite_service': {'other_platform_oauth_client': []}}
-              }],
-              'configuration_version': '1'
-            }, open('app/google-services.json', 'w'), indent=2)
-            print('OK google-services.json placeholder criado')
-          "
-        shell: bash
-        continue-on-error: true
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          set +x
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "GOOGLE_SERVICES_JSON não configurado. Criando placeholder (Firebase Auth não funcionará)"
+            python3 -c "
+import json
+json.dump({
+  'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
+  'client': [{
+    'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': '${{ env.ANDROID_PACKAGE_NAME }}'}},
+    'oauth_client': [], 'api_key': [{'current_key': 'ci-placeholder'}],
+    'services': {'appinvite_service': {'other_platform_oauth_client': []}}
+  }],
+  'configuration_version': '1'
+}, open('app/google-services.json', 'w'), indent=2)
+print('OK placeholder criado')
+"
+          else
+            printf '%s' "$GOOGLE_SERVICES_JSON" | base64 -d > /tmp/gs.json || {
+              echo "ERRO: GOOGLE_SERVICES_JSON decode falhou. Re-encode com: [Convert]::ToBase64String([IO.File]::ReadAllBytes('google-services.json'))"
+              exit 1
+            }
+            python3 -c "import json; json.load(open('/tmp/gs.json')); print('OK JSON válido')" || {
+              echo "ERRO: google-services.json decodificado não é JSON válido"
+              exit 1
+            }
+            mv /tmp/gs.json app/google-services.json
+            echo "OK google-services.json decodificado (voltei ao arquivo original sem placeholder)"
+          fi
+        shell: bash
 
       # ── Decodifica keystore ───────────────────────────────────────
       # O keystore JKS é armazenado como base64 no secret.
