@@ -136,15 +136,16 @@ PYEOF
             exit 0
           fi
 
-          APP_ID=$(echo "$APPS_JSON" | python3 -c "
+          APP_ID=$(echo "$APPS_JSON" | python3 << 'PYEOF'
 import sys, json
 apps = json.load(sys.stdin).get('androidApps', [])
 for app in apps:
-    if app.get('packageName') == '${{ env.ANDROID_PACKAGE_NAME }}':
+    if app.get('packageName') == 'com.lucasdelima.louveapp':
         print(app['name'].split('/')[-1])
         sys.exit(0)
 print('NOT_FOUND')
-          ")
+PYEOF
+          )
 
           if [ "$APP_ID" = "NOT_FOUND" ]; then
             echo "WARN: app ${{ env.ANDROID_PACKAGE_NAME }} não encontrado no Firebase."
@@ -160,7 +161,7 @@ print('NOT_FOUND')
           EXISTING_HTTP_CODE=$(echo "$EXISTING_RESPONSE" | tail -1)
           EXISTING_SHAS=$(echo "$EXISTING_RESPONSE" | sed '$d')
 
-          SHA_ALREADY_EXISTS=$(echo "$EXISTING_SHAS" | python3 -c "
+          SHA_ALREADY_EXISTS=$(echo "$EXISTING_SHAS" | python3 << PYEOF
 import sys, json
 certs = json.load(sys.stdin).get('certificates', [])
 for cert in certs:
@@ -168,7 +169,8 @@ for cert in certs:
         print('yes')
         sys.exit(0)
 print('no')
-          ")
+PYEOF
+          )
 
           if [ "$SHA_ALREADY_EXISTS" = "no" ]; then
             echo "Registrando SHA-1..."
