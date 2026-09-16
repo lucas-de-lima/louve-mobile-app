@@ -136,13 +136,14 @@ PYEOF
             exit 0
           fi
 
-          APP_ID=$(echo "$APPS_JSON" | python3 << 'PYEOF'
-import sys, json
-apps = json.load(sys.stdin).get('androidApps', [])
+          echo "$APPS_JSON" > /tmp/apps.json
+          APP_ID=$(python3 << 'PYEOF'
+import json
+apps = json.load(open('/tmp/apps.json')).get('androidApps', [])
 for app in apps:
     if app.get('packageName') == 'com.lucasdelima.louveapp':
         print(app['name'].split('/')[-1])
-        sys.exit(0)
+        exit(0)
 print('NOT_FOUND')
 PYEOF
           )
@@ -161,13 +162,15 @@ PYEOF
           EXISTING_HTTP_CODE=$(echo "$EXISTING_RESPONSE" | tail -1)
           EXISTING_SHAS=$(echo "$EXISTING_RESPONSE" | sed '$d')
 
-          SHA_ALREADY_EXISTS=$(echo "$EXISTING_SHAS" | python3 << PYEOF
-import sys, json
-certs = json.load(sys.stdin).get('certificates', [])
+          echo "$EXISTING_SHAS" > /tmp/certs.json
+          SHA_ALREADY_EXISTS=$(python3 << PYEOF
+import json
+certs = json.load(open('/tmp/certs.json')).get('certificates', [])
+sha1 = '$SHA1'
 for cert in certs:
-    if cert.get('sha1') == '$SHA1':
+    if cert.get('sha1') == sha1:
         print('yes')
-        sys.exit(0)
+        exit(0)
 print('no')
 PYEOF
           )
@@ -184,7 +187,7 @@ PYEOF
             echo "OK SHA-1 já registrado, pulando"
           fi
 
-          rm -f /tmp/firebase-sa.json
+          rm -f /tmp/firebase-sa.json /tmp/apps.json /tmp/certs.json
         shell: bash
 
       - run: chmod +x gradlew
