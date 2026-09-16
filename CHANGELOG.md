@@ -2,6 +2,13 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [1.3.8](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.7...v1.3.8) (2026-09-16)
+
+
+### Corrigido
+
+* corrige sintaxe do workflow de release ([#316](https://github.com/lucas-de-lima/louve-mobile-app/issues/316)) ([9438a24](https://github.com/lucas-de-lima/louve-mobile-app/commit/9438a24e6a21652ccd21c44643e16f73bf334252))
+
 ## [1.3.7](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.6...v1.3.7) (2026-09-16)
 
 
