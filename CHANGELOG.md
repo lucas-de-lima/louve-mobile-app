@@ -2,6 +2,14 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [1.3.4](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.3...v1.3.4) (2026-09-16)
+
+
+### Corrigido
+
+* corrigir sincronização de favoritos e configurar WorkManager no login ([#305](https://github.com/lucas-de-lima/louve-mobile-app/issues/305)) ([c36bf20](https://github.com/lucas-de-lima/louve-mobile-app/commit/c36bf2015557afd117028a0c973a72bbb02d74aa))
+* themed TabRow bg, icon transparency, suggestion card bg/fade/close, bottom sheet bg, success msg on add to list ([#306](https://github.com/lucas-de-lima/louve-mobile-app/issues/306)) ([aec4705](https://github.com/lucas-de-lima/louve-mobile-app/commit/aec47051dfad4c242bc46104f643337e4df1b231))
+
 ## [1.3.3](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.2...v1.3.3) (2026-09-13)
 
 
