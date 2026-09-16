@@ -32,38 +32,41 @@ jobs:
 
       # ── google-services.json ──────────────────────────────────────
       # Decodifica o google-services.json real se fornecido como secret.
-      # Se não, cria placeholder (funciona para build mas sem Firebase).
+      # Se secret não existe, cria placeholder (funciona para build mas
+      # Firebase Auth/ Firestore quebram no runtime).
       - name: google-services.json
-        run: |
-          python -c "
-          import json, os
-          GOOGLE_SERVICES_JSON = os.environ.get('GOOGLE_SERVICES_JSON', '')
-          if GOOGLE_SERVICES_JSON:
-            try:
-              import base64
-              decoded = base64.b64decode(GOOGLE_SERVICES_JSON).decode()
-              json.loads(decoded)
-              with open('app/google-services.json', 'w') as f:
-                f.write(decoded)
-              print('OK google-services.json decodificado com sucesso')
-            except Exception:
-              pass
-          if not os.path.exists('app/google-services.json'):
-            json.dump({
-              'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
-              'client': [{
-                'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': '${{ env.ANDROID_PACKAGE_NAME }}'}},
-                'oauth_client': [], 'api_key': [{'current_key': 'ci-placeholder'}],
-                'services': {'appinvite_service': {'other_platform_oauth_client': []}}
-              }],
-              'configuration_version': '1'
-            }, open('app/google-services.json', 'w'), indent=2)
-            print('OK google-services.json placeholder criado')
-          "
-        shell: bash
-        continue-on-error: true
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          set +x
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "GOOGLE_SERVICES_JSON não configurado. Criando placeholder (Firebase Auth não funcionará)"
+            python3 -c "
+import json
+json.dump({
+  'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
+  'client': [{
+    'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': '${{ env.ANDROID_PACKAGE_NAME }}'}},
+    'oauth_client': [], 'api_key': [{'current_key': 'ci-placeholder'}],
+    'services': {'appinvite_service': {'other_platform_oauth_client': []}}
+  }],
+  'configuration_version': '1'
+}, open('app/google-services.json', 'w'), indent=2)
+print('OK placeholder criado')
+"
+          else
+            printf '%s' "$GOOGLE_SERVICES_JSON" | base64 -d > /tmp/gs.json || {
+              echo "ERRO: GOOGLE_SERVICES_JSON decode falhou. Re-encode com: [Convert]::ToBase64String([IO.File]::ReadAllBytes('google-services.json'))"
+              exit 1
+            }
+            python3 -c "import json; json.load(open('/tmp/gs.json')); print('OK JSON válido')" || {
+              echo "ERRO: google-services.json decodificado não é JSON válido"
+              exit 1
+            }
+            mv /tmp/gs.json app/google-services.json
+            echo "OK google-services.json decodificado (voltei ao arquivo original sem placeholder)"
+          fi
+        shell: bash
 
       # ── Decodifica keystore ───────────────────────────────────────
       # O keystore JKS é armazenado como base64 no secret.
@@ -87,63 +90,88 @@ jobs:
 
       # ── Extrai SHA-1 e registra no Firebase ──────────────────────
       # Usa gcloud com service account para autenticar na Firebase
-      # Management API. O SHA-1 é extraído do keystore decodificado
-      # e registrado automaticamente no projeto Firebase.
-      # Necessita do secret FIREBASE_SA_KEY (service account JSON).
+      # Management API. Este step é non-blocking: se falhar, o build
+      # continua e o SHA deve ser registrado manualmente no Console.
       - name: Register SHA-1 in Firebase
+        continue-on-error: true
         env:
           FIREBASE_SA_KEY: ${{ secrets.FIREBASE_SA_KEY }}
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
         run: |
-          # Decodifica service account
-          echo "$FIREBASE_SA_KEY" | base64 -d > /tmp/firebase-sa.json
+          echo "Decodificando service account..."
+          printf '%s' "$FIREBASE_SA_KEY" | base64 -d > /tmp/firebase-sa.json || {
+            echo "WARN: FIREBASE_SA_KEY inválido ou ausente. Registre o SHA-1 manualmente em Firebase Console"
+            exit 0
+          }
 
-          # Extrai SHA-1 do keystore (sem expor o valor no log)
+          echo "Extraindo SHA-1 do keystore..."
           SHA1=$(keytool -list -v -keystore app/louve-app-keystore.jks \
             -alias louve-app-key \
             -storepass "$STORE_PASSWORD" 2>/dev/null \
-            | grep "SHA1" | cut -d: -f2- | tr -d ' ')
+            | grep "SHA1" | head -1 | cut -d: -f2- | tr -d ' ')
           echo "::add-mask::$SHA1"
-          echo "SHA1 extraído com sucesso"
+          echo "SHA1=$SHA1"
 
-          # Autentica gcloud
+          echo "Autenticando gcloud..."
           gcloud auth activate-service-account \
             --key-file=/tmp/firebase-sa.json \
-            --project=${{ env.FIREBASE_PROJECT_ID }} 2>/dev/null
-          ACCESS_TOKEN=$(gcloud auth print-access-token)
+            --project=${{ env.FIREBASE_PROJECT_ID }} 2>&1 || {
+            echo "WARN: falha auth gcloud. Registre SHA-1 manualmente em Firebase Console"
+            rm -f /tmp/firebase-sa.json
+            exit 0
+          }
 
-          # Lista apps Android no Firebase e encontra pelo package name
-          APPS_JSON=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
+          ACCESS_TOKEN=$(gcloud auth print-access-token)
+          echo "Listando apps Android no Firebase..."
+          APPS_RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
             "https://firebase.googleapis.com/v1beta1/projects/${{ env.FIREBASE_PROJECT_ID }}/androidApps")
+          HTTP_CODE=$(echo "$APPS_RESPONSE" | tail -1)
+          APPS_JSON=$(echo "$APPS_RESPONSE" | sed '$d')
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "WARN: API retornou HTTP $HTTP_CODE. Resposta: $(echo "$APPS_JSON" | head -c 200)"
+            echo "Registre SHA-1 manualmente em Firebase Console"
+            rm -f /tmp/firebase-sa.json
+            exit 0
+          fi
+
           APP_ID=$(echo "$APPS_JSON" | python3 -c "
-          import sys, json
-          apps = json.load(sys.stdin).get('androidApps', [])
-          for app in apps:
-            if app.get('packageName') == '${{ env.ANDROID_PACKAGE_NAME }}':
-              print(app['name'].split('/')[-1])
-              sys.exit(0)
-          print('NOT_FOUND')
+import sys, json
+apps = json.load(sys.stdin).get('androidApps', [])
+for app in apps:
+    if app.get('packageName') == '${{ env.ANDROID_PACKAGE_NAME }}':
+        print(app['name'].split('/')[-1])
+        sys.exit(0)
+print('NOT_FOUND')
           ")
 
           if [ "$APP_ID" = "NOT_FOUND" ]; then
-            echo "ERRO: app Android não encontrado no Firebase. Verifique google-services.json"
-            exit 1
+            echo "WARN: app ${{ env.ANDROID_PACKAGE_NAME }} não encontrado no Firebase."
+            echo "Verifique google-services.json ou registre SHA-1 manualmente em Firebase Console > Project Settings"
+            rm -f /tmp/firebase-sa.json
+            exit 0
           fi
 
-          # Verifica se SHA já está registrado para evitar duplicatas
-          EXISTING_SHAS=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
+          echo "Verificando se SHA já está registrado..."
+          EXISTING_RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
             "https://firebase.googleapis.com/v1beta1/projects/${{ env.FIREBASE_PROJECT_ID }}/androidApps/$APP_ID/sha")
+          EXISTING_HTTP_CODE=$(echo "$EXISTING_RESPONSE" | tail -1)
+          EXISTING_SHAS=$(echo "$EXISTING_RESPONSE" | sed '$d')
+
           SHA_ALREADY_EXISTS=$(echo "$EXISTING_SHAS" | python3 -c "
-          import sys, json
-          certs = json.load(sys.stdin).get('certificates', [])
-          for cert in certs:
-            if cert.get('sha1') == '$SHA1':
-              print('yes')
-              sys.exit(0)
-          print('no')
+import sys, json
+certs = json.load(sys.stdin).get('certificates', [])
+for cert in certs:
+    if cert.get('sha1') == '$SHA1':
+        print('yes')
+        sys.exit(0)
+print('no')
           ")
 
           if [ "$SHA_ALREADY_EXISTS" = "no" ]; then
+            echo "Registrando SHA-1..."
             curl -s -X POST \
               -H "Authorization: Bearer $ACCESS_TOKEN" \
               -H "Content-Type: application/json" \
@@ -154,7 +182,6 @@ jobs:
             echo "OK SHA-1 já registrado, pulando"
           fi
 
-          # Limpa secrets do disco
           rm -f /tmp/firebase-sa.json
         shell: bash
 
