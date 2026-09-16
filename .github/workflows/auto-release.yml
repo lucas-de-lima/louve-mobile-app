@@ -41,19 +41,19 @@ jobs:
           set +x
           if [ -z "$GOOGLE_SERVICES_JSON" ]; then
             echo "GOOGLE_SERVICES_JSON não configurado. Criando placeholder (Firebase Auth não funcionará)"
-            python3 -c "
+            python3 << 'PYEOF'
 import json
 json.dump({
   'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
   'client': [{
-    'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': '${{ env.ANDROID_PACKAGE_NAME }}'}},
+    'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': 'com.lucasdelima.louveapp'}},
     'oauth_client': [], 'api_key': [{'current_key': 'ci-placeholder'}],
     'services': {'appinvite_service': {'other_platform_oauth_client': []}}
   }],
   'configuration_version': '1'
 }, open('app/google-services.json', 'w'), indent=2)
 print('OK placeholder criado')
-"
+PYEOF
           else
             printf '%s' "$GOOGLE_SERVICES_JSON" | base64 -d > /tmp/gs.json || {
               echo "ERRO: GOOGLE_SERVICES_JSON decode falhou. Re-encode com: [Convert]::ToBase64String([IO.File]::ReadAllBytes('google-services.json'))"
@@ -136,15 +136,17 @@ print('OK placeholder criado')
             exit 0
           fi
 
-          APP_ID=$(echo "$APPS_JSON" | python3 -c "
-import sys, json
-apps = json.load(sys.stdin).get('androidApps', [])
+          echo "$APPS_JSON" > /tmp/apps.json
+          APP_ID=$(python3 << 'PYEOF'
+import json
+apps = json.load(open('/tmp/apps.json')).get('androidApps', [])
 for app in apps:
-    if app.get('packageName') == '${{ env.ANDROID_PACKAGE_NAME }}':
+    if app.get('packageName') == 'com.lucasdelima.louveapp':
         print(app['name'].split('/')[-1])
-        sys.exit(0)
+        exit(0)
 print('NOT_FOUND')
-          ")
+PYEOF
+          )
 
           if [ "$APP_ID" = "NOT_FOUND" ]; then
             echo "WARN: app ${{ env.ANDROID_PACKAGE_NAME }} não encontrado no Firebase."
@@ -160,15 +162,18 @@ print('NOT_FOUND')
           EXISTING_HTTP_CODE=$(echo "$EXISTING_RESPONSE" | tail -1)
           EXISTING_SHAS=$(echo "$EXISTING_RESPONSE" | sed '$d')
 
-          SHA_ALREADY_EXISTS=$(echo "$EXISTING_SHAS" | python3 -c "
-import sys, json
-certs = json.load(sys.stdin).get('certificates', [])
+          echo "$EXISTING_SHAS" > /tmp/certs.json
+          SHA_ALREADY_EXISTS=$(python3 << PYEOF
+import json
+certs = json.load(open('/tmp/certs.json')).get('certificates', [])
+sha1 = '$SHA1'
 for cert in certs:
-    if cert.get('sha1') == '$SHA1':
+    if cert.get('sha1') == sha1:
         print('yes')
-        sys.exit(0)
+        exit(0)
 print('no')
-          ")
+PYEOF
+          )
 
           if [ "$SHA_ALREADY_EXISTS" = "no" ]; then
             echo "Registrando SHA-1..."
@@ -182,7 +187,7 @@ print('no')
             echo "OK SHA-1 já registrado, pulando"
           fi
 
-          rm -f /tmp/firebase-sa.json
+          rm -f /tmp/firebase-sa.json /tmp/apps.json /tmp/certs.json
         shell: bash
 
       - run: chmod +x gradlew
