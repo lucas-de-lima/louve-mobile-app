@@ -104,8 +104,14 @@ class HymnDetailViewModel @Inject constructor(
                 is Result.Success -> {
                     val hymnName = _uiState.value.hymn?.title ?: "Hino"
                     _uiState.update {
-                        it.copy(showAddToListSuggestion = false, suggestionInteraction = null)
+                        it.copy(
+                            showAddToListSuggestion = false,
+                            suggestionInteraction = null,
+                            successMessage = "$hymnName adicionado à lista com sucesso"
+                        )
                     }
+                    delay(2500)
+                    _uiState.update { it.copy(successMessage = null) }
                 }
                 is Result.Error -> {
                     _eventFlow.emit(HymnDetailEvent.ShowSnackbar("Falha ao adicionar à lista"))
