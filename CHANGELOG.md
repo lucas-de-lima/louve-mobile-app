@@ -2,6 +2,13 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [1.3.6](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.5...v1.3.6) (2026-09-16)
+
+
+### Corrigido
+
+* decode keystore via env var instead of inline, add robust validation ([#310](https://github.com/lucas-de-lima/louve-mobile-app/issues/310)) ([7670399](https://github.com/lucas-de-lima/louve-mobile-app/commit/7670399850cd7322d5b76ddc2cc813ef67cdcca8))
+
 ## [1.3.5](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.4...v1.3.5) (2026-09-16)
 
 
