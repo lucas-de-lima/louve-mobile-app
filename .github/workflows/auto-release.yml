@@ -8,6 +8,7 @@ on:
 env:
   # Package name extraído do google-services.json (registrado no Firebase)
   ANDROID_PACKAGE_NAME: com.lucasdelima.louveapp
+
   # Projeto Firebase
   FIREBASE_PROJECT_ID: louve-app-mobile
 
@@ -33,36 +34,67 @@ jobs:
       # ── google-services.json ──────────────────────────────────────
       # Decodifica o google-services.json real se fornecido como secret.
       # Se secret não existe, cria placeholder (funciona para build mas
-      # Firebase Auth/ Firestore quebram no runtime).
+      # Firebase Auth/Firestore quebram no runtime).
       - name: google-services.json
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
           set +x
+
           if [ -z "$GOOGLE_SERVICES_JSON" ]; then
             echo "GOOGLE_SERVICES_JSON não configurado. Criando placeholder (Firebase Auth não funcionará)"
-            python3 << 'PYEOF'
-import json
-json.dump({
-  'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
-  'client': [{
-    'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': 'com.lucasdelima.louveapp'}},
-    'oauth_client': [], 'api_key': [{'current_key': 'ci-placeholder'}],
-    'services': {'appinvite_service': {'other_platform_oauth_client': []}}
-  }],
-  'configuration_version': '1'
-}, open('app/google-services.json', 'w'), indent=2)
-print('OK placeholder criado')
-PYEOF
+
+          python3 << 'PYEOF'
+          import json
+
+          json.dump(
+            {
+              'project_info': {
+                'project_number': '0',
+                'project_id': 'ci-placeholder',
+                'storage_bucket': 'ci-placeholder'
+              },
+              'client': [
+                {
+                  'client_info': {
+                    'mobilesdk_app_id': '1:0:android:ci-placeholder',
+                    'android_client_info': {
+                      'package_name': 'com.lucasdelima.louveapp'
+                    }
+                  },
+                  'oauth_client': [],
+                  'api_key': [
+                    {
+                      'current_key': 'ci-placeholder'
+                    }
+                  ],
+                  'services': {
+                    'appinvite_service': {
+                      'other_platform_oauth_client': []
+                    }
+                  }
+                }
+              ],
+              'configuration_version': '1'
+            },
+            open('app/google-services.json', 'w'),
+            indent=2
+          )
+
+          print('OK google-services.json placeholder criado')
+          PYEOF
+
           else
             printf '%s' "$GOOGLE_SERVICES_JSON" | base64 -d > /tmp/gs.json || {
               echo "ERRO: GOOGLE_SERVICES_JSON decode falhou. Re-encode com: [Convert]::ToBase64String([IO.File]::ReadAllBytes('google-services.json'))"
               exit 1
             }
+
             python3 -c "import json; json.load(open('/tmp/gs.json')); print('OK JSON válido')" || {
               echo "ERRO: google-services.json decodificado não é JSON válido"
               exit 1
             }
+
             mv /tmp/gs.json app/google-services.json
             echo "OK google-services.json decodificado (voltei ao arquivo original sem placeholder)"
           fi
@@ -79,6 +111,7 @@ PYEOF
             echo "ERRO: base64 decode falhou. Verifique secret LOUVE_KEYSTORE_BASE64"
             exit 1
           }
+
           # Confirma que o arquivo não está vazio
           if [ -s app/louve-app-keystore.jks ]; then
             echo "OK keystore decodificado ($(stat -c%s app/louve-app-keystore.jks) bytes)"
@@ -99,33 +132,59 @@ PYEOF
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
         run: |
           echo "Decodificando service account..."
+
+          if [ -z "$FIREBASE_SA_KEY" ]; then
+            echo "WARN: FIREBASE_SA_KEY ausente. Registre o SHA-1 manualmente em Firebase Console"
+            exit 0
+          fi
+
           printf '%s' "$FIREBASE_SA_KEY" | base64 -d > /tmp/firebase-sa.json || {
             echo "WARN: FIREBASE_SA_KEY inválido ou ausente. Registre o SHA-1 manualmente em Firebase Console"
             exit 0
           }
 
           echo "Extraindo SHA-1 do keystore..."
-          SHA1=$(keytool -list -v -keystore app/louve-app-keystore.jks \
-            -alias louve-app-key \
-            -storepass "$STORE_PASSWORD" 2>/dev/null \
-            | grep "SHA1" | head -1 | cut -d: -f2- | tr -d ' ')
+
+          SHA1=$(
+            keytool -list -v \
+              -keystore app/louve-app-keystore.jks \
+              -alias louve-app-key \
+              -storepass "$STORE_PASSWORD" 2>/dev/null |
+            grep "SHA1" |
+            head -1 |
+            cut -d: -f2- |
+            tr -d ' '
+          )
+
+          if [ -z "$SHA1" ]; then
+            echo "WARN: não foi possível extrair o SHA-1 do keystore"
+            rm -f /tmp/firebase-sa.json
+            exit 0
+          fi
+
           echo "::add-mask::$SHA1"
           echo "SHA1=$SHA1"
 
           echo "Autenticando gcloud..."
+
           gcloud auth activate-service-account \
             --key-file=/tmp/firebase-sa.json \
-            --project=${{ env.FIREBASE_PROJECT_ID }} 2>&1 || {
+            --project="${{ env.FIREBASE_PROJECT_ID }}" 2>&1 || {
             echo "WARN: falha auth gcloud. Registre SHA-1 manualmente em Firebase Console"
             rm -f /tmp/firebase-sa.json
             exit 0
           }
 
           ACCESS_TOKEN=$(gcloud auth print-access-token)
+
           echo "Listando apps Android no Firebase..."
-          APPS_RESPONSE=$(curl -s -w "\n%{http_code}" \
-            -H "Authorization: Bearer $ACCESS_TOKEN" \
-            "https://firebase.googleapis.com/v1beta1/projects/${{ env.FIREBASE_PROJECT_ID }}/androidApps")
+
+          APPS_RESPONSE=$(
+            curl -s -w "\n%{http_code}" \
+              -H "Authorization: Bearer $ACCESS_TOKEN" \
+              "https://firebase.googleapis.com/v1beta1/projects/${{ env.FIREBASE_PROJECT_ID }}/androidApps"
+          )
+
           HTTP_CODE=$(echo "$APPS_RESPONSE" | tail -1)
           APPS_JSON=$(echo "$APPS_RESPONSE" | sed '$d')
 
@@ -136,16 +195,20 @@ PYEOF
             exit 0
           fi
 
-          echo "$APPS_JSON" > /tmp/apps.json
-          APP_ID=$(python3 << 'PYEOF'
-import json
-apps = json.load(open('/tmp/apps.json')).get('androidApps', [])
-for app in apps:
-    if app.get('packageName') == 'com.lucasdelima.louveapp':
-        print(app['name'].split('/')[-1])
-        exit(0)
-print('NOT_FOUND')
-PYEOF
+          APP_ID=$(
+            python3 -c '
+            import json
+            import sys
+
+            apps = json.load(sys.stdin).get("androidApps", [])
+
+            for app in apps:
+              if app.get("packageName") == "com.lucasdelima.louveapp":
+                print(app["name"].split("/")[-1])
+                sys.exit(0)
+
+            print("NOT_FOUND")
+            ' <<< "$APPS_JSON"
           )
 
           if [ "$APP_ID" = "NOT_FOUND" ]; then
@@ -156,38 +219,55 @@ PYEOF
           fi
 
           echo "Verificando se SHA já está registrado..."
-          EXISTING_RESPONSE=$(curl -s -w "\n%{http_code}" \
-            -H "Authorization: Bearer $ACCESS_TOKEN" \
-            "https://firebase.googleapis.com/v1beta1/projects/${{ env.FIREBASE_PROJECT_ID }}/androidApps/$APP_ID/sha")
+
+          EXISTING_RESPONSE=$(
+            curl -s -w "\n%{http_code}" \
+              -H "Authorization: Bearer $ACCESS_TOKEN" \
+              "https://firebase.googleapis.com/v1beta1/projects/${{ env.FIREBASE_PROJECT_ID }}/androidApps/$APP_ID/sha"
+          )
+
           EXISTING_HTTP_CODE=$(echo "$EXISTING_RESPONSE" | tail -1)
           EXISTING_SHAS=$(echo "$EXISTING_RESPONSE" | sed '$d')
 
-          echo "$EXISTING_SHAS" > /tmp/certs.json
-          SHA_ALREADY_EXISTS=$(python3 << PYEOF
-import json
-certs = json.load(open('/tmp/certs.json')).get('certificates', [])
-sha1 = '$SHA1'
-for cert in certs:
-    if cert.get('sha1') == sha1:
-        print('yes')
-        exit(0)
-print('no')
-PYEOF
+          if [ "$EXISTING_HTTP_CODE" != "200" ]; then
+            echo "WARN: não foi possível consultar SHA-1 existentes (HTTP $EXISTING_HTTP_CODE)"
+            rm -f /tmp/firebase-sa.json
+            exit 0
+          fi
+
+          SHA_ALREADY_EXISTS=$(
+            SHA1_VALUE="$SHA1" python3 -c '
+            import json
+            import os
+            import sys
+
+            certs = json.load(sys.stdin).get("certificates", [])
+            sha1 = os.environ["SHA1_VALUE"]
+
+            for cert in certs:
+              if cert.get("sha1") == sha1:
+                print("yes")
+                sys.exit(0)
+
+            print("no")
+            ' <<< "$EXISTING_SHAS"
           )
 
           if [ "$SHA_ALREADY_EXISTS" = "no" ]; then
             echo "Registrando SHA-1..."
+
             curl -s -X POST \
               -H "Authorization: Bearer $ACCESS_TOKEN" \
               -H "Content-Type: application/json" \
               -d "{\"sha1\": \"$SHA1\"}" \
               "https://firebase.googleapis.com/v1beta1/projects/${{ env.FIREBASE_PROJECT_ID }}/androidApps/$APP_ID/sha"
+
             echo "OK SHA-1 registrado no Firebase"
           else
             echo "OK SHA-1 já registrado, pulando"
           fi
 
-          rm -f /tmp/firebase-sa.json /tmp/apps.json /tmp/certs.json
+          rm -f /tmp/firebase-sa.json
         shell: bash
 
       - run: chmod +x gradlew
@@ -210,11 +290,13 @@ PYEOF
       # ── Prepara artefato ─────────────────────────────────────────
       - name: Prepare artifact
         run: |
-          TAG=${{ github.event.release.tag_name }}
-          VERSION=${TAG#v}
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+
           mkdir -p release-artifacts
+
           cp app/build/outputs/apk/release/app-release.apk \
-            release-artifacts/louve-app-v$VERSION.apk 2>/dev/null || true
+            "release-artifacts/louve-app-v$VERSION.apk" 2>/dev/null || true
         shell: bash
 
       - uses: softprops/action-gh-release@v3
