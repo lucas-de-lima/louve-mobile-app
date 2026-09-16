@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material3.Button
@@ -116,9 +119,27 @@ fun AddToListSuggestionCard(
                 .padding(horizontal = 16.dp)
                 .alpha(alpha.value)
                 .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
-                .clickable(enabled = false) { }
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (userInteracted) 1f else 0.9f))
+                .clickable { cancelFade() }
         ) {
+            IconButton(
+                onClick = {
+                    cancelFade()
+                    dismissed = true
+                    onDismiss()
+                },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+                    .size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Fechar",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
             when (interaction) {
                 is SuggestionInteraction.ChooseList -> {
                     cancelFade()

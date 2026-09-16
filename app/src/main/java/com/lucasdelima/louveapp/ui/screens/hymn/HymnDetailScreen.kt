@@ -135,7 +135,7 @@ fun HymnDetailScreen(
                         IconButton(
                             onClick = onToggleFavorite,
                             colors = IconButtonDefaults.iconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
                             ),
                             modifier = Modifier.clip(RoundedCornerShape(16.dp))
                         ) {
@@ -149,7 +149,7 @@ fun HymnDetailScreen(
                         IconButton(
                             onClick = { showShareSheet = true },
                             colors = IconButtonDefaults.iconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
                             ),
                             modifier = Modifier.clip(RoundedCornerShape(16.dp))
                         ) {
