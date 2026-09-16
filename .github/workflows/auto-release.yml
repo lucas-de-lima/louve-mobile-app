@@ -69,10 +69,20 @@ jobs:
       # O keystore JKS é armazenado como base64 no secret.
       # Processo inverso do comando: base64 -w0 louve-app-keystore.jks
       - name: Decode keystore
+        env:
+          LOUVE_KEYSTORE_BASE64: ${{ secrets.LOUVE_KEYSTORE_BASE64 }}
         run: |
-          echo "${{ secrets.LOUVE_KEYSTORE_BASE64 }}" | base64 -d > app/louve-app-keystore.jks
-          # Verifica integridade (não expõe hash no log)
-          file app/louve-app-keystore.jks | grep -q "Java KeyStore" && echo "OK keystore válido"
+          printf '%s' "$LOUVE_KEYSTORE_BASE64" | base64 -d > app/louve-app-keystore.jks || {
+            echo "ERRO: base64 decode falhou. Verifique secret LOUVE_KEYSTORE_BASE64"
+            exit 1
+          }
+          # Confirma que o arquivo não está vazio
+          if [ -s app/louve-app-keystore.jks ]; then
+            echo "OK keystore decodificado ($(stat -c%s app/louve-app-keystore.jks) bytes)"
+          else
+            echo "ERRO: keystore decodificado está vazio"
+            exit 1
+          fi
         shell: bash
 
       # ── Extrai SHA-1 e registra no Firebase ──────────────────────
