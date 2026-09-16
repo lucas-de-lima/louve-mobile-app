@@ -41,19 +41,19 @@ jobs:
           set +x
           if [ -z "$GOOGLE_SERVICES_JSON" ]; then
             echo "GOOGLE_SERVICES_JSON não configurado. Criando placeholder (Firebase Auth não funcionará)"
-            python3 -c "
+            python3 << 'PYEOF'
 import json
 json.dump({
   'project_info': {'project_number': '0', 'project_id': 'ci-placeholder', 'storage_bucket': 'ci-placeholder'},
   'client': [{
-    'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': '${{ env.ANDROID_PACKAGE_NAME }}'}},
+    'client_info': {'mobilesdk_app_id': '1:0:android:ci-placeholder', 'android_client_info': {'package_name': 'com.lucasdelima.louveapp'}},
     'oauth_client': [], 'api_key': [{'current_key': 'ci-placeholder'}],
     'services': {'appinvite_service': {'other_platform_oauth_client': []}}
   }],
   'configuration_version': '1'
 }, open('app/google-services.json', 'w'), indent=2)
-print('OK placeholder criado')
-"
+print('OK google-services.json placeholder criado')
+PYEOF
           else
             printf '%s' "$GOOGLE_SERVICES_JSON" | base64 -d > /tmp/gs.json || {
               echo "ERRO: GOOGLE_SERVICES_JSON decode falhou. Re-encode com: [Convert]::ToBase64String([IO.File]::ReadAllBytes('google-services.json'))"
