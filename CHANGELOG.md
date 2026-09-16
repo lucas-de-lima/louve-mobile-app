@@ -2,6 +2,13 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [1.3.5](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.4...v1.3.5) (2026-09-16)
+
+
+### CI/CD
+
+* configure release signing with Firebase SHA-1 auto-registration ([#308](https://github.com/lucas-de-lima/louve-mobile-app/issues/308)) ([95a16de](https://github.com/lucas-de-lima/louve-mobile-app/commit/95a16de191e19f428201acec2112b04aa39e5014))
+
 ## [1.3.4](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.3...v1.3.4) (2026-09-16)
 
 
