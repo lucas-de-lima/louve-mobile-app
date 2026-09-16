@@ -14,7 +14,8 @@ import javax.inject.Singleton
 class SyncWorkerFactory @Inject constructor(
     private val authRepository: AuthRepository,
     private val favoritesRepository: FavoritesRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val bidirectionalSyncService: BidirectionalSyncService
 ) : WorkerFactory() {
 
     override fun createWorker(
@@ -28,7 +29,8 @@ class SyncWorkerFactory @Inject constructor(
                 workerParameters,
                 authRepository,
                 favoritesRepository,
-                settingsRepository
+                settingsRepository,
+                bidirectionalSyncService
             )
             else -> null
         }

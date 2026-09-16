@@ -16,7 +16,8 @@ class SyncWorker(
     workerParams: WorkerParameters,
     private val authRepository: AuthRepository,
     private val favoritesRepository: FavoritesRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val bidirectionalSyncService: BidirectionalSyncService
 ) : CoroutineWorker(appContext, workerParams) {
 
     companion object {
@@ -31,23 +32,19 @@ class SyncWorker(
                 return ListenableWorker.Result.success()
             }
 
-            Log.d(TAG, "Usuário logado. Iniciando sincronização sequencial...")
+            Log.d(TAG, "Usuário logado. Iniciando sincronização bidirecional...")
 
-            val favResult = favoritesRepository.syncWhenOnline()
-            when (favResult) {
-                is DomainResult.Success -> Log.d(TAG, "Favoritos sincronizados")
-                is DomainResult.Error -> Log.w(TAG, "Falha nos favoritos: ${favResult.message}")
+            when (val result = bidirectionalSyncService.syncRemoteToLocal()) {
+                is DomainResult.Success -> Log.d(TAG, "Sincronização bidirecional concluída")
+                is DomainResult.Error -> {
+                    Log.w(TAG, "Falha na sincronização: ${result.message}")
+                    return ListenableWorker.Result.retry()
+                }
             }
 
-            val settingsResult = settingsRepository.syncWhenOnline()
-            when (settingsResult) {
-                is DomainResult.Success -> Log.d(TAG, "Configurações sincronizadas")
-                is DomainResult.Error -> Log.w(TAG, "Falha nas config: ${settingsResult.message}")
-            }
-
-            if (favoritesRepository.checkForConflicts()) {
+            if (bidirectionalSyncService.hasConflicts()) {
                 Log.d(TAG, "Conflitos detectados. Resolvendo...")
-                when (favoritesRepository.resolveConflicts()) {
+                when (bidirectionalSyncService.resolveConflicts()) {
                     is DomainResult.Success -> Log.d(TAG, "Conflitos resolvidos")
                     is DomainResult.Error -> Log.w(TAG, "Falha ao resolver conflitos")
                 }
