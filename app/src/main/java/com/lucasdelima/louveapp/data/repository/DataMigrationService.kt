@@ -5,6 +5,8 @@ import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
+import com.lucasdelima.louveapp.domain.repository.HymnListRepository
+import com.lucasdelima.louveapp.domain.model.HymnList
 import com.lucasdelima.louveapp.domain.model.ThemeDefaults
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -20,7 +22,8 @@ import javax.inject.Singleton
 class DataMigrationService @Inject constructor(
     private val localFavoritesRepository: LocalFavoritesRepository,
     private val localSettingsRepository: LocalSettingsRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val hymnListRepository: HymnListRepository
 ) {
     companion object {
         private const val TAG = "DataMigrationService"
@@ -40,10 +43,42 @@ class DataMigrationService @Inject constructor(
             
             val localFavoritesWithHistory = getLocalFavoritesWithHistory()
             syncFavoritesIntelligently(localFavoritesWithHistory, cloudData.favorites)
+            syncHymnListsIntelligently()
             
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error("Falha na sincronização: ${e.message}", e)
+        }
+    }
+
+    private suspend fun syncHymnListsIntelligently() {
+        val localLists = hymnListRepository.getAllLists().first()
+        val remoteLists = when (val result = userRepository.getHymnLists().first()) {
+            is Result.Success -> result.data
+            is Result.Error -> emptyList()
+        }
+        val remoteById = remoteLists.associateBy { it.id }
+
+        when {
+            localLists.isEmpty() -> remoteLists.forEach { hymnListRepository.upsertList(it) }
+            remoteLists.isEmpty() -> localLists.forEach { userRepository.upsertHymnList(it) }
+            else -> {
+                val merged = (localLists.map { it.id } + remoteLists.map { it.id }).distinct()
+                merged.forEach { id ->
+                    val local = localLists.firstOrNull { it.id == id }
+                    val remote = remoteById[id]
+                    val winner = when {
+                        local == null -> remote
+                        remote == null -> local
+                        remote.updatedAt >= local.updatedAt -> remote.copy(hymnIds = (local.hymnIds + remote.hymnIds).distinct())
+                        else -> local.copy(hymnIds = (local.hymnIds + remote.hymnIds).distinct())
+                    }
+                    if (winner != null) {
+                        hymnListRepository.upsertList(winner)
+                        userRepository.upsertHymnList(winner)
+                    }
+                }
+            }
         }
     }
     

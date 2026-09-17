@@ -28,7 +28,8 @@ private const val TAG = "FirebaseAuthRepository"
 class FirebaseAuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val userRepository: UserRepository,
-    private val syncScheduler: SyncScheduler
+    private val syncScheduler: SyncScheduler,
+    private val dataMigrationService: DataMigrationService
 ) : AuthRepository {
 
     /**
@@ -100,6 +101,10 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                             if (structureResult is Result.Error) {
                                 Log.w(TAG, "⚠️ Falha ao criar estrutura do usuário: ${structureResult.message}")
                             } else {
+                                val migrationResult = dataMigrationService.migrateLocalDataToCloud()
+                                if (migrationResult is Result.Error) {
+                                    Log.w(TAG, "Falha na migração de dados: ${migrationResult.message}")
+                                }
                                 Log.d(TAG, "✅ Estrutura do usuário verificada. Diferindo sync para WorkManager.")
                                 syncScheduler.scheduleSync()
                             }

@@ -14,4 +14,5 @@ interface HymnListRepository {
     suspend fun addHymnToList(listId: String, hymnId: String): Result<Unit>
     suspend fun removeHymnFromList(listId: String, hymnId: String): Result<Unit>
     suspend fun cleanupExpiredLists(): Result<Unit>
+    suspend fun upsertList(list: HymnList): Result<Unit>
 }

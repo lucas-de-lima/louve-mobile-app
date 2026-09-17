@@ -5,7 +5,8 @@ data class HymnList(
     val name: String,
     val createdAt: Long,
     val expiresAt: Long? = null,
-    val hymnIds: List<String> = emptyList()
+    val hymnIds: List<String> = emptyList(),
+    val updatedAt: Long = createdAt
 )
 
 enum class HymnListType {

@@ -1,6 +1,7 @@
 package com.lucasdelima.louveapp.domain.repository
 
 import com.lucasdelima.louveapp.domain.model.Result
+import com.lucasdelima.louveapp.domain.model.HymnList
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.model.UserSettings
 import kotlinx.coroutines.flow.Flow
@@ -53,4 +54,8 @@ interface UserRepository {
      * @param hymnId O ID numérico do hino a ser removido.
      */
     suspend fun removeFavorite(hymnId: String): Result<Unit>
+
+    fun getHymnLists(): Flow<Result<List<HymnList>>>
+    suspend fun upsertHymnList(hymnList: HymnList): Result<Unit>
+    suspend fun deleteHymnList(listId: String): Result<Unit>
 }

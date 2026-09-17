@@ -32,6 +32,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 /**
  * Módulo Hilt que ensina ao Dagger/Hilt como prover as implementações
@@ -99,9 +102,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideHymnListRepository(@ApplicationContext context: Context): HymnListRepository {
-        return DataStoreHymnListRepository(context)
+    fun provideHymnListRepository(
+        @ApplicationContext context: Context,
+        userRepository: UserRepository,
+        applicationScope: CoroutineScope
+    ): HymnListRepository {
+        return DataStoreHymnListRepository(context, userRepository, applicationScope)
     }
+
+    @Provides
+    @Singleton
+    fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
 
 
 }
