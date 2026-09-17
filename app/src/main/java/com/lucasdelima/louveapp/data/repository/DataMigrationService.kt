@@ -8,6 +8,7 @@ import com.lucasdelima.louveapp.domain.repository.UserRepository
 import com.lucasdelima.louveapp.domain.repository.HymnListRepository
 import com.lucasdelima.louveapp.domain.model.HymnList
 import com.lucasdelima.louveapp.domain.model.ThemeDefaults
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -38,12 +39,14 @@ class DataMigrationService @Inject constructor(
         return try {
             val localData = backupLocalData()
             val cloudData = checkCloudData()
+            Log.d(TAG, "migration start localFavorites=${localData.favorites.size} cloudFavorites=${cloudData.favorites.size}")
             
             syncThemeIntelligently(localData.theme, cloudData)
             
             val localFavoritesWithHistory = getLocalFavoritesWithHistory()
             syncFavoritesIntelligently(localFavoritesWithHistory, cloudData.favorites)
             syncHymnListsIntelligently()
+            Log.d(TAG, "migration completed")
             
             Result.Success(Unit)
         } catch (e: Exception) {
@@ -53,10 +56,8 @@ class DataMigrationService @Inject constructor(
 
     private suspend fun syncHymnListsIntelligently() {
         val localLists = hymnListRepository.getAllLists().first()
-        val remoteLists = when (val result = userRepository.getHymnLists().first()) {
-            is Result.Success -> result.data
-            is Result.Error -> emptyList()
-        }
+        val remoteLists = retryReadHymnLists()
+        Log.d(TAG, "hymn list migration local=${localLists.map { it.id }} remote=${remoteLists.map { it.id }}")
         val remoteById = remoteLists.associateBy { it.id }
 
         when {
@@ -82,6 +83,19 @@ class DataMigrationService @Inject constructor(
         }
     }
     
+    private suspend fun retryReadHymnLists(maxRetries: Int = 3): List<HymnList> {
+        repeat(maxRetries) { attempt ->
+            when (val result = userRepository.getHymnLists().first()) {
+                is Result.Success -> return result.data
+                is Result.Error -> {
+                    Log.w(TAG, "hymn list read attempt ${attempt + 1}/$maxRetries failed: ${result.message}")
+                    if (attempt < maxRetries - 1) delay(1000L * (attempt + 1))
+                }
+            }
+        }
+        return emptyList()
+    }
+
     /**
      * Faz backup dos dados locais.
      */

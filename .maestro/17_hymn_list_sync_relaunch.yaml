@@ -1,0 +1,123 @@
+appId: com.lucasdelima.louveapp
+---
+# O teste abre o login; selecione manualmente a conta Google quando aparecer.
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+- tapOn: "Mais"
+- tapOn:
+    text: "Ver perfil"
+    optional: true
+- tapOn:
+    text: ".*@.*"
+    optional: true
+- tapOn:
+    text: "Toque para fazer login"
+    optional: true
+- runFlow:
+    when:
+      visible: "Sair da Conta"
+    commands:
+      - tapOn: "Sair da Conta"
+      - waitForAnimationToEnd:
+          timeout: 1000
+      - tapOn: "Sair"
+      - waitForAnimationToEnd:
+          timeout: 3000
+- tapOn:
+    text: "Toque para fazer login"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    text: "Entrar com Google"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Sair da Conta"
+    timeout: 120000
+- back
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Cria a lista com o hino 001. O toque precisa ser imediato porque o card expira.
+- tapOn: "Harpa"
+- tapOn:
+    text: "001"
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 4000
+- tapOn:
+    text: "Desfavoritar"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn: "Favoritar"
+- tapOn: "Criar nova lista"
+- extendedWaitUntil:
+    visible:
+      text: "Nome.*lista"
+    timeout: 8000
+- tapOn:
+    text: "Nome.*lista"
+- inputText: "Sync Maestro"
+- tapOn: "Criar"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Adiciona o hino 002 à mesma lista e confirma a distribuição.
+- tapOn: "Voltar"
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    text: "002"
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 4000
+- tapOn:
+    text: "Desfavoritar"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn: "Favoritar"
+- tapOn: "Adicionar.*lista"
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn: "Sync Maestro"
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Confirma no armazenamento local antes do relaunch.
+- tapOn: "Voltar"
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn: "Favoritos"
+- tapOn: "Listas"
+- assertVisible: "Sync Maestro"
+- assertVisible: "2 hinos"
+
+# Limpa os dados do app para simular remoção/reinstalação e entra novamente.
+- clearState
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+- tapOn: "Mais"
+- tapOn: "Toque para fazer login"
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn: "Entrar com Google"
+- extendedWaitUntil:
+    visible:
+      text: "Sair da Conta"
+    timeout: 120000
+- back
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn: "Favoritos"
+- tapOn: "Listas"
+- extendedWaitUntil:
+    visible:
+      text: "Sync Maestro"
+    timeout: 30000
+- assertVisible: "2 hinos"
+- takeScreenshot: "17_hymn_list_sync_after_clear_state"

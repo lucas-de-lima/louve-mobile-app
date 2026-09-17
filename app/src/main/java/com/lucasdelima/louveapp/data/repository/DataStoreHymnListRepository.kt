@@ -1,6 +1,7 @@
 package com.lucasdelima.louveapp.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -15,8 +16,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
@@ -28,9 +27,12 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 @Singleton
 class DataStoreHymnListRepository @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val userRepository: UserRepository,
-    private val applicationScope: CoroutineScope
+    private val userRepository: UserRepository
 ) : HymnListRepository {
+
+    companion object {
+        private const val TAG = "HymnListSync"
+    }
 
     private object Keys {
         val HYMN_LISTS = stringPreferencesKey("hymn_lists_json")
@@ -68,7 +70,8 @@ class DataStoreHymnListRepository @Inject constructor(
                 val existing = readLists(prefs)
                 writeLists(prefs, existing + newList)
             }
-            syncInBackground { userRepository.upsertHymnList(newList) }
+            Log.d(TAG, "local create id=$id name=$name expiresAt=$expiresAt")
+            syncRemotely(newList)
             Result.Success(id)
         } catch (e: Exception) {
             Result.Error("Falha ao criar lista", e)
@@ -76,33 +79,47 @@ class DataStoreHymnListRepository @Inject constructor(
     }
 
     override suspend fun renameList(id: String, name: String): Result<Unit> {
-        return updateList(id) { it.copy(name = name) }.also { syncListInBackground(id) }
+        val result = updateList(id) { it.copy(name = name) }
+        if (result is Result.Success) syncRemotely(id)
+        return result
     }
 
     override suspend fun updateExpiration(id: String, expiresAt: Long?): Result<Unit> {
-        return updateList(id) { it.copy(expiresAt = expiresAt) }.also { syncListInBackground(id) }
+        val result = updateList(id) { it.copy(expiresAt = expiresAt) }
+        if (result is Result.Success) syncRemotely(id)
+        return result
     }
 
     override suspend fun deleteList(id: String): Result<Unit> {
         val result = updateLists { lists -> lists.filter { it.id != id } }
-        if (result is Result.Success) syncInBackground { userRepository.deleteHymnList(id) }
+        if (result is Result.Success) {
+            Log.d(TAG, "local delete id=$id")
+            when (val remote = userRepository.deleteHymnList(id)) {
+                is Result.Error -> Log.e(TAG, "remote delete failed id=$id message=${remote.message}", remote.cause)
+                is Result.Success -> Log.d(TAG, "remote delete success id=$id")
+            }
+        }
         return result
     }
 
     override suspend fun addHymnToList(listId: String, hymnId: String): Result<Unit> {
-        return updateList(listId) { list ->
-                if (list.id == listId && hymnId !in list.hymnIds) {
-                    list.copy(hymnIds = list.hymnIds + hymnId)
-                } else list
-            }.also { syncListInBackground(listId) }
+        val result = updateList(listId) { list ->
+            if (list.id == listId && hymnId !in list.hymnIds) {
+                list.copy(hymnIds = list.hymnIds + hymnId)
+            } else list
+        }
+        if (result is Result.Success) syncRemotely(listId)
+        return result
     }
 
     override suspend fun removeHymnFromList(listId: String, hymnId: String): Result<Unit> {
-        return updateList(listId) { list ->
-                if (list.id == listId) {
-                    list.copy(hymnIds = list.hymnIds - hymnId)
-                } else list
-            }.also { syncListInBackground(listId) }
+        val result = updateList(listId) { list ->
+            if (list.id == listId) {
+                list.copy(hymnIds = list.hymnIds - hymnId)
+            } else list
+        }
+        if (result is Result.Success) syncRemotely(listId)
+        return result
     }
 
     override suspend fun cleanupExpiredLists(): Result<Unit> {
@@ -125,7 +142,9 @@ class DataStoreHymnListRepository @Inject constructor(
             val withoutCurrent = lists.filterNot { it.id == list.id }
             withoutCurrent + list
         }
-        if (result is Result.Success) syncInBackground { userRepository.upsertHymnList(list) }
+        if (result is Result.Success) {
+            Log.d(TAG, "local upsert id=${list.id} hymns=${list.hymnIds.size} updatedAt=${list.updatedAt}")
+        }
         return result
     }
 
@@ -205,15 +224,19 @@ class DataStoreHymnListRepository @Inject constructor(
     private suspend fun updateList(id: String, transform: (HymnList) -> HymnList): Result<Unit> =
         updateLists { lists -> lists.map { if (it.id == id) transform(it).copy(updatedAt = System.currentTimeMillis()) else it } }
 
-    private fun syncListInBackground(id: String) {
-        applicationScope.launch {
-            val list = getAllLists().first().firstOrNull { it.id == id } ?: return@launch
-            userRepository.upsertHymnList(list)
+    private suspend fun syncRemotely(listId: String) {
+        val list = getAllLists().first().firstOrNull { it.id == listId } ?: return
+        when (val result = userRepository.upsertHymnList(list)) {
+            is Result.Success -> Log.d(TAG, "remote sync success id=$listId hymns=${list.hymnIds.size}")
+            is Result.Error -> Log.e(TAG, "remote sync failed id=$listId message=${result.message}", result.cause)
         }
     }
 
-    private fun syncInBackground(operation: suspend () -> Result<Unit>) {
-        applicationScope.launch { operation() }
+    private suspend fun syncRemotely(list: HymnList) {
+        when (val result = userRepository.upsertHymnList(list)) {
+            is Result.Success -> Log.d(TAG, "remote sync success id=${list.id} hymns=${list.hymnIds.size}")
+            is Result.Error -> Log.e(TAG, "remote sync failed id=${list.id} message=${result.message}", result.cause)
+        }
     }
 
     private fun parseIds(raw: String): List<String> = try {
