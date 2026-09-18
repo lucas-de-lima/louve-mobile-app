@@ -5,6 +5,7 @@ import com.lucasdelima.louveapp.domain.model.ThemeDefaults
 import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
+import com.lucasdelima.louveapp.domain.repository.HymnListRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -19,6 +20,7 @@ class BidirectionalSyncServiceTest {
     private val localFavoritesRepository: LocalFavoritesRepository = mockk()
     private val localSettingsRepository: LocalSettingsRepository = mockk()
     private val userRepository: UserRepository = mockk()
+    private val hymnListRepository: HymnListRepository = mockk()
     private lateinit var service: BidirectionalSyncService
 
     @Before
@@ -26,8 +28,11 @@ class BidirectionalSyncServiceTest {
         service = BidirectionalSyncService(
             localFavoritesRepository,
             localSettingsRepository,
-            userRepository
+            userRepository,
+            hymnListRepository
         )
+        coEvery { userRepository.getHymnLists() } returns MutableStateFlow(Result.Success(emptyList()))
+        coEvery { hymnListRepository.getAllLists() } returns MutableStateFlow(emptyList())
     }
 
     @Test

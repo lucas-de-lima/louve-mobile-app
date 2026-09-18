@@ -17,7 +17,8 @@ class SyncWorker(
     private val authRepository: AuthRepository,
     private val favoritesRepository: FavoritesRepository,
     private val settingsRepository: SettingsRepository,
-    private val bidirectionalSyncService: BidirectionalSyncService
+    private val bidirectionalSyncService: BidirectionalSyncService,
+    private val hymnListRepository: com.lucasdelima.louveapp.domain.repository.HymnListRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     companion object {

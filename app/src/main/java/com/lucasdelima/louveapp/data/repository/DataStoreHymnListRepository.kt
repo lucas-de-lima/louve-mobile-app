@@ -1,17 +1,21 @@
 package com.lucasdelima.louveapp.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lucasdelima.louveapp.domain.model.HymnList
 import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.HymnListRepository
+import com.lucasdelima.louveapp.domain.repository.UserRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
@@ -22,17 +26,24 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 @Singleton
 class DataStoreHymnListRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val userRepository: UserRepository
 ) : HymnListRepository {
+
+    companion object {
+        private const val TAG = "HymnListSync"
+    }
 
     private object Keys {
         val HYMN_LISTS = stringPreferencesKey("hymn_lists_json")
+        val LIST_ORDER = stringPreferencesKey("list_order")
+
+        fun listKey(id: String) = stringPreferencesKey("list_$id")
     }
 
     override fun getAllLists(): Flow<List<HymnList>> {
         return context.dataStore.data.map { prefs ->
-            val raw = prefs[Keys.HYMN_LISTS] ?: "[]"
-            parseLists(raw)
+            readLists(prefs)
         }
     }
 
@@ -51,12 +62,16 @@ class DataStoreHymnListRepository @Inject constructor(
                 name = name,
                 createdAt = System.currentTimeMillis(),
                 expiresAt = expiresAt,
-                hymnIds = emptyList()
+                hymnIds = emptyList(),
+                updatedAt = System.currentTimeMillis()
             )
             context.dataStore.edit { prefs ->
-                val existing = parseLists(prefs[Keys.HYMN_LISTS] ?: "[]")
-                prefs[Keys.HYMN_LISTS] = serializeLists(existing + newList)
+                migrateLegacyIfNeeded(prefs)
+                val existing = readLists(prefs)
+                writeLists(prefs, existing + newList)
             }
+            Log.d(TAG, "local create id=$id name=$name expiresAt=$expiresAt")
+            syncRemotely(newList)
             Result.Success(id)
         } catch (e: Exception) {
             Result.Error("Falha ao criar lista", e)
@@ -64,50 +79,57 @@ class DataStoreHymnListRepository @Inject constructor(
     }
 
     override suspend fun renameList(id: String, name: String): Result<Unit> {
-        return updateLists { lists ->
-            lists.map { if (it.id == id) it.copy(name = name) else it }
-        }
+        val result = updateList(id) { it.copy(name = name) }
+        if (result is Result.Success) syncRemotely(id)
+        return result
     }
 
     override suspend fun updateExpiration(id: String, expiresAt: Long?): Result<Unit> {
-        return updateLists { lists ->
-            lists.map { if (it.id == id) it.copy(expiresAt = expiresAt) else it }
-        }
+        val result = updateList(id) { it.copy(expiresAt = expiresAt) }
+        if (result is Result.Success) syncRemotely(id)
+        return result
     }
 
     override suspend fun deleteList(id: String): Result<Unit> {
-        return updateLists { lists ->
-            lists.filter { it.id != id }
+        val result = updateLists { lists -> lists.filter { it.id != id } }
+        if (result is Result.Success) {
+            Log.d(TAG, "local delete id=$id")
+            when (val remote = userRepository.deleteHymnList(id)) {
+                is Result.Error -> Log.e(TAG, "remote delete failed id=$id message=${remote.message}", remote.cause)
+                is Result.Success -> Log.d(TAG, "remote delete success id=$id")
+            }
         }
+        return result
     }
 
     override suspend fun addHymnToList(listId: String, hymnId: String): Result<Unit> {
-        return updateLists { lists ->
-            lists.map { list ->
-                if (list.id == listId && hymnId !in list.hymnIds) {
-                    list.copy(hymnIds = list.hymnIds + hymnId)
-                } else list
-            }
+        val result = updateList(listId) { list ->
+            if (list.id == listId && hymnId !in list.hymnIds) {
+                list.copy(hymnIds = list.hymnIds + hymnId)
+            } else list
         }
+        if (result is Result.Success) syncRemotely(listId)
+        return result
     }
 
     override suspend fun removeHymnFromList(listId: String, hymnId: String): Result<Unit> {
-        return updateLists { lists ->
-            lists.map { list ->
-                if (list.id == listId) {
-                    list.copy(hymnIds = list.hymnIds - hymnId)
-                } else list
-            }
+        val result = updateList(listId) { list ->
+            if (list.id == listId) {
+                list.copy(hymnIds = list.hymnIds - hymnId)
+            } else list
         }
+        if (result is Result.Success) syncRemotely(listId)
+        return result
     }
 
     override suspend fun cleanupExpiredLists(): Result<Unit> {
         return try {
             val now = System.currentTimeMillis()
             context.dataStore.edit { prefs ->
-                val existing = parseLists(prefs[Keys.HYMN_LISTS] ?: "[]")
+                migrateLegacyIfNeeded(prefs)
+                val existing = readLists(prefs)
                 val active = existing.filter { it.expiresAt == null || it.expiresAt > now }
-                prefs[Keys.HYMN_LISTS] = serializeLists(active)
+                writeLists(prefs, active)
             }
             Result.Success(Unit)
         } catch (e: Exception) {
@@ -115,11 +137,23 @@ class DataStoreHymnListRepository @Inject constructor(
         }
     }
 
+    override suspend fun upsertList(list: HymnList): Result<Unit> {
+        val result = updateLists { lists ->
+            val withoutCurrent = lists.filterNot { it.id == list.id }
+            withoutCurrent + list
+        }
+        if (result is Result.Success) {
+            Log.d(TAG, "local upsert id=${list.id} hymns=${list.hymnIds.size} updatedAt=${list.updatedAt}")
+        }
+        return result
+    }
+
     private suspend fun updateLists(transform: (List<HymnList>) -> List<HymnList>): Result<Unit> {
         return try {
             context.dataStore.edit { prefs ->
-                val existing = parseLists(prefs[Keys.HYMN_LISTS] ?: "[]")
-                prefs[Keys.HYMN_LISTS] = serializeLists(transform(existing))
+                migrateLegacyIfNeeded(prefs)
+                val existing = readLists(prefs)
+                writeLists(prefs, transform(existing))
             }
             Result.Success(Unit)
         } catch (e: Exception) {
@@ -140,7 +174,8 @@ class DataStoreHymnListRepository @Inject constructor(
                         obj.getLong("expiresAt") else null,
                     hymnIds = obj.optJSONArray("hymnIds")?.let { ja ->
                         (0 until ja.length()).map { ja.getString(it) }
-                    } ?: emptyList()
+                    } ?: emptyList(),
+                    updatedAt = obj.optLong("updatedAt", obj.optLong("createdAt", System.currentTimeMillis()))
                 )
             }
         } catch (e: Exception) {
@@ -157,9 +192,61 @@ class DataStoreHymnListRepository @Inject constructor(
                 put("createdAt", list.createdAt)
                 put("expiresAt", list.expiresAt ?: JSONObject.NULL)
                 put("hymnIds", JSONArray(list.hymnIds))
+                put("updatedAt", list.updatedAt)
             }
             arr.put(obj)
         }
         return arr.toString()
+    }
+
+    private fun readLists(prefs: Preferences): List<HymnList> {
+        val order = prefs[Keys.LIST_ORDER]?.let { parseIds(it) } ?: emptyList()
+        if (order.isNotEmpty()) {
+            return order.mapNotNull { id -> prefs[Keys.listKey(id)]?.let { raw -> parseList(raw) } }
+        }
+        return parseLists(prefs[Keys.HYMN_LISTS] ?: "[]")
+    }
+
+    private fun writeLists(prefs: MutablePreferences, lists: List<HymnList>) {
+        val ids = lists.map { it.id }
+        prefs[Keys.LIST_ORDER] = JSONArray(ids).toString()
+        lists.forEach { prefs[Keys.listKey(it.id)] = serializeList(it) }
+    }
+
+    private fun migrateLegacyIfNeeded(prefs: MutablePreferences) {
+        if (prefs[Keys.LIST_ORDER] == null) {
+            val legacy = parseLists(prefs[Keys.HYMN_LISTS] ?: "[]")
+            if (legacy.isNotEmpty()) writeLists(prefs, legacy)
+            prefs.remove(Keys.HYMN_LISTS)
+        }
+    }
+
+    private suspend fun updateList(id: String, transform: (HymnList) -> HymnList): Result<Unit> =
+        updateLists { lists -> lists.map { if (it.id == id) transform(it).copy(updatedAt = System.currentTimeMillis()) else it } }
+
+    private suspend fun syncRemotely(listId: String) {
+        val list = getAllLists().first().firstOrNull { it.id == listId } ?: return
+        when (val result = userRepository.upsertHymnList(list)) {
+            is Result.Success -> Log.d(TAG, "remote sync success id=$listId hymns=${list.hymnIds.size}")
+            is Result.Error -> Log.e(TAG, "remote sync failed id=$listId message=${result.message}", result.cause)
+        }
+    }
+
+    private suspend fun syncRemotely(list: HymnList) {
+        when (val result = userRepository.upsertHymnList(list)) {
+            is Result.Success -> Log.d(TAG, "remote sync success id=${list.id} hymns=${list.hymnIds.size}")
+            is Result.Error -> Log.e(TAG, "remote sync failed id=${list.id} message=${result.message}", result.cause)
+        }
+    }
+
+    private fun parseIds(raw: String): List<String> = try {
+        val array = JSONArray(raw)
+        (0 until array.length()).map(array::getString)
+    } catch (_: Exception) { emptyList() }
+
+    private fun parseList(raw: String): HymnList? = parseLists(JSONArray().put(JSONObject(raw)).toString()).firstOrNull()
+
+    private fun serializeList(list: HymnList): String = serializeLists(listOf(list)).let { raw ->
+        JSONArray(raw).getJSONObject(0).toString()
     }
 }

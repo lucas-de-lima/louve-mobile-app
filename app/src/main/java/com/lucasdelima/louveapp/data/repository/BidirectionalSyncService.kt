@@ -5,6 +5,8 @@ import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.LocalFavoritesRepository
 import com.lucasdelima.louveapp.domain.repository.LocalSettingsRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
+import com.lucasdelima.louveapp.domain.repository.HymnListRepository
+import com.lucasdelima.louveapp.domain.model.HymnList
 import com.lucasdelima.louveapp.domain.model.ThemeDefaults
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -19,7 +21,8 @@ import javax.inject.Singleton
 class BidirectionalSyncService @Inject constructor(
     private val localFavoritesRepository: LocalFavoritesRepository,
     private val localSettingsRepository: LocalSettingsRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val hymnListRepository: HymnListRepository
 ) {
     
     companion object {
@@ -33,6 +36,9 @@ class BidirectionalSyncService @Inject constructor(
     suspend fun syncRemoteToLocal(): Result<Unit> {
         return try {
             Log.d(TAG, "Iniciando sincronização remoto -> local...")
+
+            val localListsResult = syncLocalHymnListsToRemote()
+            if (localListsResult is Result.Error) return localListsResult
             
             // 1. Sincronizar favoritos
             val favoritesResult = syncFavoritesRemoteToLocal()
@@ -45,6 +51,9 @@ class BidirectionalSyncService @Inject constructor(
             if (settingsResult is Result.Error) {
                 Log.w(TAG, "Falha na sincronização de configurações: ${settingsResult.message}")
             }
+
+            val listsResult = syncHymnListsRemoteToLocal()
+            if (listsResult is Result.Error) Log.w(TAG, "Falha na sincronização de listas: ${listsResult.message}")
             
             Log.d(TAG, "Sincronização remoto -> local concluída")
             Result.Success(Unit)
@@ -52,6 +61,38 @@ class BidirectionalSyncService @Inject constructor(
             Log.e(TAG, "Erro durante sincronização remoto -> local", e)
             Result.Error("Falha na sincronização: ${e.message}", e)
         }
+    }
+
+    private suspend fun syncHymnListsRemoteToLocal(): Result<Unit> {
+        return when (val remoteResult = userRepository.getHymnLists().first()) {
+            is Result.Error -> remoteResult
+            is Result.Success -> {
+                val localLists = hymnListRepository.getAllLists().first()
+                val remoteById = remoteResult.data.associateBy { it.id }
+                remoteResult.data.forEach { remote ->
+                    val local = localLists.firstOrNull { it.id == remote.id }
+                    if (local == null || remote.updatedAt >= local.updatedAt) {
+                        replaceLocalList(remote)
+                    }
+                }
+                localLists.filter { it.id !in remoteById }.forEach { hymnListRepository.deleteList(it.id) }
+                Result.Success(Unit)
+            }
+        }
+    }
+
+    private suspend fun replaceLocalList(list: HymnList) {
+        hymnListRepository.upsertList(list)
+    }
+
+    private suspend fun syncLocalHymnListsToRemote(): Result<Unit> {
+        hymnListRepository.getAllLists().first().forEach { list ->
+            when (val result = userRepository.upsertHymnList(list)) {
+                is Result.Success -> Unit
+                is Result.Error -> return result
+            }
+        }
+        return Result.Success(Unit)
     }
     
     /**

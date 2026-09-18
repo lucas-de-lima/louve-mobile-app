@@ -14,11 +14,13 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.model.UserSettings
+import com.lucasdelima.louveapp.domain.model.HymnList
 import com.lucasdelima.louveapp.domain.repository.UserRepository
 import com.lucasdelima.louveapp.domain.model.Result
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +41,7 @@ class FirestoreUserRepositoryImpl @Inject constructor(
         const val FAVORITES_COLLECTION = "favorites"
         const val FAVORITES_DOCUMENT = "hymns"
         const val FAVORITE_IDS_FIELD = "ids"
+        const val HYMN_LISTS_COLLECTION = "hymnLists"
     }
 
     // Propriedade computada para obter o UID do usuário atual de forma segura.
@@ -287,6 +290,73 @@ class FirestoreUserRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("FirestoreUserRepository", "❌ Falha ao remover favorito: $hymnId", e)
             Result.Error("Falha ao desfavoritar o hino: ${e.message}", e)
+        }
+    }
+
+    override fun getHymnLists(): Flow<Result<List<HymnList>>> = flow {
+        val userId = currentUserId
+        if (userId == null) {
+            Log.w("FirestoreUserRepository", "getHymnLists skipped: no authenticated user")
+            emit(Result.Error("Usuário não autenticado."))
+            return@flow
+        }
+
+        val result = try {
+            val collectionPath = "users/$userId/${FirestorePaths.HYMN_LISTS_COLLECTION}"
+            Log.d("FirestoreUserRepository", "getHymnLists path=$collectionPath")
+            val snapshot = firestore.collection(FirestorePaths.USERS_COLLECTION).document(userId)
+                .collection(FirestorePaths.HYMN_LISTS_COLLECTION).get().await()
+            val lists = snapshot.documents.mapNotNull { document -> document.toHymnListOrNull() }
+            Log.d("FirestoreUserRepository", "getHymnLists success count=${lists.size} ids=${lists.map { it.id }}")
+            Result.Success(lists)
+        } catch (e: Exception) {
+            Log.e("FirestoreUserRepository", "getHymnLists failed uid=$userId", e)
+            Result.Error("Erro ao obter listas de hinos.", e)
+        }
+        emit(result)
+    }
+
+    private fun com.google.firebase.firestore.DocumentSnapshot.toHymnListOrNull(): HymnList? {
+        return try {
+            HymnList(
+                id = getString("id") ?: id,
+                name = getString("name") ?: return null,
+                createdAt = getLong("createdAt") ?: 0L,
+                expiresAt = getLong("expiresAt"),
+                hymnIds = (get("hymnIds") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
+                updatedAt = getLong("updatedAt") ?: getLong("createdAt") ?: 0L
+            )
+        } catch (e: Exception) {
+            Log.e("FirestoreUserRepository", "failed to map hymn list id=$id", e)
+            null
+        }
+    }
+
+    override suspend fun upsertHymnList(hymnList: HymnList): Result<Unit> {
+        val userId = currentUserId ?: return Result.Error("Usuário não autenticado.")
+        return try {
+            Log.d("FirestoreUserRepository", "upsertHymnList start uid=$userId id=${hymnList.id} hymns=${hymnList.hymnIds.size} updatedAt=${hymnList.updatedAt}")
+            firestore.collection(FirestorePaths.USERS_COLLECTION).document(userId)
+                .collection(FirestorePaths.HYMN_LISTS_COLLECTION).document(hymnList.id)
+                .set(hymnList, SetOptions.merge()).await()
+            Log.d("FirestoreUserRepository", "upsertHymnList success id=${hymnList.id}")
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e("FirestoreUserRepository", "upsertHymnList failed uid=$userId id=${hymnList.id}", e)
+            Result.Error("Falha ao salvar lista de hinos.", e)
+        }
+    }
+
+    override suspend fun deleteHymnList(listId: String): Result<Unit> {
+        val userId = currentUserId ?: return Result.Error("Usuário não autenticado.")
+        return try {
+            Log.d("FirestoreUserRepository", "deleteHymnList start uid=$userId id=$listId")
+            firestore.collection(FirestorePaths.USERS_COLLECTION).document(userId)
+                .collection(FirestorePaths.HYMN_LISTS_COLLECTION).document(listId).delete().await()
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e("FirestoreUserRepository", "deleteHymnList failed uid=$userId id=$listId", e)
+            Result.Error("Falha ao excluir lista de hinos.", e)
         }
     }
 

@@ -99,9 +99,15 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideHymnListRepository(@ApplicationContext context: Context): HymnListRepository {
-        return DataStoreHymnListRepository(context)
+    fun provideHymnListRepository(
+        @ApplicationContext context: Context,
+        userRepository: UserRepository
+    ): HymnListRepository {
+        return DataStoreHymnListRepository(context, userRepository)
     }
+
+    
+
 
 
 }
