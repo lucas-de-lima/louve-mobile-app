@@ -2,6 +2,21 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [1.3.8](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.7...v1.3.8) (2026-09-16)
+
+
+### Corrigido
+
+* corrige sintaxe do workflow de release ([#316](https://github.com/lucas-de-lima/louve-mobile-app/issues/316)) ([9438a24](https://github.com/lucas-de-lima/louve-mobile-app/commit/9438a24e6a21652ccd21c44643e16f73bf334252))
+
+## [1.3.7](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.6...v1.3.7) (2026-09-16)
+
+
+### Corrigido
+
+* make Firebase SHA registration non-blocking ([#312](https://github.com/lucas-de-lima/louve-mobile-app/issues/312)) ([0f04b99](https://github.com/lucas-de-lima/louve-mobile-app/commit/0f04b99cca084ffba130fab740b72092594f03af))
+* replace python3 -c multiline with heredocs + temp files for YAML compat ([#314](https://github.com/lucas-de-lima/louve-mobile-app/issues/314)) ([2ca073b](https://github.com/lucas-de-lima/louve-mobile-app/commit/2ca073b4a19659838dd67b45d950cb58d8bdc389))
+
 ## [1.3.6](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.5...v1.3.6) (2026-09-16)
 
 
