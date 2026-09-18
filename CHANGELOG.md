@@ -2,6 +2,13 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [1.4.0](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.8...v1.4.0) (2026-09-18)
+
+
+### Adicionado
+
+* implement hymn list synchronization and repository integration ([#318](https://github.com/lucas-de-lima/louve-mobile-app/issues/318)) ([78925c4](https://github.com/lucas-de-lima/louve-mobile-app/commit/78925c4dcb4febc362a32e898eb3902aeac3bfb7))
+
 ## [1.3.8](https://github.com/lucas-de-lima/louve-mobile-app/compare/v1.3.7...v1.3.8) (2026-09-16)
 
 
