@@ -3,12 +3,14 @@ package com.lucasdelima.louveapp.ui.screens.favorites
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucasdelima.louveapp.domain.model.HymnList
+import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.HymnListRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class HymnListsUiState(
@@ -28,4 +30,22 @@ class HymnListsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = HymnListsUiState(isLoading = true)
         )
+
+    fun renameList(id: String, name: String) {
+        viewModelScope.launch {
+            hymnListRepository.renameList(id, name)
+        }
+    }
+
+    fun deleteList(id: String) {
+        viewModelScope.launch {
+            hymnListRepository.deleteList(id)
+        }
+    }
+
+    fun createList(name: String) {
+        viewModelScope.launch {
+            hymnListRepository.createList(name, null)
+        }
+    }
 }

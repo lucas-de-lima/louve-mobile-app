@@ -278,7 +278,6 @@ private fun ShareBottomSheet(
                     _"${firstVerse}"_
                     
                     Enviado pelo Louve App! 🎵
-                    (Link para a loja em breve)
                     """.trimIndent()
 
                     val sendIntent: Intent = Intent().apply {
@@ -318,7 +317,7 @@ private fun HymnContent(
     modifier: Modifier = Modifier
 ) {
     var accumulatedZoom by remember { mutableFloatStateOf(1f) }
-    val zoomThreshold = 0.25f
+    val zoomThreshold = 0.15f
 
     val transformState = remember {
         TransformableState { zoomChange, _, _ ->

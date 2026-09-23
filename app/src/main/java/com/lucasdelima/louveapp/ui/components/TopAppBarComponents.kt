@@ -87,8 +87,9 @@ fun ThemeSelectorButton(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp)
             )
+            val themeName = AllThemes.find { it.id == currentTheme || it.name == currentTheme }?.name ?: "Temas"
             Text(
-                text = "Temas",
+                text = themeName,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium
