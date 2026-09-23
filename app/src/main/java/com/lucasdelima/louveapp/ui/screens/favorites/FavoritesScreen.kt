@@ -3,6 +3,8 @@ package com.lucasdelima.louveapp.ui.screens.favorites
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -73,11 +75,15 @@ fun FavoritesScreen(
                     isLoading = favoritesState.isLoading,
                     error = favoritesState.error,
                     hymns = favoritesState.favoriteHymns,
-                    onHymnClick = onHymnClick
+                    onHymnClick = onHymnClick,
+                    onToggleFavorite = viewModel::toggleFavorite
                 )
                 1 -> HymnListsTabContent(
                     listsState = listsState,
-                    onListClick = onListClick
+                    onListClick = onListClick,
+                    onRenameList = hymnListsViewModel::renameList,
+                    onDeleteList = hymnListsViewModel::deleteList,
+                    onCreateList = hymnListsViewModel::createList
                 )
             }
         }
@@ -89,7 +95,8 @@ private fun FavoritesTabContent(
     isLoading: Boolean,
     error: String?,
     hymns: List<HymnUi>,
-    onHymnClick: (Int) -> Unit
+    onHymnClick: (Int) -> Unit,
+    onToggleFavorite: (Int) -> Unit
 ) {
     when {
         isLoading -> Box(
@@ -115,7 +122,19 @@ private fun FavoritesTabContent(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(hymns, key = { it.id }) { hymn ->
-                HymnCardItem(hymn = hymn, onClick = { onHymnClick(hymn.id) })
+                HymnCardItem(
+                    hymn = hymn,
+                    onClick = { onHymnClick(hymn.id) },
+                    trailingContent = {
+                        IconButton(onClick = { onToggleFavorite(hymn.id) }) {
+                            Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = "Remover dos favoritos",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                )
             }
         }
     }

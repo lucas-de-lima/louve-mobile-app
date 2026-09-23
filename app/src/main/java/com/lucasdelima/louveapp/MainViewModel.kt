@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,7 +23,13 @@ class MainViewModel @Inject constructor(
     val currentTheme: StateFlow<String> = settingsRepository.theme
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(1000), // ✅ OTIMIZAÇÃO: Reduzido de 5000 para 1000ms
+            started = SharingStarted.WhileSubscribed(1000),
             initialValue = ThemeDefaults.THEME_ID
         )
+
+    fun selectTheme(themeName: String) {
+        viewModelScope.launch {
+            settingsRepository.saveTheme(themeName)
+        }
+    }
 }

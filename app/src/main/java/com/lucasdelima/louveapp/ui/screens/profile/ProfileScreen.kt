@@ -85,7 +85,8 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     val userProfile by authViewModel.userProfile.collectAsState()
-    
+    val profileStats by viewModel.stats.collectAsState()
+
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     
@@ -147,8 +148,9 @@ fun ProfileScreen(
                     // Usuário logado
                     UserProfileContent(
                         userProfile = userProfile!!,
+                        stats = profileStats,
                         onLogout = { showLogoutDialog = true },
-                        onDeleteAccount = { showDeleteAccountDialog = true }
+                        onDeactivateAccount = { showDeleteAccountDialog = true }
                     )
                 } else {
                     // Usuário não logado
@@ -191,11 +193,12 @@ fun ProfileScreen(
     
     // Diálogo de exclusão de conta
     if (showDeleteAccountDialog) {
-        DeleteAccountDialog(
+        DeactivateAccountDialog(
             onDismiss = { showDeleteAccountDialog = false },
             onConfirm = {
-                // TODO: Implementar exclusão de conta
+                authViewModel.deactivateAccount()
                 showDeleteAccountDialog = false
+                onBack()
             }
         )
     }
@@ -204,8 +207,9 @@ fun ProfileScreen(
 @Composable
 private fun UserProfileContent(
     userProfile: UserProfile,
+    stats: ProfileStatsUiState,
     onLogout: () -> Unit,
-    onDeleteAccount: () -> Unit
+    onDeactivateAccount: () -> Unit
 ) {
     // Foto de perfil
     AsyncImage(
@@ -262,16 +266,16 @@ private fun UserProfileContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatItem(
+StatItem(
                     icon = Icons.Default.Favorite,
                     label = "Favoritos",
-                    value = "0" // TODO: Implementar contagem real
+                    value = stats.favoritesCount.toString()
                 )
-                
+
                 StatItem(
                     icon = Icons.Default.Star,
-                    label = "Streak",
-                    value = "0" // TODO: Implementar contagem real
+                    label = "Listas",
+                    value = stats.hymnListsCount.toString()
                 )
             }
         }
@@ -313,9 +317,9 @@ private fun UserProfileContent(
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            // Botão Excluir Conta
+            // Botão Desativar Conta
             OutlinedButton(
-                onClick = onDeleteAccount,
+                onClick = onDeactivateAccount,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = MaterialTheme.colorScheme.error
@@ -323,10 +327,10 @@ private fun UserProfileContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Excluir"
+                    contentDescription = "Desativar"
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Excluir Conta", color = MaterialTheme.colorScheme.onSurface)
+                Text("Desativar Conta", color = MaterialTheme.colorScheme.onSurface)
             }
         }
     }
@@ -433,38 +437,38 @@ private fun StatItem(
 }
 
 @Composable
-private fun DeleteAccountDialog(
+private fun DeactivateAccountDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
     var confirmationText by remember { mutableStateOf("") }
-    val isConfirmEnabled = confirmationText == "excluir"
-    
+    val isConfirmEnabled = confirmationText == "desativar"
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Excluir Conta", color = MaterialTheme.colorScheme.onSurface) },
+        title = { Text("Desativar Conta", color = MaterialTheme.colorScheme.onSurface) },
         text = {
             Column {
                 Text(
-                    text = "Esta ação é irreversível e todos os seus dados (favoritos, configurações) serão permanentemente apagados.",
+                    text = "Sua conta será desativada. O login não será mais possível. Dados como listas de hinos podem ser mantidos anonimamente.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text(
-                    text = "Para confirmar, digite 'excluir' no campo abaixo:",
+                    text = "Para confirmar, digite 'desativar' no campo abaixo:",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = confirmationText,
                     onValueChange = { confirmationText = it },
-                    label = { Text("Digite 'excluir'", color = MaterialTheme.colorScheme.onSurface) },
+                    label = { Text("Digite 'desativar'") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -475,12 +479,12 @@ private fun DeleteAccountDialog(
                 onClick = onConfirm,
                 enabled = isConfirmEnabled
             ) {
-                Text("Excluir Conta", color = MaterialTheme.colorScheme.onSurface)
+                Text("Desativar Conta")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar", color = MaterialTheme.colorScheme.onSurface)
+                Text("Cancelar")
             }
         }
     )

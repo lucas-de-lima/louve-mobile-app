@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -35,15 +37,23 @@ fun SearchField(
                 tint = MaterialTheme.colorScheme.onSurface
             )
         },
-        shape = RoundedCornerShape(percent = 50), // Deixa as bordas totalmente arredondadas (formato de pílula)
+        trailingIcon = {
+            if (query.isNotBlank()) {
+                IconButton(onClick = { onQueryChanged("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Limpar busca",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        },
+        shape = RoundedCornerShape(percent = 50),
         singleLine = true,
         colors = TextFieldDefaults.colors(
-            // Define a cor do container baseada no tema ativo
             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-
-            // Mantém a remoção das linhas indicadoras
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent

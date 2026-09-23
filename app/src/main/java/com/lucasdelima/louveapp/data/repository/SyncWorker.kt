@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import com.lucasdelima.louveapp.domain.model.Result as DomainResult
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import com.lucasdelima.louveapp.domain.repository.FavoritesRepository
@@ -23,9 +24,13 @@ class SyncWorker(
 
     companion object {
         private const val TAG = "SyncWorker"
+        private const val KEY_RETRY_COUNT = "retry_count"
+        private const val MAX_RETRIES = 5
     }
 
     override suspend fun doWork(): ListenableWorker.Result {
+        val attemptCount = runAttemptCount
+
         return try {
             val user = authRepository.getCurrentUser().first()
             if (user == null) {
@@ -33,12 +38,16 @@ class SyncWorker(
                 return ListenableWorker.Result.success()
             }
 
-            Log.d(TAG, "Usuário logado. Iniciando sincronização bidirecional...")
+            Log.d(TAG, "Usuário logado. Iniciando sincronização bidirecional (tentativa $attemptCount)...")
 
             when (val result = bidirectionalSyncService.syncRemoteToLocal()) {
                 is DomainResult.Success -> Log.d(TAG, "Sincronização bidirecional concluída")
                 is DomainResult.Error -> {
-                    Log.w(TAG, "Falha na sincronização: ${result.message}")
+                    if (attemptCount >= MAX_RETRIES) {
+                        Log.e(TAG, "Sincronização falhou após $MAX_RETRIES tentativas: ${result.message}")
+                        return ListenableWorker.Result.success()
+                    }
+                    Log.w(TAG, "Falha na sincronização (tentativa $attemptCount): ${result.message}")
                     return ListenableWorker.Result.retry()
                 }
             }
@@ -55,6 +64,10 @@ class SyncWorker(
             ListenableWorker.Result.success()
         } catch (e: Exception) {
             Log.e(TAG, "Erro na sincronização", e)
+            if (attemptCount >= MAX_RETRIES) {
+                Log.e(TAG, "Erro persistente: sincronização falhou após $MAX_RETRIES tentativas")
+                return ListenableWorker.Result.success()
+            }
             ListenableWorker.Result.retry()
         }
     }

@@ -22,7 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,14 +59,15 @@ fun HomeScreen(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
-    // 2. Use um LaunchedEffect para "observar" a query de busca
+    // 2. Rastreia query anterior para detectar limpeza manual
+    var previousQuery by remember { mutableStateOf(uiState.searchQuery) }
     LaunchedEffect(uiState.searchQuery) {
-        // Se a busca for limpa, role para o topo da lista
-        if (uiState.searchQuery.isBlank()) {
+        if (previousQuery.isNotBlank() && uiState.searchQuery.isBlank()) {
             scope.launch {
                 listState.animateScrollToItem(0)
             }
         }
+        previousQuery = uiState.searchQuery
     }
 
     // Cada tela agora tem seu próprio Scaffold
@@ -119,9 +123,7 @@ fun HomeScreen(
                     state = listState
                 ) {
                     items(uiState.hymns, key = { it.id }) { hymn ->
-                        HymnCardItem(hymn = hymn) {
-                            onHymnSelected(hymn.id)
-                        }
+                        HymnCardItem(hymn = hymn, onClick = { onHymnSelected(hymn.id) })
                     }
                 }
             }

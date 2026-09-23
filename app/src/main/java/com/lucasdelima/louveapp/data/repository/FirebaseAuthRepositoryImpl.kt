@@ -159,4 +159,16 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
             Log.e(TAG, "Falha no signOut: ", e)
         }
     }
+
+    override suspend fun deactivateAccount(): Result<Unit> {
+        return try {
+            auth.currentUser?.delete()
+            auth.signOut()
+            _authState.value = AuthUiState.Idle
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Falha ao desativar conta: ", e)
+            Result.Error("Falha ao desativar conta", e)
+        }
+    }
 }
