@@ -77,7 +77,10 @@ fun FavoritesScreen(
                 )
                 1 -> HymnListsTabContent(
                     listsState = listsState,
-                    onListClick = onListClick
+                    onListClick = onListClick,
+                    onRenameList = hymnListsViewModel::renameList,
+                    onDeleteList = hymnListsViewModel::deleteList,
+                    onCreateList = hymnListsViewModel::createList
                 )
             }
         }
