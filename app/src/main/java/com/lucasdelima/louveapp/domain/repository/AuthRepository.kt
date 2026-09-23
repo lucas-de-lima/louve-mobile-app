@@ -50,4 +50,9 @@ interface AuthRepository {
      * Realiza o logout do usuário atual.
      */
     suspend fun signOut()
+
+    /**
+     * Desativa a conta do usuário: deleta Firebase Auth e anonimiza dados no Firestore.
+     */
+    suspend fun deactivateAccount(): Result<Unit>
 }

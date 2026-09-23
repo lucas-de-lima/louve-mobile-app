@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lucasdelima.louveapp.domain.model.HymnList
+import com.lucasdelima.louveapp.domain.model.ErrorType
 import com.lucasdelima.louveapp.domain.model.Result
 import com.lucasdelima.louveapp.domain.repository.HymnListRepository
 import com.lucasdelima.louveapp.domain.repository.UserRepository
@@ -228,14 +229,26 @@ class DataStoreHymnListRepository @Inject constructor(
         val list = getAllLists().first().firstOrNull { it.id == listId } ?: return
         when (val result = userRepository.upsertHymnList(list)) {
             is Result.Success -> Log.d(TAG, "remote sync success id=$listId hymns=${list.hymnIds.size}")
-            is Result.Error -> Log.e(TAG, "remote sync failed id=$listId message=${result.message}", result.cause)
+            is Result.Error -> {
+                if (result.type == ErrorType.ACTIONABLE) {
+                    Log.w(TAG, "actionable sync failure id=$listId: ${result.message}")
+                } else {
+                    Log.e(TAG, "remote sync failed id=$listId message=${result.message}", result.cause)
+                }
+            }
         }
     }
 
     private suspend fun syncRemotely(list: HymnList) {
         when (val result = userRepository.upsertHymnList(list)) {
             is Result.Success -> Log.d(TAG, "remote sync success id=${list.id} hymns=${list.hymnIds.size}")
-            is Result.Error -> Log.e(TAG, "remote sync failed id=${list.id} message=${result.message}", result.cause)
+            is Result.Error -> {
+                if (result.type == ErrorType.ACTIONABLE) {
+                    Log.w(TAG, "actionable sync failure id=${list.id}: ${result.message}")
+                } else {
+                    Log.e(TAG, "remote sync failed id=${list.id} message=${result.message}", result.cause)
+                }
+            }
         }
     }
 

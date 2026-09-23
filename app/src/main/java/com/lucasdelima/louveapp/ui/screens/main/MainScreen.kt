@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.lucasdelima.louveapp.MainViewModel
 import com.lucasdelima.louveapp.ui.navigation.BottomNavItem
 import com.lucasdelima.louveapp.ui.screens.discover.DiscoverScreen
 import com.lucasdelima.louveapp.ui.screens.favorites.FavoritesScreen
@@ -28,12 +29,15 @@ import com.lucasdelima.louveapp.ui.screens.main.MainSharedViewModel
 fun MainScreen(rootNavController: NavHostController) {
     val bottomNavController = rememberNavController()
     
-    // ✅ OTIMIZAÇÃO: Apenas um ViewModel compartilhado para dados comuns
+    // ViewModel compartilhado para dados comuns entre tabs
     val sharedViewModel: MainSharedViewModel = hiltViewModel()
     
-    // ✅ OTIMIZAÇÃO: Observar apenas dados compartilhados
+    // Tema gerenciado pelo MainViewModel (escopo Activity)
+    val mainViewModel: MainViewModel = hiltViewModel()
+    
+    // Observar dados compartilhados
     val userProfile by sharedViewModel.userProfile.collectAsState()
-    val currentTheme by sharedViewModel.currentTheme.collectAsState()
+    val currentTheme by mainViewModel.currentTheme.collectAsState()
 
     // O NavHost agora é o componente principal. Sem Scaffold ao redor dele.
     // Usando as animações padrão nativas do Android - suaves e familiares
@@ -53,7 +57,7 @@ fun MainScreen(rootNavController: NavHostController) {
                     rootNavController.navigate("profile")
                 },
                 onThemeSelected = { themeName ->
-                    sharedViewModel.selectTheme(themeName) // ✅ OTIMIZAÇÃO: Usar método do ViewModel compartilhado
+                    mainViewModel.selectTheme(themeName)
                 },
                 currentTheme = currentTheme, // ✅ OTIMIZAÇÃO: Usar tema direto do ViewModel compartilhado
                 userProfile = userProfile
