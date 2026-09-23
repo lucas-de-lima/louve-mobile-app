@@ -10,6 +10,7 @@ import com.lucasdelima.louveapp.ui.screens.home.HymnUi
 import com.lucasdelima.louveapp.ui.screens.home.toHymnUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class FavoritesUiState(
@@ -47,5 +48,16 @@ class FavoritesViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = FavoritesUiState()
         )
+    }
+
+    fun toggleFavorite(hymnId: Int) {
+        viewModelScope.launch {
+            val currentIds = (favoritesRepository.getFavoriteHymnIds().first() as? Result.Success)?.data ?: return@launch
+            if (hymnId.toString() in currentIds) {
+                favoritesRepository.removeFavorite(hymnId.toString())
+            } else {
+                favoritesRepository.addFavorite(hymnId.toString())
+            }
+        }
     }
 }

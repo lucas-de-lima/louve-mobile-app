@@ -8,8 +8,10 @@ import com.lucasdelima.louveapp.domain.model.UserProfile
 import com.lucasdelima.louveapp.domain.repository.AuthCredentials
 import com.lucasdelima.louveapp.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
@@ -94,23 +96,28 @@ class AuthViewModel @Inject constructor(
     fun retrySignIn(credentials: AuthCredentials, maxRetries: Int = 3) {
         viewModelScope.launch {
             var retryCount = 0
-            var delay = 1000L // 1 segundo inicial
+            var delay = 1000L
             
             while (retryCount < maxRetries) {
                 when (val result = authRepository.signIn(credentials)) {
                     is Result.Success<*> -> {
-                        // Sucesso - sair do loop
                         break
                     }
                     is Result.Error -> {
                         retryCount++
                         if (retryCount < maxRetries) {
                             delay(delay)
-                            delay *= 2 // Backoff exponencial
+                            delay *= 2
                         }
                     }
                 }
             }
+        }
+    }
+
+    fun deactivateAccount() {
+        viewModelScope.launch {
+            authRepository.deactivateAccount()
         }
     }
 }

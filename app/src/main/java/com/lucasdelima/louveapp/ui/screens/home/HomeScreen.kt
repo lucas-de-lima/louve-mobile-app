@@ -123,9 +123,7 @@ fun HomeScreen(
                     state = listState
                 ) {
                     items(uiState.hymns, key = { it.id }) { hymn ->
-                        HymnCardItem(hymn = hymn) {
-                            onHymnSelected(hymn.id)
-                        }
+                        HymnCardItem(hymn = hymn, onClick = { onHymnSelected(hymn.id) })
                     }
                 }
             }

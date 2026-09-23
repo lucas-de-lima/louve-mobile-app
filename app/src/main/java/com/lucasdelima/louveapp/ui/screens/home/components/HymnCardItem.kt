@@ -26,6 +26,7 @@ fun HymnCardItem(
     hymn: HymnUi,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    trailingContent: @Composable (() -> Unit)? = null
 ) {
     Card(
         onClick = onClick,
@@ -39,7 +40,7 @@ fun HymnCardItem(
         )
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = if (trailingContent != null) 4.dp else 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Círculo com o número do hino
@@ -63,8 +64,14 @@ fun HymnCardItem(
             // Título
             Text(
                 text = hymn.title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
             )
+
+            if (trailingContent != null) {
+                Spacer(modifier = Modifier.width(8.dp))
+                trailingContent()
+            }
         }
     }
 }
